@@ -15,17 +15,16 @@ define.class(function(view, text, button, icon){
 	});
 	
 
-	this.attribute("linewidth", {type: float, value: 5});
-	this.attribute("linecolor1", {type: vec4, value: vec4(1,1,0,1)});
-	this.attribute("linecolor2", {type: vec4, value: vec4(1,1,0,1)});
-	
-	this.attribute("p0", {type: vec2, value: vec2(100,0)});
-	this.attribute("p1", {type: vec2, value: vec2(100,0)});
-	this.attribute("p2", {type: vec2, value: vec2(0,100)});
-	this.attribute("p3", {type: vec2, value: vec2(100,100)});
-	this.attribute("off", {type: vec4, value: vec2(0,0,0,0)});
-	
-	
+	this.attributes = {
+		linewidth: {type: float, value: 5},
+		linecolor1: {type: vec4, value: vec4(1,1,0,1)},
+		linecolor2: {type: vec4, value: vec4(1,1,0,1)},
+		p0: {type: vec2, value: vec2(100,0)},
+		p1: {type: vec2, value: vec2(100,0)},
+		p2: {type: vec2, value: vec2(0,100)},
+		p3: {type: vec2, value: vec2(100,100)},
+		off: {type: vec4, value: vec2(0,0,0,0)}
+	}	
 	
 	this.vertexstruct = define.struct({
 		pos: float,
@@ -35,8 +34,6 @@ define.class(function(view, text, button, icon){
 
 	this.bg = {
 
-
-	
 		draw_type: 'TRIANGLE_STRIP',	
 		linewidth: 10.0,
 		off: vec4(0),

@@ -1,29 +1,30 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE.md
 // ruler class
 
-define.class(function(view, text, icon){
+define.class(function(view, label, icon){
 
 	// the foldcontainer shows/hides all its children when the top bar is clicked
 	
-	this.title = "folding thing";
-	this.position ="relative";
-	this.borderwidth = 1;
-	this.margin = 2;
+	this.title = "folding thing"
+	this.position ="relative"
+	this.borderwidth = 1
+	this.margin = 2
 	
-	this.bordercolor = vec4("#c0c0c0");
+	this.bordercolor = vec4("#c0c0c0")
 	
-	this.alignitems = "stretch";
-	this.flexdirection = "column";
+	this.alignitems = "stretch"
+	this.flexdirection = "column"
 	
-	// The current state of the foldcontainer. False = open, True = closed.
-	this.attribute("collapsed", {type: Boolean, value: false});
-	this.state("collapsed");
-	
-	// The icon to use in the top left of the foldcontainer. See the FontAwesome cheatsheet for acceptable icon names.
-	this.attribute("icon", {type: String, value: 'times'});	
-	
-	// The main color from which the foldcontainer will build some gradients.
-	this.attribute("basecolor", {type: vec4, value: vec4("#8080c0")});
+	this.attributes = {
+		// The current state of the foldcontainer. False = open, True = closed.
+		collapsed: {type: Boolean, value: false},
+		// The icon to use in the top left of the foldcontainer. See the FontAwesome cheatsheet for acceptable icon names.
+		icon: {type: String, value: 'times'},
+		// The main color from which the foldcontainer will build some gradients.
+		basecolor: {type: vec4, value: vec4("#8080c0")}
+	}
+
+	this.persists = ["collapsed"]
 	
 	// Function to change the open/closed state. Used by the click handler of the clickablebar.
 	this.toggle = function(){
@@ -35,7 +36,7 @@ define.class(function(view, text, icon){
 		
 		return [
 			foldcontainer({icon:"flask", title:"folding thing", basecolor: "#90c0f0" } ,					
-				text({text:"I can be folded away!", fgcolor:"black", bgcolor:"transparent", margin:vec4(10) })
+				label({text:"I can be folded away!", fgcolor:"black", bgcolor:"transparent", margin:vec4(10) })
 			)
 		]
 	})
@@ -51,7 +52,10 @@ define.class(function(view, text, icon){
 		// default click-handler - when not bound this write "nothing happens" to the console. 
 		this.toggle = function(){console.log("nothing happens")}
 
-		this.attribute("title", {type:String})
+		this.attributes = {
+			title: {type:String}
+		}
+
 		this.position = "relative"
 
 		this.bg = {
@@ -63,7 +67,7 @@ define.class(function(view, text, icon){
 		this.padding = 6
 		// The clickable bar creates icon and a textfield children.
 		this.render = function(){			
-			return [icon({fontsize:16, icon:this.icon, fgcolor: "#303030" }), text({marginleft:5,fgcolor:"#303030", fontsize: 16, text:this.title, flex:1, bgcolor: "transparent" })];
+			return [icon({fontsize:16, icon:this.icon, fgcolor: "#303030" }), label({marginleft:5,fgcolor:"#303030", fontsize: 16, text:this.title, flex:1, bgcolor: "transparent" })];
 		}
 		
 		this.pressed = 0

@@ -8,9 +8,11 @@ define.class(function(require, shape3d){
 	var GLGeom= require('$gl/glgeom')
 	var GLMat = require('$gl/glmaterial')
 	
-	this.attribute("radius", {type:float, value:1});
-	this.attribute("xdiv", {type:int, value:40});
-	this.attribute("ydiv", {type:int, value:40});
+	this.attributes = {
+		radius: {type:float, value:1},
+		xdiv: {type:int, value:40}},
+		ydiv: {type:int, value:40}}
+	}
 
 	this.init = function(){
 		this.bg_shader.addSphere(this.radius, this.xdiv, this.ydiv);

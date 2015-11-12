@@ -8,9 +8,11 @@ define.class(function(require, shape3d, text, view, icon){
 	var GLGeom= require('$gl/glgeom')
 	var GLMat = require('$gl/glmaterial')
 	
-	this.attribute("dimension", {type:vec2, value:vec3(1)});
-	this.attribute("xdiv", {type:int, value:10});
-	this.attribute("ydiv", {type:int, value:10});
+	this.attributes = {
+		dimension: {type:vec2, value:vec3(1)},
+		xdiv:{type:int, value:10},
+		ydiv:{type:int, value:10}
+	}
 
 	this.init = function(){
 		this.bg_shader.addPlane(this.dimension[0], this.dimension[1], this.xdiv, this.ydiv);

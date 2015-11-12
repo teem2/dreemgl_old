@@ -1,16 +1,17 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE.md
 
-define.class(function(view, text){
+define.class(function(view, label){
 	// splitcontainer adds dragbars between nodes to make all the nodes resizable. 
 	
 	// should the splitter bars be introduced horizontally or vertically? 
-	this.attribute("vertical", {type: Boolean, value: true});
-	
-	this.attribute("splitsize", {type: float, value: 8});
-	this.attribute("minimalchildsize", {type: float, value: 20});
-	this.attribute("splittercolor", {type: vec4, value: vec4("#404050")});
-	this.attribute("hovercolor", {type: vec4, value: vec4("#5050a0")});
-	this.attribute("activecolor", {type: vec4, value: vec4("#7070a0")});
+	this.attributes = {
+		vertical: {type: Boolean, value: true},
+		splitsize: {type: float, value: 8},
+		minimalchildsize: {type: float, value: 20},
+		splittercolor: {type: vec4, value: vec4("#404050")},
+		hovercolor: {type: vec4, value: vec4("#5050a0")},
+		activecolor: {type: vec4, value: vec4("#7070a0")}
+	}
 
 	this.flex = 1.0;
 	this.flexdirection = this.vertical?"column":"row" ;
@@ -27,37 +28,42 @@ define.class(function(view, text){
 	// Basic usage of the splitcontainer
 	define.example(this, function Usage(){ return [
 								splitcontainer({vertical: false, margin: 4, flex: 1.0, borderwidth:2, bordercolor: "darkblue", padding: vec4(2) },
-								text({flex: 0.2, fontsize: 26, text:"A", bgcolor: "transparent" ,multiline: true, align:"center" , fgcolor:"black", margin: 2})
-								,text({flex: 0.2, fontsize: 26, text:"B", bgcolor: "transparent" ,multiline: true, align:"center" ,fgcolor:"black", margin: 2})
-								,text({flex: 0.2, fontsize: 26, text:"C", bgcolor: "transparent" ,multiline: true, align:"center" , fgcolor:"black",margin: 2})
-								,text({flex: 0.2, fontsize: 26, text:"D", bgcolor: "transparent" ,multiline: true, align:"center" , fgcolor:"black",margin: 2})
+								label({flex: 0.2, fontsize: 26, text:"A", bgcolor: "transparent" ,multiline: true, align:"center" , fgcolor:"black", margin: 2})
+								,label({flex: 0.2, fontsize: 26, text:"B", bgcolor: "transparent" ,multiline: true, align:"center" ,fgcolor:"black", margin: 2})
+								,label({flex: 0.2, fontsize: 26, text:"C", bgcolor: "transparent" ,multiline: true, align:"center" , fgcolor:"black",margin: 2})
+								,label({flex: 0.2, fontsize: 26, text:"D", bgcolor: "transparent" ,multiline: true, align:"center" , fgcolor:"black",margin: 2})
 		)]});
 
 	
 	// the visual class that defines the draggable bar between the resizable children
 	define.class(this, 'splitter', function(view){
 		
-		this.attribute("firstnode", {type: int, value: 0});
+		this.attributes = {
+			firstnode: {type: int, value: 0}
+		}
 	
 		this.bgcolor = vec4("gray");
 		this.alignitem = "stretch";
-		this.attribute("vertical", {type: Boolean, value: false});
-		this.attribute("splitsize", {type: float, value: 10});
-		this.attribute("splittercolor", {type: vec4, value: vec4("#404050")});
-		this.attribute("hovercolor", {type: vec4, value: vec4("#5050a0")});
-		this.attribute("activecolor", {type: vec4, value: vec4("#7070a0")});
+		this.attributes = {
+			vertical: {type: Boolean, value: false},
+			splitsize: {type: float, value: 10},
+			splittercolor: {type: vec4, value: vec4("#404050")},
+			hovercolor: {type: vec4, value: vec4("#5050a0")},
+			activecolor: {type: vec4, value: vec4("#7070a0")}
+		}
+
 		this.bg = {color1: vec4("red"), bgcolorfn: function(A,B){return color1;}};
 		this.pressed = 0;
 		this.hovered = 0;
 
 		this.mouseover  = function(){
 			if (this.hovered < 1) this.hovered++;
-			this.setDirty(true);
+			//this.setDirty(true);
 		}
 
 		this.mouseout  = function(){
 			if (this.hovered>0)	this.hovered--;
-			this.setDirty(true);
+			//this.setDirty(true);
 		}
 
 		this.mouseleftdown = function(pos){

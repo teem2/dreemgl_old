@@ -50,7 +50,7 @@ define.class(function (view, text, codeviewer) {
                 margintop:0
             }),
             text({
-                text:'(note: see `./compositions/guide/README.md` for more detail)',
+                text:'(note: see https://github.com/teem2/dreemgl/tree/dev/compositions/guide for more detail)',
                 fgcolor:'#666',
                 fontsize:14,
                 margintop:5,

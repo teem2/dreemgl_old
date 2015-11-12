@@ -1,14 +1,15 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE.md
 
-define.class(function codeviewerbody(require, text){
+define.class(function codeviewerbody(require, label){
 
 	// Display a function as syntax highlighted code.
-	
+	return
 	// The code to display
-	this.attribute("code", {type:String, value:""})
-	
-	this.attribute("wrap", {type:Boolean, value:true})
-	
+	this.attributes = {
+		code: {type:String, value:""},
+		wrap: {type:Boolean, value:true}
+	}
+
 	var codeviewer = this.constructor
 	
 	// Basic usage
@@ -16,9 +17,9 @@ define.class(function codeviewerbody(require, text){
 		return [codeviewer({bgcolor:"#000040", padding:vec4(14), code: "console.log(\"Hello world!\");"})]
 	})
 	
-	var GLTextCode = require('$gl/gltextcode')	
+	//var GLTextCode = require('$gl/gltextcode')	
 
-	var Parser = require('$parsers/onejsparser')
+	var Parser = require('$parse/onejsparser')
 //	this.font = require('$fonts/code_font1_ascii.glf')
 	//this.bg = {color:undefined}
 	this.fontsize = 14

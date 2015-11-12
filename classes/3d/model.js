@@ -8,8 +8,7 @@ define.class(function(require, shape3d, text, view, icon){
 	var GLGeom= require('$gl/glgeom')
 	var GLMat = require('$gl/glmaterial')
 
-	this.attribute("model",{type:undefined});
-	
+	this.attributes = {model:{type:undefined}}
 	
 	this.model = function(data){
 		if(this.bg_shader)

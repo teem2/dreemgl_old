@@ -1,6 +1,6 @@
 define(function(require, exports){
 
-	var vectorParser = require('$parsers/vectorparser')
+	var vectorParser = require('$parse/vectorparser')
 //	exports.$$ = console.log.bind(console)
 	// constants
 	exports.RAD = 1
@@ -2125,4 +2125,18 @@ define(function(require, exports){
 	defineArrayProp(Float32Array.prototype, {r:0, g:1, b:2, a:3}, [exports.vec2, exports.vec3, exports.vec4])
 	defineArrayProp(Int32Array.prototype, {x:0, y:1, z:2, w:3}, [exports.ivec2, exports.ivec3, exports.ivec4])
 	defineArrayProp(Int32Array.prototype, {r:0, g:1, b:2, a:3}, [exports.ivec2, exports.ivec3, exports.ivec4])
+
+	exports.Enum = function(){
+		var types = Array.prototype.slice.call(arguments)
+		for(var i = 0; i < types.length; i++) types[i] = types[i].toUpperCase()
+		return function Enum(value){
+			if(typeof value !== 'string')
+				throw new Error('Enum not string' + value, types.join('|'))
+			value = value.toUpperCase()
+			if(types.indexOf(value) === -1)
+				throw new Error('Invalid enum value' + value + "" + types.join('|'))
+
+			return value
+		}
+	}
 })

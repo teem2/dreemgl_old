@@ -4,18 +4,20 @@
 define.class(function(view, text){
 	// the ruler shows a sideline every N ticks.
 	
-	// vertical or horizontal ruler.
-	this.attribute("vertical", {type:Boolean, value:false});
-	
-	// first "range" label
-	this.attribute("from", {type:Number, value: 100});
-	
-	// second "range" label
-	this.attribute("to", {type:Number, value: 200});
-	
-	// where to start counting - the first "offset" pixels will be ignored.
-	this.attribute("offset", {type:Number, value: 20});
-	
+	this.attributes = {
+		// vertical or horizontal ruler.
+		vertical: {type:Boolean, value:false},
+		
+		// first "range" label
+		from: {type:Number, value: 100},
+		
+		// second "range" label
+		to: {type:Number, value: 200},
+		
+		// where to start counting - the first "offset" pixels will be ignored.
+		offset: {type:Number, value: 20}
+	}
+
 	var ruler = this.constructor;
 	
 	// Basic usage
@@ -24,7 +26,6 @@ define.class(function(view, text){
 			ruler({from: 10, to: 150, height: 40})
 		];
 	})
-	
 	
 	// horizontal ruler shader
 	this.hruler = function(){

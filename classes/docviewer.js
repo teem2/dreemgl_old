@@ -1,34 +1,37 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE.md
 
-define.class(function(view, require, text,foldcontainer,icon, markdown, codeviewer, button){
+define.class(function(view, require, label,foldcontainer,icon, markdown, codeviewer, button){
 	
 	this.bgcolor = vec4("transparent" );	
 	
-	// the class for which to create the documentation. If a string is assigned, the model will be interpreted as a markdown text document.
-	this.attribute("model",{})
+	this.attributes = {
+		// the class for which to create the documentation. If a string is assigned, the model will be interpreted as a markdown text document.
+		model:{}
+	}
 
 	this.flex = 1.0
-	this.padding=20;
-	var Parser = require("$parsers/onejsparser");
+	this.padding = 20
+	var Parser = require("$parse/onejsparser");
 	
 	// this.flex = 0.5;	
 	// A single documentation block with name and bodytext.
 	
-	define.class(this, 'ClassDocItem', function(view, text){
+	define.class(this, 'ClassDocItem', function(view, label){
 		
 		// the item to display. 
 		// An "attribute" item can have name, body_text, defvalue and type properties.
 		// A "function" item can have name, params and body_text properties.
-		this.attribute("item", {type: Object});
-		
+		this.attributes = {
+			item: {type: Object},
+			// the type of this display block. Accepted values: "function", "attribute"
+			blocktype: {type:String, value:"function"}
+		}
+
 		this.bgcolor = vec4("#ffffff");
 		this.margin = 4;
 		this.padding = 4;
 		this.flexdirection = "column" ;
 		this.flexwrap = "none"
-
-		// the type of this display block. Accepted values: "function", "attribute"
-		this.attribute("blocktype", {type:String, value:"function"});
 
 		this.render = function(){	
 			var res = [];
@@ -37,13 +40,13 @@ define.class(function(view, require, text,foldcontainer,icon, markdown, codeview
 				if (this.item.params && this.item.params.length > 0) { 
 					functionsig = "(" + this.item.params.map(function(a){return a.name}).join(", ") + ")";
 				}
-				res.push(text({margin:vec4(2),text: this.item.name + functionsig , fontsize: 20, fgcolor: "black"}));
+				res.push(label({margin:vec4(2),text: this.item.name + functionsig , fontsize: 20, fgcolor: "black"}));
 			}
 			else{
 				var sub = [];
 				
 				if (this.item.type){
-					sub.push(text({margin:vec4(2),text: "type: "+ this.item.type, fontsize: 15, fgcolor: "#404040"}));
+					sub.push(label({margin:vec4(2),text: "type: "+ this.item.type, fontsize: 15, fgcolor: "#404040"}));
 				}
 				
 				if (this.item.defvalue !== undefined){	
@@ -63,42 +66,42 @@ define.class(function(view, require, text,foldcontainer,icon, markdown, codeview
 						sub.push(
 							view({},
 								[
-									text({margin:vec4(2),text: "default:", fontsize: 15, fgcolor: "#404040"}),
+									label({margin:vec4(2),text: "default:", fontsize: 15, fgcolor: "#404040"}),
 									view({bordercolor: "#808080", borderwidth: 1, cornerradius:4, bgcolor: this.item.defvalue, padding: vec4(8,3,8,3)},
-										text({fgcolor: color , fontsize: 15, bgcolor:"transparent" , text:labeltext})
+										label({fgcolor: color , fontsize: 15, bgcolor:"transparent" , text:labeltext})
 									)
 								]
 							));
 					}
 					else{
 						if (this.item.type === "String"){
-							sub.push(text({margin:vec4(2),text: "default: \""+ this.item.defvalue.toString() + "\"" , fontsize: 15, fgcolor: "#404040"}))
+							sub.push(label({margin:vec4(2),text: "default: \""+ this.item.defvalue.toString() + "\"" , fontsize: 15, fgcolor: "#404040"}))
 						}else{
-							sub.push(text({margin:vec4(2),text: "default: "+ this.item.defvalue.toString(), fontsize: 15, fgcolor: "#404040"}))
+							sub.push(label({margin:vec4(2),text: "default: "+ this.item.defvalue.toString(), fontsize: 15, fgcolor: "#404040"}))
 						}
 					}
 				}
 				
-				var title = text({margin:vec4(2),text: this.item.name, fontsize: 20, fgcolor: "black"})
+				var title = label({margin:vec4(2),text: this.item.name, fontsize: 20, fgcolor: "black"})
 				
 				res.push(view({flex: 1},[title,view({flex: 1, flexdirection:"column", alignitems:"flex-end" },sub)]));
 			}
 			
 			if (this.item.body_text){
 				for(var t in this.item.body_text){
-					res.push(text({text: this.item.body_text[t], fgcolor: "gray", fontsize: 14, margin: vec4(10,0,10,5)}));
+					res.push(label({text: this.item.body_text[t], fgcolor: "gray", fontsize: 14, margin: vec4(10,0,10,5)}));
 				}
 			}
 			
 			if (this.item.params && this.item.params.length > 0){
-				res.push(text({ fgcolor:"#5050dd", margin:vec4(2,0,4,4), text:"parameters:" }));
+				res.push(label({ fgcolor:"#5050dd", margin:vec4(2,0,4,4), text:"parameters:" }));
 				for (var a in this.item.params){	
 					var parm = this.item.params[a];
-					var left = text({ fgcolor:"black", margin:vec4(10,0,4,4), text:parm.name});
+					var left = label({ fgcolor:"black", margin:vec4(10,0,4,4), text:parm.name});
 					var right;
 					
 					if (parm.body_text && parm.body_text.length > 0){
-						right= view({flex: 0.8},parm.body_text.map(function(a){return text({fgcolor:"gray", text:a})}))
+						right= view({flex: 0.8},parm.body_text.map(function(a){return label({fgcolor:"gray", text:a})}))
 					} else {
 						right = view({flex: 1.0});
 					}
@@ -112,11 +115,11 @@ define.class(function(view, require, text,foldcontainer,icon, markdown, codeview
 				res.push(				
 					view({flexdirection:"row",  flex:1, padding: vec4(2)}
 							,view({flex: 1, borderwidth: 1, flexdirection:"column", padding: vec4(4), bordercolor: "#e0e0e0"}
-								,text({fgcolor:"black", text:"Code", margin:vec4(10)})
+								,label({fgcolor:"black", text:"Code", margin:vec4(10)})
 								,codeviewer({margin:vec4(10),code:this.item.examplefunc.toString(), padding:vec4(4), fontsize: 14, bgcolor:"#000030", multiline: true})
 							)
 							,view({flex: 1, borderwidth: 1, flexdirection:"column", padding: vec4(4), bordercolor: "#e0e0e0", bgcolor: "gray" } 
-								,text({fgcolor:"white",bgcolor:"transparent",  text:"Live demo", margin:vec4(10)})								
+								,label({fgcolor:"white",bgcolor:"transparent",  text:"Live demo", margin:vec4(10)})								
 								,this.item.examplefunc()
 							)
 					)
@@ -318,79 +321,80 @@ define.class(function(view, require, text,foldcontainer,icon, markdown, codeview
 	})
 	
 	
-	define.class(this, 'ClassDocView', function(view, text){
+	define.class(this, 'ClassDocView', function(view, label){
 	
-	// If collapsible is true, the render function will build a foldcontainer around this class. This is used for recursion levels > 0 of the docviewer class.	
-	this.attribute("collapsible", {type: Boolean, value:false});
-	this.flexdirection = "column"
-	this.flexwrap = "none" ;
-	
-	// the class_doc structure to display. 
-	this.attribute("class_doc", {type: Object});
-	
-	this.BuildGroup = function (inputarray, title, icon, color, blocktype)
-	{
-		if (!blocktype) blocktype = "attribute"
-		var subs = []
-		
-		for (var i = 0;i< inputarray.length;i++){
-			subs.push(this.classroot.ClassDocItem({blocktype:blocktype, item: inputarray[i]}))
-			if (i< inputarray.length -1 ) subs.push(this.classroot.dividerline());
-		}
-		
-		return foldcontainer(
-				{collapsed:true, basecolor:color, icon:icon, title:title , fontsize: 20,margin: vec4(10,0,0,20), fgcolor: "white" }, 
-					view({flexdirection: "column", flex: 1}, subs)
-			);
-	}
-	
-	this.render = function(){
-		var body = [];
-		var res =[];
-		var class_doc = this.class_doc;
-		
-		if (!this.collapsible ){
-			body.push(view({},[icon({fontsize: 38, icon:"cube", fgcolor: "black" }),text({width: 500, text:class_doc.class_name,fontsize: 30,margin: vec4(10,10,0,20), fgcolor: "black" })]));
+		this.attributes = {
+			// If collapsible is true, the render function will build a foldcontainer around this class. This is used for recursion levels > 0 of the docviewer class.	
+			collapsible: {type: Boolean, value:false},
+			// the class_doc structure to display. 
+			class_doc: {type: Object}
 		}
 
-		if (class_doc.base_class_chain.length> 0){
-			body.push(view({}, class_doc.base_class_chain.map(function(r){
-				return [
-					icon({icon:"arrow-right", fgcolor:"gray", fontsize:15, margin:vec4(2)})
-					,button({margin: vec4(2),padding:vec4(3), text:r.name, fontsize:12, onclick: function(){this.screen.locationhash = {path: '$root'  + r.path};}.bind(this)})
-				]
-			}.bind(this))));
-		}
-	
-		if (class_doc.body_text.length > 0) {
-			body.push(markdown({body:class_doc.body_text,fontsize: 14, margin: vec4(10,0,10,10), fgcolor: "#303030" }));
-		}
-
-		res.push(view({flexdirection:"column", margin: vec4(10,0,0,20)}, body));
-	
-		if(class_doc.examples.length >0) res.push(this.BuildGroup(class_doc.examples, "Examples", "flask", "#e0e0e0", "example"));
-		if(class_doc.attributes.length >0) res.push(this.BuildGroup(class_doc.attributes, "Attributes", "gears", "#f0f0c0"));
-		if(class_doc.state_attributes.length >0) res.push(this.BuildGroup(class_doc.state_attributes, "State Attributes", "archive", "#f0c0c0"));
-		if(class_doc.events.length >0) res.push(this.BuildGroup(class_doc.events, "Events", "plug", "#f0c0f0"));
-				
-		if (class_doc.inner_classes.length > 0){
-			var classes = []
-			for (var a in class_doc.inner_classes){
-				classes.push(this.classroot.ClassDocView({collapsible:true, class_doc: class_doc.inner_classes[a]}))				
-			}
-			res.push(foldcontainer({collapsed:true,  basecolor:"#c0f0c0", icon:"cubes", title:"Inner classes" , fontsize: 20,margin: vec4(10,0,0,20), fgcolor: "white" }, view({flexdirection: "column", flex: 1}, classes)));
-		}
-	
-		if(class_doc.methods.length >0) res.push(this.BuildGroup(class_doc.methods, "Methods", "paw", "#c0c0f0", "function"));
+		this.flexdirection = "column"
+		this.flexwrap = "none" 
 		
-		
-		if (this.collapsible){
+		this.BuildGroup = function (inputarray, title, icon, color, blocktype){
+			if (!blocktype) blocktype = "attribute"
+			var subs = []
 			
-			return foldcontainer({basecolor:"#c0f0c0",collapsed:true,icon:"cube", title:class_doc.class_name},view({flexdirection:"column", flex:1},res));
+			for (var i = 0;i< inputarray.length;i++){
+				subs.push(this.classroot.ClassDocItem({blocktype:blocktype, item: inputarray[i]}))
+				if (i< inputarray.length -1 ) subs.push(this.classroot.dividerline());
+			}
+			
+			return foldcontainer(
+					{collapsed:true, basecolor:color, icon:icon, title:title , fontsize: 20,margin: vec4(10,0,0,20), fgcolor: "white" }, 
+						view({flexdirection: "column", flex: 1}, subs)
+				);
 		}
 		
-		return res;	
-	}
+		this.render = function(){
+			var body = [];
+			var res =[];
+			var class_doc = this.class_doc;
+			
+			if (!this.collapsible ){
+				body.push(view({},[icon({fontsize: 38, icon:"cube", fgcolor: "black" }),label({width: 500, text:class_doc.class_name,fontsize: 30,margin: vec4(10,10,0,20), fgcolor: "black" })]));
+			}
+
+			if (class_doc.base_class_chain.length> 0){
+				body.push(view({}, class_doc.base_class_chain.map(function(r){
+					return [
+						icon({icon:"arrow-right", fgcolor:"gray", fontsize:15, margin:vec4(2)})
+						,button({margin: vec4(2),padding:vec4(3), text:r.name, fontsize:12, onclick: function(){this.screen.locationhash = {path: '$root'  + r.path};}.bind(this)})
+					]
+				}.bind(this))));
+			}
+		
+			if (class_doc.body_text.length > 0) {
+				body.push(markdown({body:class_doc.body_text,fontsize: 14, margin: vec4(10,0,10,10), fgcolor: "#303030" }));
+			}
+
+			res.push(view({flexdirection:"column", margin: vec4(10,0,0,20)}, body));
+		
+			if(class_doc.examples.length >0) res.push(this.BuildGroup(class_doc.examples, "Examples", "flask", "#e0e0e0", "example"));
+			if(class_doc.attributes.length >0) res.push(this.BuildGroup(class_doc.attributes, "Attributes", "gears", "#f0f0c0"));
+			if(class_doc.state_attributes.length >0) res.push(this.BuildGroup(class_doc.state_attributes, "State Attributes", "archive", "#f0c0c0"));
+			if(class_doc.events.length >0) res.push(this.BuildGroup(class_doc.events, "Events", "plug", "#f0c0f0"));
+					
+			if (class_doc.inner_classes.length > 0){
+				var classes = []
+				for (var a in class_doc.inner_classes){
+					classes.push(this.classroot.ClassDocView({collapsible:true, class_doc: class_doc.inner_classes[a]}))				
+				}
+				res.push(foldcontainer({collapsed:true,  basecolor:"#c0f0c0", icon:"cubes", title:"Inner classes" , fontsize: 20,margin: vec4(10,0,0,20), fgcolor: "white" }, view({flexdirection: "column", flex: 1}, classes)));
+			}
+		
+			if(class_doc.methods.length >0) res.push(this.BuildGroup(class_doc.methods, "Methods", "paw", "#c0c0f0", "function"));
+			
+			
+			if (this.collapsible){
+				
+				return foldcontainer({basecolor:"#c0f0c0",collapsed:true,icon:"cube", title:class_doc.class_name},view({flexdirection:"column", flex:1},res));
+			}
+			
+			return res;	
+		}
 	})
 
 	var docviewer = this.constructor;

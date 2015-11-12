@@ -18,25 +18,25 @@ define.class(function(view, require){
 	});
 
 	// lets put an animation on x
-	this.attribute('x', {motion:'inoutsine',duration:0.2})
 
-	this.attribute('page',{type:int})
+	this.attributes = {
+		x: {motion:'inoutsine',duration:0.2},
+		page: {type:int}
+	}
 
 	this.page = function(){
 		this.x = -this.page * (this.slidewidth + this.slidemargin * 2)
 	}
 
-	this.state('pos')
-	this.state('page')
+	this.persists = ['pos','page']
 
 	this.constructor.slide = this.slide
-
+	
 	this.slidewidth = 1024
 	this.slidemargin = 10
 	this.slideheight = 1024
 	this.page = 0
 	this.keydown = function(key){
-
 		// alright we have a keydown!
 		if(key.name == 'leftarrow'){
 			// we need to animate to the left
@@ -50,7 +50,7 @@ define.class(function(view, require){
 
 	// deny focus loss
 	this.focuslost = function(){
-//		this.screen.setFocus(this)
+		this.screen.setFocus(this)
 	}
 
 	this.init = function(){

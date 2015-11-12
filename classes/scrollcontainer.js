@@ -24,19 +24,21 @@ define.class(function(view, scrollbar){
 			]
 		}
 	)
-	
-	// Pixelsize of the scrollbars
-	this.attribute("scrollbarwidth", {type: int, value: 16});
-	
-	// Is the horizontal scrollbar visible? 
-	this.attribute("hscrollvisible", {type: boolean, value: true});
-	
-	// Is the vertical scrollbar visible? 	
-	this.attribute("vscrollvisible", {type: boolean, value: true});
-	
-	// Background color of the movable inside view. 
-	this.attribute("move_view_bgcolor", {type: vec4, value: vec4("white")});
-	
+
+	this.attributes = {
+		
+		// Pixelsize of the scrollbars
+		scrollbarwidth: {type: int, value: 16},
+		
+		// Is the horizontal scrollbar visible? 
+		hscrollvisible: {type: boolean, value: true},
+		
+		// Is the vertical scrollbar visible? 	
+		vscrollvisible: {type: boolean, value: true},
+		
+		// Background color of the movable inside view. 
+		move_view_bgcolor: {type: vec4, value: vec4("white")}
+	}
 	// Scrollwheel handler to move horizontally
 	// <value> the amount scrolled by
 	this.mousewheelx = function(value){

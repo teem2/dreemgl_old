@@ -9,8 +9,8 @@ define.class(function(require){
 	var ExternalApps = require('$server/externalapps')
 	var BusServer = require('$rpc/busserver')
 	var FileWatcher = require('$server/filewatcher')
-	var HTMLParser = require('$parsers/htmlparser')
-	var ScriptError = require('$parsers/scripterror')
+	var HTMLParser = require('$parse/htmlparser')
+	var ScriptError = require('$parse/scripterror')
 	var legacy_support = 0
 
 	this.atConstructor = function(
@@ -78,7 +78,7 @@ define.class(function(require){
 	}
 
 	this.reload = function(){
-		console.color("~bg~Reloading~~ composition (" + this.name + ")\n")
+		console.color("~bg~Reloading~~ composition\n")
 		this.destroy()
 
 		this.readSystemClasses('$classes', this.system_classes = {})
@@ -88,7 +88,7 @@ define.class(function(require){
 
 		// ok, we will need to compute the local classes thing
 		define.system_classes = this.system_classes
-
+		define.$drawmode = 'headless'
 		// lets figure out if we are a direct .js file or a 
 		// directory with an index.js 
 		var scan = [
@@ -147,7 +147,7 @@ define.class(function(require){
 			'  </style>'+
 			'  <script type="text/javascript">\n'+
 			'    window.define = {\n'+
-			'	   $rendermode:"gl",\n'+
+			'	   $drawmode:"webgl",\n'+
 			'      system_classes:' + JSON.stringify(this.system_classes) + ',\n' + 
 			'      main:["$base/math", "' + boot + '"],\n'+
 			'      atMain:function(require, modules){\n'+
@@ -179,7 +179,7 @@ define.class(function(require){
 			req.on('data', function(data){buf += data.toString()})
 			req.on('end', function(){
 				try{
-					var json = JSON.parse(buf);
+					var json = JSON.parse(buf)
 					this.composition.postAPI(json, {send:function(msg){
 						res.writeHead(200, {"Content-Type":"text/json"})
 						res.write(JSON.stringify(msg))
@@ -188,7 +188,7 @@ define.class(function(require){
 				}
 				catch(e){
 					res.writeHead(500, {"Content-Type": "text/html"})
-					res.write('FAIL: ' + e.message)
+					res.write('FAIL')
 					res.end()
 					return
 				}

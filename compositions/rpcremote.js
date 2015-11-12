@@ -26,8 +26,10 @@ define.class(function(composition, screens, screen, server, view, text, draggabl
 
 				this.rpc.server.dosomething()
 			},
-			attribute_test1:{type:Object, value:{}},
-			attribute_mousepos:{type:vec2, value:'${this.main.pos}'},
+			attributes:{
+				test:{type:Object, value:{}},
+				mousepos:{type:vec2, value:'${this.main.pos}'},
+			},
 			name:'mobile',
 			},
 			view({

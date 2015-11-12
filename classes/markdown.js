@@ -1,24 +1,25 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE.md
 
-define.class( function(view, text){
+define.class( function(view, label){
 	// Markdown display class - this element can display a small subset of the "markdown" syntax. See the SUPPORTED_MARKDOWN.md file in the docviewer for supported elements.
 	
-	// Body can be a single string or an array of strings - each string will be its own paragraph.
-	this.attribute("body", {});
-	
-	// alignment of the bodytext. 
-	// accepted values are "left", "right", "justify" and "center" 
-	this.attribute("align", {type: String,  value: "left"});
+	this.attributes = {
+		// Body can be a single string or an array of strings - each string will be its own paragraph.
+		body: {},
+		
+		// alignment of the bodytext. 
+		// accepted values are "left", "right", "justify" and "center" 
+		align: {type: String,  value: "left"},
 
-	// Base fontsize - heading sizes will be multiples of this value.
-	this.attribute("fontsize", {type:Number, value: 13});
-	
-	// The color to use as the default color for this textblock.
-	this.attribute("fontcolor", {type:vec4, value: vec4("#202020")});
-	
+		// Base fontsize - heading sizes will be multiples of this value.
+		fontsize: {type:Number, value: 13},
+		
+		// The color to use as the default color for this textblock.
+		fontcolor: {type:vec4, value: vec4("#202020")}
+	}
+
 	this.flexdirection = "column"
 
-	
 	var markdown = this.constructor
 		define.example(this, function BasicUsage(){
 			return [							
@@ -64,7 +65,7 @@ define.class( function(view, text){
 				// default text
 			}
 			
-			res.push(text({fgcolor: this.fontcolor, margin: Margin, text: L, fontsize: fontsize, multiline: true, align: this.align}));
+			res.push(label({fgcolor: this.fontcolor, margin: Margin, text: L, fontsize: fontsize, multiline: true, align: this.align}));
 		}
 		
 		return res;
@@ -94,7 +95,7 @@ define.class( function(view, text){
 				return this.BuildMarkdown(lines);
 			}
 			else{
-				return [text({fgcolor:"#303030", text:"unknown format for body!\n\n" + this.body.toString(), multiline: true, fontsize:12})];
+				return [label({fgcolor:"#303030", text:"unknown format for body!\n\n" + this.body.toString(), multiline: true, fontsize:12})];
 			}
 		}
 	}

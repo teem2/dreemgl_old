@@ -8,12 +8,12 @@ define.class(function(require, view, text, icon){
 	var GLGeom= require('$gl/glgeom')
 	var GLMat = require('$gl/glmaterial')
 	
-	
-	this.attribute("pos3d", {type:vec3, value:vec3(0,0,0)});
-	this.attribute("scale3d", {type:vec3, value:vec3(2)});
-	this.attribute("rot3d", {type:vec3, value:vec3(0.)});
-	this.attribute("anchor", {type:vec3, value:vec3(0.)});
-	
+	this.attributes = {
+		pos3d: {type:vec3, value:vec3(0,0,0)},
+		scale3d: {type:vec3, value:vec3(2)},
+		rot3d: {type:vec3, value:vec3(0.)},
+		anchor: {type:vec3, value:vec3(0.)}
+	}
 	
 	this.anchor = this.pos3d = this.scale3d = this.rot3d = function(){
 		this.setDirty();
@@ -49,7 +49,7 @@ define.class(function(require, view, text, icon){
 	
 	define.class(this, 'bg', GLShader, function(){
 		
-		this.attribute("shape", {type: String, value: "cube"} );
+		//this.attribute("shape", {type: String, value: "cube"} );
 		
 		this.depth_test = 'src_depth < dst_depth';
 		
@@ -119,7 +119,7 @@ define.class(function(require, view, text, icon){
 					
 		}
 	
-		this.texture = require('$textures/envmap1.png');
+		this.texture = require('$textures/matcap6.png');
 
 		this.matrix = mat4.identity()
 		this.cameraposition = vec3(0,0,0)

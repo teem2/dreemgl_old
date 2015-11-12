@@ -1,5 +1,5 @@
 define.class(function(require){
-	var Cursor = require('./cursor')
+	var Cursor = require('./singlecursor')
 
 	// forward the cursor api
 	function makeForward(key, fn){

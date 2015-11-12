@@ -10,11 +10,12 @@ define.class(function(require, shape3d, text, view, icon){
 	var GLGeom= require('$gl/glgeom')
 	var GLMat = require('$gl/glmaterial')
 
-	// Size of the teapot
-	this.attribute("radius", {type:float, value:1});
-		
-	// Level of detail. 1 = cubic teapot, 10+ = very very smooth teapot.
-	this.attribute("detail", {type:float, value:10});
+	this.attributes = {
+		// Size of the teapot
+		radius: {type:float, value:1},
+		// Level of detail. 1 = cubic teapot, 10+ = very very smooth teapot.
+		detail: {type:float, value:10}
+	}
 	
 	this.radius = this.detail = function(){
 		this.setDirty();

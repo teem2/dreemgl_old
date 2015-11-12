@@ -18,30 +18,30 @@ define.class(function(require, view, text, icon, teapot){
 		]
 	})
 	
-	// Field of view in degrees. 
-	this.attribute("fov", {type:float, value: 30});
+	this.attributes = {
+		// Field of view in degrees. 
+		fov: {type:float, value: 30},
 	
-	// If set to true, the distance from camera to "lookat" point will be normalized to make items at the lookat point facing the camera be exactly 1 unit = 1 pixel.
-	this.attribute("camerafixedtofov", {type:Boolean, value: false});
+		// If set to true, the distance from camera to "lookat" point will be normalized to make items at the lookat point facing the camera be exactly 1 unit = 1 pixel.
+		camerafixedtofov: {type:Boolean, value: false},
 	
-	// The point the camera is pointed at
-	this.attribute("lookat", {type:vec3, value: vec3(0,0,0)});
+		// The point the camera is pointed at
+		lookat: {type:vec3, value: vec3(0,0,0)},
 	
-	// A vector pointing at the direction you want to become "up" 
-	this.attribute("up", {type:vec3, value: vec3(0,1,0)});
+		// A vector pointing at the direction you want to become "up" 
+		up: {type:vec3, value: vec3(0,1,0)},
 	
-	// The point the camera is located at. If camerafixedtofov is set to true, this attribute is used to determine a direction from lookat instead of an absolute point. 
-	this.attribute("camera", {type:vec3, value: vec3(0,1,10)});
+		// The point the camera is located at. If camerafixedtofov is set to true, this attribute is used to determine a direction from lookat instead of an absolute point. 
+		camera: {type:vec3, value: vec3(0,1,10)},
 
-	// Near plane distance
-	this.attribute("near", {type:float, value: 0.1});
-	
-	// Far plane distance
-	this.attribute("far", {type:float, value: 1000});
+		// Near plane distance
+		near: {type:float, value: 0.1},
 
-	this.state("up");
-	this.state("lookat");
-	this.state("camera");
+		// Far plane distance
+		far: {type:float, value: 1000},
+	}
+
+	this.persists = ["up", "lookat", "camera"]
 	
 	this.camerafixedtofov = function() {
 	}

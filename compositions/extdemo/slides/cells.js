@@ -11,7 +11,7 @@ define.class(function (view) {
 
         var views = [];
         if (this.data) {
-            for (var i = 0; i < this.data.length; i++) {
+            for (var i = 0; i < this.data.length && i < 10; i++) {
                 var data = this.data[i];
                 data.width = this.cellwidth;
                 data.height = this.cellheight;

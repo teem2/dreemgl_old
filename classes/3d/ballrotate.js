@@ -4,7 +4,7 @@ define.class(function(require, view, text, view, icon){
 	if(define.$environment === 'nodejs') return
 
 	// The perspective3d object to rotate.
-	this.attribute("target", {});
+	this.attributes = {target:{}}
 
 	this.mouseleftdown = function(a){
 		if (this.target) 

@@ -1,4 +1,4 @@
-// Licensed under the Apache License, Version 2.0, see LICENSE.md
+// Copyright 2015 this2 LLC, MIT License (see LICENSE)
 // teem class
 
 define.class('$base/composition_base', function(require, exports, self, baseclass){
@@ -7,7 +7,7 @@ define.class('$base/composition_base', function(require, exports, self, baseclas
 	var RpcProxy = require('$rpc/rpcproxy')
 	var RpcHub = require('$rpc/rpchub')
 
-	var renderer = require('$renderer/renderer')
+	var Render = require('$base/render')
 
 	// ok now what. well we need to build our RPC interface
 	this.postAPI = function(msg, response){
@@ -110,6 +110,7 @@ define.class('$base/composition_base', function(require, exports, self, baseclas
 		}.bind(this))
 	}
 
+
 	this.setRpcAttribute = function(msg, socket){
 		var parts = msg.rpcid.split('.')
 		// keep it around for new joins
@@ -199,9 +200,6 @@ define.class('$base/composition_base', function(require, exports, self, baseclas
 
 		this.renderComposition()
 
-		// lets initialize bindings
-
-
 		// call init on the classes which are in our environment
 		for(var i = 0; i < this.children.length; i++){
 			// create child name shortcut
@@ -210,7 +208,7 @@ define.class('$base/composition_base', function(require, exports, self, baseclas
 			if(!child.environment || child.environment === define.$environment){
 				var init = []
 				child.connectWires(init)
-				for(var j = 0; j < init.length; j++)init[j]()
+				for(var j = 0; j < init.length;j++) init[j]()				
 				child.emitRecursive('init')
 			}
 		}		

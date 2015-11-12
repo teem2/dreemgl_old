@@ -1,14 +1,15 @@
-// Licensed under the Apache License, Version 2.0, see LICENSE.md
-// Node class provides JSONML and attributes (events)
+// Copyright 2015 Teem2 LLC, MIT License (see LICENSE)
+// Node class provides events and constructor semantics
 
 define.class(function(require, constructor){
 
 	var Node = constructor
 
-	var OneJSParser =  require('$parsers/onejsparser')
-	var WiredWalker = require('$parsers/wiredwalker')
+	var OneJSParser =  require('$parse/onejsparser')
+	var WiredWalker = require('$parse/wiredwalker')
 	var RpcProxy = require('$rpc/rpcproxy')
 
+	// parser and walker for wired attributes
 	var onejsparser = new OneJSParser()
 	onejsparser.parser_cache = {}
 	var wiredwalker = new WiredWalker()
@@ -77,33 +78,13 @@ define.class(function(require, constructor){
 			if(!this.constructor_props) this.constructor_props = {}
 			this.constructor_props[key] = prop
 
-			if(key.indexOf('attribute_') === 0) key = key.slice(10), type = 1
-			else if(key.indexOf('set_') === 0) key = key.slice(4), type = 2
-			else if(key.indexOf('get_') === 0) key = key.slice(4), type = 3
-			else if(key.indexOf('handle_') === 0) key = key.slice(7), type = 4
-
 			var idx = key.indexOf('.')
 			if(idx !== -1){
 				tgt = this[key.slice(0,idx)]
 				key = key.slice(idx + 1)
 			}
 
-			if(type === 1){
-				tgt.attribute(key, prop)
-			}
-			else if(type === 2){
-				if(!tgt.isAttribute(key)) tgt.attribute(key, {type:float})
-				tgt['_set_' + key] = prop
-			}
-			else if(type === 3){
-				if(!tgt.isAttribute(key)) tgt.attribute(key, {type:float})
-				tgt['_get_' + key] = prop
-			}
-			else if(type === 4){
-				if(!tgt.isAttribute(key)) tgt.attribute(key, {type:Object})
-				tgt['on' + key] = prop
-			}
-			else tgt[key] = prop
+			tgt[key] = prop
 		}
 	}
 
@@ -230,9 +211,9 @@ define.class(function(require, constructor){
 		return this[wiredcl_key]
 	}
 
-	// define a property to be an attribute
+	// define an event
 	this.event = function(key){
-		this.attribute(key, {type:Object})
+		this.attribute = {name:key, type:Object}
 	}
 
 	this.parse = function(key, value){
@@ -254,9 +235,9 @@ define.class(function(require, constructor){
 		var listen_key = '_listen_' + key
 		var config = this['_cfg_' + key]
 		var value_key = '_' + key
-
+		if(!config) throw new Error("Cannot emit "+key+" attribute not found")
 		if(value !== undefined){ // lets check storage
-			if(config && config.storage && !recur){
+			if(config.storage && !recur){
 				var storage_key = '_' + config.storage
 				var store
 				if(!this.hasOwnProperty(storage_key)){
@@ -348,19 +329,6 @@ define.class(function(require, constructor){
 		this[key] = value
 	}
 
-	this.state = function(){
-		if (!this.hasOwnProperty("_state")){
-			
-			if (this._state){
-				this._state = Object.create(this._state);
-			}
-			else{
-				this._state = {};
-			}
-		}
-		for(var i = 0; i < arguments.length; i++) this._state[arguments[i]] = 1
-	}
-
 	this.setWiredAttribute = function(key, value){
 		if(!this.hasOwnProperty('_wiredfns')) this._wiredfns = this._wiredfns?Object.create(this._wiredfns):{}
 		this._wiredfns[key] = value
@@ -377,7 +345,109 @@ define.class(function(require, constructor){
 		return fn
 	}
 
-	this.attribute = function(key, config){
+	// JSON API
+
+	Object.defineProperty(this, 'attributes', {
+		get:function(){
+			throw new Error("attribute can only be assigned to")
+		},
+		set:function(arg){
+			for(var key in arg){
+				this.defineAttribute(key, arg[key])
+			}
+		}
+	})
+
+	Object.defineProperty(this, 'events', {
+		get:function(){
+			throw new Error("event can only be assigned to")
+		},
+		set:function(arg){
+			if(Array.isArray(arg)){
+				for(var i = 0; i < arg.length; i++){
+					this.defineAttribute(arg[i],{type:Object})
+				}
+			}
+			else{
+				if(typeof arg === 'object'){
+					for(var key in arg){
+						this.defineAttribute(key, {type:Object})
+					}
+				}
+				else this.defineAttribute(arg, {type:Object})
+			}
+		}
+	})
+
+	this.definePersist = function(arg){
+		if (!this.hasOwnProperty("_persists")){
+			
+			if (this._persists){
+				this._persists = Object.create(this._persists)
+			}
+			else{
+				this._persists = {}
+			}
+		}
+		this._persists[arg] = 1
+	}
+
+	Object.defineProperty(this, 'persists', {
+		get:function(){
+			return this._persist
+		},
+		set:function(arg){
+			if(Array.isArray(arg)){
+				for(var i = 0; i < arg.length; i++){
+					this.definePersist(arg[i])
+				}
+			}
+			else{
+				if(typeof arg === 'object'){
+					for(var key in arg){
+						this.definePersist(key)
+					}
+				}
+				else this.definePersist(arg)
+			}
+		}
+	})
+
+	Object.defineProperty(this, 'handlers', {
+		get:function(){
+			throw new Error("handler can only be assigned to")
+		},
+		set:function(arg){
+			for(var key in arg){
+				this.addEventListener(key, arg[key])
+			}
+		}
+	})
+
+	Object.defineProperty(this, 'setters', {
+		get:function(){
+			throw new Error("setter can only be assigned to")
+		},
+		set:function(arg){
+			for(var key in arg){
+				this['_set_'+key] = arg[key] 
+			}
+		}
+	})
+
+
+	Object.defineProperty(this, 'getters', {
+		get:function(){
+			throw new Error("getter can only be assigned to")
+		},
+		set:function(arg){
+			for(var key in arg){
+				this['_get_'+key] = arg[key] 
+			}
+		}
+	})
+
+	this.defineAttribute = function(key, config){
 		if(!this.hasOwnProperty('_attributes')){
 			this._attributes = this._attributes?Object.create(this._attributes):{}
 		}
@@ -424,7 +494,14 @@ define.class(function(require, constructor){
 		var setter
 		var getter
 		// define attribute gettersetters
-		if(config.storage){
+
+		// block attribute emission on objects with an environment thats (stub it)
+		if(this.environment && this.environment === define.$environment){
+			setter  = function(value){
+				this[set_key] = value
+			}
+		}
+		else if(config.storage){
 			var storage_key = '_' + config.storage
 			
 			setter = function(value){
@@ -476,7 +553,7 @@ define.class(function(require, constructor){
 				if(typeof value === 'object' && value !== null && value.atAttributeAssign) value.atAttributeAssign(this, key)
 				
 				var config = this[config_key]
-
+			
 				var type = config.type
 				if(type){
 					if(type !== Object && type !== Array) value = type(value)
@@ -490,9 +567,7 @@ define.class(function(require, constructor){
 				this[value_key] = value
 
 				if(this.atAttributeSet !== undefined) this.atAttributeSet(key, value)
-				if(!this.environment || this.environment === define.$environment){
-					if(on_key in this || listen_key in this)  this.emit(key, value)
-				}
+				if(on_key in this || listen_key in this)  this.emit(key, value)
 			}
 		}
 		
@@ -513,7 +588,6 @@ define.class(function(require, constructor){
 	}
 
 	this.connectWiredAttribute = function(key, initarray){
-
 		var wiredfn_key = '_wiredfn_' + key
 		var wiredcl_key = '_wiredcl_' + key
 		var wiredfn = this[wiredfn_key]
@@ -541,13 +615,11 @@ define.class(function(require, constructor){
 				var part = ref[k]
 				if(k === ref.length - 1){
 					// lets add a listener 
-					if(!obj.isAttribute){
-						console.log("Does not have isAttribute", obj, state.references)
-					}
 					if(!obj.isAttribute(part)){
 						console.log("Attribute does not exist: "+ref.join('.')+" in wiring " + this[wiredfn_key].toString())
 						continue
 					}
+
 					obj.addListener(part, bindcall)
 
 					if(obj.has_wires(part) && !obj.wiredCall(part)){
@@ -589,7 +661,14 @@ define.class(function(require, constructor){
 				this.connectWiredAttribute(key, initarray)
 			}
 		}
-
+		// lets initialize bindings on all nested classes
+		var nested = this.constructor.nested
+		if(nested) for(var name in nested){
+			var nest = this[name.toLowerCase()]
+			if(nest.connectWires){
+				nest.connectWires(initarray, depth)
+			}
+		}
 		if(immediate === true){
 			for(var i = 0; i < initarray.length; i++){
 				initarray[i]()
@@ -667,9 +746,8 @@ define.class(function(require, constructor){
 
 	this.hideProperty(Object.keys(this))
 
+
+
 	// always define an init event
-	this.event("init")
-	this.event("reinit")
-	// and a destroy event
-	this.event("destroy")
+	this.events = ["init", "reinit", "destroy"]
 })

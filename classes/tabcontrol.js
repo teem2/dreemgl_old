@@ -3,13 +3,17 @@
 
 define.class(function(view, button, text){
 	// Create a tabcontrol - 1 tab for each instance-child. Each instance-child can provide a title and an icon property which will be used in the activation button for the tab.
-	
+
+	this.attributes = {
+		// The currently active tab. 
+		activetab, {type: int, value: 0},
+		color: {type: vec4, value: vec4("#404050")},
+		hovercolor: {type: vec4, value: vec4("#5050a0")},
+		activecolor: {type: vec4, value: vec4("#7070a0")}
+	}
 
 	// The currently active tab. 
-	this.attribute("activetab", {type: int, value: 0});
-	
-	// The currently active tab. 
-	this.state("activetab");
+	this.persists("activetab")
 	
 	var tabcontrol = this.constructor;
 	
@@ -24,29 +28,26 @@ define.class(function(view, button, text){
 		]
 	});
 	
-	this.attribute("color", {type: vec4, value: vec4("#404050")});
-	this.attribute("hovercolor", {type: vec4, value: vec4("#5050a0")});
-	this.attribute("activecolor", {type: vec4, value: vec4("#7070a0")});
 
 	this.flex = 1;
 	
-	this.buttoncolor1= vec4("#b0b0b0");
-	this.buttoncolor2= vec4("#c0c0c0");
-	this.hovercolor1= vec4("#8080c0");
-	this.hovercolor2=vec4("#3b5898");
-	this.pressedcolor1= vec4("#3b5898");
-	this.pressedcolor2= vec4("#637aad");
+	this.buttoncolor1= vec4("#b0b0b0")
+	this.buttoncolor2= vec4("#c0c0c0")
+	this.hovercolor1= vec4("#8080c0")
+	this.hovercolor2=vec4("#3b5898")
+	this.pressedcolor1= vec4("#3b5898")
+	this.pressedcolor2= vec4("#637aad")
 
 	define.class(this, "tabbutton", function (button){
-		this.margin = 0;
-		this.marginleft = 6;
-		this.borderwidth = 0;	
-	});
+		this.margin = 0
+		this.marginleft = 6
+		this.borderwidth = 0
+	})
 	
 	var tabbuttonprox = this.tabbutton;
-	this.flexwrap= "";	
-	this.flexdirection = "column";
-	this.position = "relative" ;
+	this.flexwrap= ""
+	this.flexdirection = "column"
+	this.position = "relative"
 	this.flexdirection = "column"
 	
 	this.render = function(){		

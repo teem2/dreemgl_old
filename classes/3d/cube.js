@@ -9,9 +9,8 @@ define.class(function(require, shape3d, text, view, icon){
 	var GLMat = require('$gl/glmaterial')
 
 	
-	this.attribute("dimension", {type:vec3, value:vec3(1)});
+	this.attributes = {dimension:{type:vec3, value:vec3(1)}}
 
-	
 	this.init = function(){
 		this.bg_shader.addBox(this.dimension[0], this.dimension[1], this.dimension[2]);
 	}

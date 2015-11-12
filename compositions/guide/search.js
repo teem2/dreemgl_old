@@ -3,10 +3,11 @@ define.class(function(server, require) {
     // Base API URL
     this.apiurl = "http://www.omdbapi.com/?s=";
 
-    // request library used by nodejs to fetch the URL
-    // If not found try to run the following command:
-    // `cd ./compositions/guide/ && npm install`
-    this.request = require('request');
+    //try {
+        this.request = require('request');
+    //} catch (e) {
+    //    console.log('WARNING: please cd to "./compositions/guide/" and run "npm install"')
+    //}
 
     // The string to search for in the OMDB database
     this.attribute("keyword", {type:String});
