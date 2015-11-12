@@ -377,6 +377,17 @@ define.class(function(require, constructor){
 		return fn
 	}
 
+	Object.defineProperty(this, 'attributes', {
+		get:function(){
+			throw new Error('Cant get attributes, assign to it')
+		},
+		set:function(value){
+			for(var key in value){
+				this.attribute(key, value[key])
+			}
+		}
+	})
+
 	this.attribute = function(key, config){
 		if(!this.hasOwnProperty('_attributes')){
 			this._attributes = this._attributes?Object.create(this._attributes):{}
