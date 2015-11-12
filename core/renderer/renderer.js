@@ -1,0 +1,129 @@
+// Licensed under the Apache License, Version 2.0, see LICENSE.md
+// Reactive renderer
+
+define.class(function(require, exports, module){
+
+	var Node = require('$base/node')
+	
+	var initializing = false
+
+	module.exports = function renderer(new_version, old_version, globals, wireinits, rerender){
+
+		var init_wires = false
+		if(!wireinits){
+			wireinits = []
+			init_wires = true
+		}
+
+		for(var key in globals){
+			new_version[key] = globals[key]
+		}
+		
+		// call connect wires before
+		
+		if(!rerender) new_version.connectWires(wireinits)
+
+		var old_children = old_version? old_version.children: undefined
+
+		// lets call init only when not already called
+		if(!rerender){
+			if(old_version && old_version.constructor == new_version.constructor){
+				for(var key in new_version._state){
+					new_version[key] = old_version[key]
+				}
+			}
+			new_version.emit('init', old_version)// old_version && old_version.constructor == new_version.constructor? old_version: undefined)
+		}
+		else{
+			old_children = new_version.children
+		}
+
+		// then call render
+		function __atAttributeGet(){
+			// make sure we block render when we are initializing
+			if(!initializing){
+				renderer(this, undefined, globals, undefined, true)
+			}
+		}
+
+		// store the attribute dependencies
+		new_version.atAttributeGet = function(key){
+			// lets find out if we already have a listener on it
+			if(!this.hasListenerName(key, '__atAttributeGet')){
+				this.addListener(key, __atAttributeGet)
+			}
+		}
+
+		new_version.reRender = __atAttributeGet
+
+		// lets check if object.constructor  a module, ifso 
+		if(new_version.classroot === undefined){
+			new_version.classroot = new_version
+			//console.log(object)
+ 		}
+
+ 		new_version.children = new_version.render()
+
+		new_version.atAttributeGet = undefined
+
+		if(!Array.isArray(new_version.children) && new_version.children) new_version.children = [new_version.children]
+		var new_children = new_version.children
+
+		if(new_children) for(var i = 0; i < new_children.length; i++){
+			var new_child = new_children[i]
+
+			if(Array.isArray(new_child)){ // splice in the children
+				var args = Array.prototype.slice.call(new_child)
+				args.unshift(1)
+				args.unshift(i)
+				Array.prototype.splice.apply(new_children, args)
+				i-- // hop back one i so we repeat
+				continue
+			}
+
+			var old_child = undefined
+			if(old_children){
+				old_child = old_children[i]
+			}
+			new_child.parent = new_version
+			// render new child
+			new_child = new_children[i] = renderer(new_child, old_child, globals, wireinits)
+	
+			// set the childs name
+			var name = new_child.name || new_child.constructor.name
+			if(name !== undefined && !(name in new_version)) new_version[name] = new_child
+		}
+
+		if(old_children) for(;i < old_children.length;i++){
+			old_children[i].emitRecursive('deinit')
+		}
+
+		if(old_version) old_version.emit('deinit')
+
+		if(init_wires){
+			initializing  = true
+			for(var i = 0; i < wireinits.length; i++){
+				wireinits[i]()
+			}
+			initializing = false
+		}
+
+		return new_version
+	}
+
+	module.exports.dump = function(node, depth){
+		var ret = ''
+		if(!depth) depth = ''
+		ret += depth + node.name + ': ' + node.constructor.name
+		var outer = node.outer
+		while(outer){
+			ret += " - " + outer.constructor.name
+			outer = outer.outer
+		}
+		if(node.children) for(var i = 0; i<node.children.length; i++){
+			ret += "\n"
+			ret += this.dump(node.children[i], depth +'-')
+		}
+		return ret
+	}
+})
