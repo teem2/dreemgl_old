@@ -9,16 +9,18 @@ define.class(function(server, require) {
     // List of movie objects returned from server
     this.attribute("results", {type:Array});
 
-    this.onkeyword = function (keyword) {
-        
-        // request library used by nodejs to fetch the URL
-        // If not found try to run the following command:
+    this.onkeyword = function (key) {
+
+        // request library used by nodejs to fetch data
+        // if not found try to run the following command:
         // `cd ./compositions/guide/ && npm install`
         var request = require('request');
 
-        if (keyword && request) {
-            request(this.apiurl + keyword.replace(/[^a-z0-9_-]/ig, '+'), (function (error, response, body) {
-                if (!error && response.statusCode == 200) {
+        if (key && request) {
+            var regx = /[^a-z0-9_-]/ig
+            var url = this.apiurl + key.replace(regx, '+');
+            request(url,(function (error, resp, body) {
+                if (!error && resp.statusCode == 200) {
                     var res = JSON.parse(body);
                     this.results = res["Search"];
                 }
