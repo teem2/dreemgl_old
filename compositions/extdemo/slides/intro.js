@@ -24,7 +24,7 @@ define.class(function (view, text, codeviewer) {
                 text:'+ Compositions can auto load classes in other directories',
                 fgcolor:'#333',
                 fontsize:25,
-                margintop:30
+                margintop:15
             }),
             text({
                 text:'Use the `compositionname$classname` syntax:',
@@ -34,7 +34,7 @@ define.class(function (view, text, codeviewer) {
                 marginleft:95
             }),
             codeviewer({
-                flex: 1,
+                flex: 0,
                 alignself: 'center',
                 margin: vec4(10),
                 code: this.syntaxCode,
@@ -47,7 +47,7 @@ define.class(function (view, text, codeviewer) {
                 text:'+ Examples are compositions, no special mounting!',
                 fgcolor:'#333',
                 fontsize:25,
-                margintop:0
+                margintop:10
             }),
             text({
                 text:'(note: see `./compositions/guide/README.md` for more detail)',

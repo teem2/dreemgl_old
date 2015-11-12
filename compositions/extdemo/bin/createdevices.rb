@@ -34,7 +34,7 @@ loop do
   selected = devices.to_a.sample
   action = %w(join part).sample
 
-  req = Net::HTTP::Post.new(uri, initheader = {'Content-Type' =>'application/json'})
+  req = Net::HTTP::Post.new(uri, {"Content-Type" =>"application/json"})
 
   body = {
       "rpcid" => "devbus",
@@ -46,12 +46,10 @@ loop do
 
   req.body = body
 
-
-  res = Net::HTTP.start(uri.hostname, uri.port) do |http|
+  Net::HTTP.start(uri.hostname, uri.port) do |http|
     http.request(req)
   end
 
-  sleep(2)
+  sleep(1.5)
 
 end
-
