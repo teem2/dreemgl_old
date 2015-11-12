@@ -32,14 +32,16 @@
 	define.$base = '$core/base'
 	define.$async = '$core/async'
 	define.$debug = '$core/debug'
-	define.$dreem = '$core/dreem'
+	define.$draw = '$core/draw'
 	define.$gl = '$core/gl'
 	define.$edit = '$core/edit'
-	define.$parsers = '$core/parsers'
-	define.$renderer = '$core/renderer'
+	define.$parse = '$core/parse'
+	define.$render = '$core/render'
 	define.$rpc = '$core/rpc'
 	define.$server = '$core/server'
-	define.$animation = '$core/animation'
+	define.$animate = '$core/animate'
+	define.$shaderlib = '$core/shaderlib'
+	define.$font = '$core/font'
 
 	define.local_classes = {}
 	define.local_require_stack = []
@@ -318,15 +320,7 @@
 		pthis.constructor.examples.push(example)
 	}
 
-	define.makeClass = function(baseclass, body, require, module, nested_module){
-
-		/*var stubbed
-		if(body && body.environment !== undefined && body.environment !== define.$environment){
-			// turn require into a no-op internally
-			require = function(dep){ return new define.EnvironmentStub(dep) }
-			require.async = function(dep){ return new Promise(function(res, rej){res(null)})}
-			stubbed = body.stubbed = true
-		}*/
+	define.makeClass = function(baseclass, body, require, module, nested_module, outer_this){
 
 		function MyConstructor(){
 			// if called without new, just do a new
@@ -338,25 +332,18 @@
 			}
 
 			// instance all nested classes
-			/*
-			var nested = MyConstructor.nested
-			if(nested) for(var name in nested){
-				var nest = obj[name.toLowerCase()] = new nested[name]()
-				Object.defineProperty(nest, 'parent', {value:obj})
-			}*/
 
-			// call atConstructor if defined
-			//if(MyConstructor.stubbed) return obj
-			var classroot = MyConstructor.classroot
+			var outer = MyConstructor.outer
+			// pass on the classroot property
+			if(outer !== undefined){
+				if(obj.outer === undefined) obj.outer = outer
+			}
+
 			if(obj._atConstructor) obj._atConstructor.apply(obj, arguments)
 
 			if(obj.atConstructor){
 				var res = obj.atConstructor.apply(obj, arguments)
 				if(res !== undefined) return res
-			}
-			// pass on the root property
-			if(classroot !== undefined){
-				if(obj.classroot === undefined) obj.classroot = classroot
 			}
 
 			return obj
@@ -391,22 +378,11 @@
 		if(baseclass){
 			Constructor.prototype = Object.create(baseclass.prototype)
 			Object.defineProperty(Constructor.prototype, 'constructor', {value:Constructor})
-			/*
-			if(baseclass.nested){
-				var nested = Object.create(baseclass.nested)
-				Object.defineProperty(Constructor, 'nested', {value:nested})
-				for(var name in nested){
-					// lets inherit from the baseclass
-					var cls = nested[name] = nested[name].extend(final_at_extend)
-					Object.defineProperty(Constructor.prototype, name.toLowerCase(), {value:cls.prototype, writable:true})
-					Object.defineProperty(Constructor, name, {value:cls, writable:true})
-				}
-			}*/
 		}
 
-		Object.defineProperty(Constructor, 'extend', {value:function(body){
+		Object.defineProperty(Constructor, 'extend', {value:function(body, outer_this){
 			//if(this.prototype.constructor === define.StubbedClass) return define.StubbedClass
-			return define.makeClass(this, body, require, undefined, this.nested_module)
+			return define.makeClass(this, body, require, undefined, this.nested_module, outer_this)
 		}})
 
 		Object.defineProperty(Constructor, 'overlay', {value:function(body){
@@ -424,14 +400,7 @@
 
 		Object.defineProperty(Constructor, 'body', {value:body})
 
-		//if(stubbed) Object.defineProperty(Constructor, 'stubbed', {value:true})
-		/*
-		Object.defineProperty(Constructor, 'nest', {value:function(name, cls){
-			if(!Constructor.nested) Object.defineProperty(Constructor, 'nested', {value:cls})
-			Constructor.nested[name] = cls
-			Object.defineProperty(Constructor.prototype, name.toLowerCase(), {value: cls.prototype, writable:true})
-			Object.defineProperty(Constructor, name, {value:cls, writable:true})
-		}})*/
+		if(outer_this) Constructor.outer = outer_this
 
 		if(Array.isArray(body)){
 			if(Constructor.prototype.atExtend) body.push(Constructor.prototype)
@@ -442,9 +411,7 @@
 				else module.exports = Constructor
 				
 				Object.defineProperty(Constructor, 'module', {value:module})
-				//Object.defineProperty(Constructor, 'classname', {
-				//	value: define.fileBase(module.filename).replace(/\./g,'_')
-				//})
+
 				define.applyBody(body, Constructor, baseclass, require)
 			}
 			else if(nested_module){
@@ -499,9 +466,6 @@
 		if (match) {
 			var comploc = match[1];
 			var remainder = cls.substr(comploc.length);
-			if (comploc.indexOf('this$') == 0) {
-				return comploc.replace('this$', './').replace(/\$/g, '/') + remainder;
-			}
 			return '$plugins/' + comploc.replace(/\$/g, '/') + remainder;
 		}
 
@@ -514,20 +478,7 @@
 		if(type === 'txt' || type === 'obj' || type === 'text' || type === 'md') return 'text'
 		return 'arraybuffer'
 	}
-/*
-	// defining a class as environment specific
-	define.browser = function(body, body2){
-		if(typeof body2 === 'function') body = body2
-		body.environment = 'browser'
-		return define.class.apply(define, arguments)
-	}
 
-	define.nodejs = function(body, body2){
-		if(typeof body2 === 'function') body = body2
-		body.environment = 'nodejs'
-		return define.class.apply(define, arguments)
-	}
-*/
 	//define.StubbedClass = define.makeClass(undefined, function StubbedClass(){}, undefined, undefined)
 
 	// a class which just defines the render function
@@ -577,23 +528,30 @@
 		// lets make a class
 		var base_class
 		var body
-		if(arguments.length >= 3){ // embedded class
-			var embed_this = arguments[0]
-			var embed_name = arguments[1]
-			Object.defineProperty(embed_this, embed_name, {
+		if(arguments.length >= 3){ // inner class
+			var outer_this = arguments[0]
+			var classname = arguments[1]
+			Object.defineProperty(outer_this, classname, {
 				get:function(){
-					var cls = this['_' + embed_name]
-					cls.classroot = this 
+					var cls = this['_' + classname]
+					if(cls) cls.outer = this 
 					return cls
 				},
 				set:function(value){
-					// if its a class, replace it
+					// lets kick the class off
+					if(value === undefined || value === null || value === 0){
+						this['_' + classname] = undefined
+						if(this.atInnerClass) this.atInnerClass(classname, undefined)
+						return
+					}
 					if(typeof value === 'function' && Object.getPrototypeOf(value.prototype) !== Object.prototype){
-						this['_' + embed_name] = value
+						this['_' + classname] = value
 						return
 					}
 					// otherwise use it as an extend 
-					this['_' + embed_name] = this['_' + embed_name].extend(value)
+					var cls = this['_' + classname]
+					// ok so the problem here is, that if we are inherited
+					this['_' + classname] = cls.extend(value, this)
 				}
 			})
 			if(arguments.length>3){
@@ -604,8 +562,8 @@
 				body = arguments[2]
 			}
 			if(typeof body === 'function'){
-				body.classname = embed_name
-				body.outer = embed_this
+				body.classname = classname
+				body.outer = outer_this
 			}
 		}
 		else if(arguments.length > 1){ // class with baseclass
@@ -620,7 +578,7 @@
 			var base
 			if(typeof base_class === 'string') base = require(base_class)
 			else if (base_class) base = base_class
-			define.makeClass(base, body, require, module)
+			define.makeClass(base, body, require, module, undefined, outer_this)
 		}
 
 		// make an argmap
@@ -654,9 +612,11 @@
 			var outer_module = outer_require.module
 			var module = {exports:{}, filename:outer_module.filename, factory:outer_module.factory}
 			moduleFactory(outer_require, module.exports, module)
-			if(embed_this){
-				embed_this['_' + embed_name] = module.exports
+			if(outer_this){
+				outer_this['_' + classname] = module.exports
+				if(outer_this.atInnerClass) outer_this.atInnerClass(classname, module.exports)
 			}
+
 			return module.exports
 		}
 
