@@ -44,7 +44,7 @@ define.class(function (view, text, codeviewer) {
                 multiline: true}
             ),
             text({
-                text:'+ Examples are compositions, no special mounting!',
+                text:'+ Example compositions and docs automatic, no special mounting!',
                 fgcolor:'#333',
                 fontsize:25,
                 margintop:10
@@ -58,15 +58,5 @@ define.class(function (view, text, codeviewer) {
             })
 
         ];
-    }
-
-    //components are just directories, no special work required, defaults to composition directory
-
-    //
-
-    //
-
-    //define.$plugin can be changed
-
-
+    };
 });
