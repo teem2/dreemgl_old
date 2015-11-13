@@ -36,14 +36,19 @@ define.class(function (view, text, codeviewer, cells, device) {
     this.render = function render() {
         return [
             view({flexdirection: 'row', flex: 1},
-              view(
-                  {flexdirection: 'column', flex: 1, alignself: 'stretch', margin: vec4(10), padding: vec4(4), clipping:true},
-                  text({height:30, flex: 0, alignself: 'stretch', text:'DreemGL Server'}),
-                  codeviewer({ flex: 1, alignself: 'stretch', code: this.apiCode, fotsize: 14, bgcolor: "#000030", multiline: true}),
-                  text({height:30, flex: 0, alignself: 'stretch', text:'External API Client'}),
-                  text({ flex: 1, alignself: 'stretch', text: this.clientCode, fontsize: 14, fgcolor:'yellow', bgcolor: "#000030", multiline: false})
-              ),
-              cells({flex: 1, padding: 4, margin: 10, cornerradius: 0, bgcolor: '#D1CAB0', cellwidth:80, cellheight:80, data:this.deviceList, celltype:device})
+                view(
+                    {flexdirection: 'column', flex: 1, alignself: 'stretch', margin: vec4(10), padding: vec4(4), clipping:true},
+                    text({height:30, fontsize:14, flex: 0, alignself: 'stretch', text:'DreemGL Server (./compositions/extdemo/devices.js)'}),
+                    codeviewer({ flex: 1, alignself: 'stretch', code: this.apiCode, fotsize: 14, bgcolor: "#000030", multiline: true}),
+                    text({height:30, flex: 0, alignself: 'stretch', text:'External API Client (Ruby Example)'}),
+                    text({ flex: 1, alignself: 'stretch', text: this.clientCode, fontsize: 14, fgcolor:'yellow', bgcolor: "#000030", multiline: false})
+                ),
+                view(
+                    {flexdirection: 'column', flex: 1, alignself: 'stretch', clipping:true, padding: 4, margin: 10},
+                    text({height:30, flex: 0, alignself: 'stretch', text:'Active Devices'}),
+                    text({fontsize:10, height:30, flex: 0, alignself: 'stretch', text:'(run ./compositions/extdemo/bin/createdevices.rb to simulate device activity)'}),
+                    cells({flex: 1, bgcolor: '#D1CAB0', cellwidth:80, cellheight:80, data:this.deviceList, celltype:device, cornerradius: 0})
+                )
             )
         ];
     }
