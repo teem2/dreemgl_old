@@ -50,12 +50,12 @@ define.class(function (view, text) {
                 view(
                     {flexdirection: 'column', flex: 1, alignself: 'stretch', margin: vec4(10), padding: vec4(4), clipping:true},
                     text({height:30, fontsize:14, flex: 0, alignself: 'stretch', text:'Set Attribute via API (Ruby Example)'}),
-                    text({ flex: 1, alignself: 'stretch', text: this.setterCode, fontsize: 14, fgcolor:'yellow', bgcolor: "#000030", multiline: false})
+                    text({ flex: 1, alignself: 'stretch', text: this.setterCode, fontsize: 14, fgcolor:'aqua', bgcolor: "#000030", multiline: false})
                 ),
                 view(
                     {flexdirection: 'column', flex: 1, alignself: 'stretch', margin: vec4(10), padding: vec4(4), clipping:true},
                     text({height:30, fontsize:14, flex: 0, alignself: 'stretch', text:'Get Attribute via API (Ruby Example)'}),
-                    text({ flex: 1, alignself: 'stretch', text: this.getterCode, fontsize: 14, fgcolor:'yellow', bgcolor: "#000030", multiline: false})
+                    text({ flex: 1, alignself: 'stretch', text: this.getterCode, fontsize: 14, fgcolor:'pink', bgcolor: "#000030", multiline: false})
                 )
             ),
             view(

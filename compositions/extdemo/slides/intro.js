@@ -9,6 +9,7 @@ define.class(function (view, text, codeviewer) {
 
     this.flexdirection = 'column';
     this.attribute('syntaxCode', {type: String});
+    this.bgcolor = 'transparent';
 
     this.render = function render() {
         return [
