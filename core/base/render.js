@@ -7,7 +7,7 @@ define.class(function(exports){
 	
 	// Reactive renderer
 
-s	var initializing = false
+	var initializing = false
 
 	exports.process = function render(new_version, old_version, globals, wireinits, rerender){
 
