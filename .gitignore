@@ -1,7 +1,8 @@
 .idea
 **/.idea
 build/
+cache/
+gzcache/
 .DS_Store
-npm-debug.log
-node_modules/
-gzcache
+*.marks
+
