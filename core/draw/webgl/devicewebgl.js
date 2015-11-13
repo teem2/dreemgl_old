@@ -204,7 +204,6 @@ define.class(function(require, exports, self){
 			var view = this.layout_list[i]
 			view.doLayout()
 		}
-
 		// lets draw all the passes
 		for(var i = 0, len = this.drawpass_list.length; i < len; i++){
 			this.drawpass_list[i].drawpass.drawColor(i === len - 1)
@@ -279,7 +278,6 @@ define.class(function(require, exports, self){
 		// lets create a drawpass 
 		if(view._mode){
 			var pass = new DrawPass(this, view)
-			view.drawpass = pass
 			this.drawpass_list.splice(this.drawpass_idx,0,view)
 			this.drawpass_idx++
 		}

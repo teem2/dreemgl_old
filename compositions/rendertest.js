@@ -67,10 +67,10 @@ define.class(function(composition, screens, screen, view, label, button){
 					,view({
 						flex:1, borderradius:vec4(10,20,30,40), name:'view2',
 						margin:20,
-						mode:'',
+						mode:'2D',
 						blend:{
 							color:function(){
-								//return texture.sample(mesh.xy+0.1*sin(8*mesh.x))
+								return texture.sample(mesh.xy+0.1*sin(8*mesh.x))
 								//return 'red'
 							}
 						},

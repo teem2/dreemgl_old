@@ -13,7 +13,7 @@ define.class(function(require, baseclass){
 	this.atConstructor = function(gldevice, view){
 		this.device = gldevice
 		this.view = view
-		view.layer = this
+		view.drawpass = this
 		// lets do the flatten
 		this.draw_list = []
 		this.addToDrawList(this.view, true)
@@ -165,11 +165,11 @@ define.class(function(require, baseclass){
 
 			var draw = dl[i]
 			draw.viewmatrix = this.viewmatrix
-			if(draw._mode && draw.layer !== this && draw.layer.pick_buffer){
+			if(draw._mode && draw.drawpass !== this && draw.drawpass.pick_buffer){
 				// ok so the pick pass needs the alpha from the color buffer
 				// and then hard forward the color
 				var blendshader = draw.blendshader
-				blendshader.texture = draw.layer.pick_buffer
+				blendshader.texture = draw.drawpass.pick_buffer
 				blendshader._width = draw.layout.width
 				blendshader._height = draw.layout.height
 				blendshader.drawArrays(this.device)
@@ -212,7 +212,7 @@ define.class(function(require, baseclass){
 		// lets see if we need to allocate our framebuffer..
 		if(!isroot){
 			var main_ratio = device.main_frame.ratio, twidth = layout.width * main_ratio, theight = layout.height * main_ratio
-			this.allocDrawTarget(twidth, theight, 'color_buffer')
+			this.allocDrawTarget(twidth, theight, this.view._mode, 'color_buffer')
 		}
 		this.device.bindFramebuffer(this.color_buffer)
 
@@ -237,11 +237,12 @@ define.class(function(require, baseclass){
 			var draw = dl[i]
 			draw.colorviewmatrix =
 			draw.viewmatrix = this.viewmatrix
-			if(draw._mode && draw.layer !== this && draw.layer.color_buffer){
+
+			if(draw._mode && draw.drawpass !== this && draw.drawpass.color_buffer){
 				// ok so when we are drawing a pick pass, we just need to 1 on 1 forward the color data
 				// lets render the view as a layer
 				var blendshader = draw.blendshader
-				blendshader.texture = draw.layer.color_buffer
+				blendshader.texture = draw.drawpass.color_buffer
 				blendshader.width = draw.layout.width
 				blendshader.height = draw.layout.height
 				blendshader.drawArrays(this.device)
