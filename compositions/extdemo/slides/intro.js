@@ -21,13 +21,13 @@ define.class(function (view, text, codeviewer) {
                 marginleft:25
             }),
             text({
-                text:'+ Compositions can auto load classes in other directories',
+                text:'+ Compositions can auto load classes from component directories',
                 fgcolor:'#333',
                 fontsize:25,
                 margintop:15
             }),
             text({
-                text:'Use the `compositionname$classname` syntax:',
+                text:'Use the `componentname$classname` syntax:',
                 fgcolor:'#444',
                 fontsize:20,
                 margintop:5,

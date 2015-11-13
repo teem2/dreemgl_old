@@ -25,7 +25,7 @@ define.class(function (view, text, codeviewer, cells, device) {
       '    rpcid: "devbus",\n' +
       '    type: "method",\n' +
       '    method: "notify",\n' +
-      '    args: ["id","type","join"]\n' +
+      '    args: ["deviceID","deviceType","<join/part>"]\n' +
       '  }.to_json\n' +
       '\n' +
       '  puts "sending JSON: #{req.body}"\n' +
@@ -47,6 +47,4 @@ define.class(function (view, text, codeviewer, cells, device) {
             )
         ];
     }
-
-
 });

@@ -16,13 +16,11 @@ define.class(function (server) {
 
     this.notify = function(id, type, action) {
         var active = this.active;
-
         if (action == 'join') {
             active[id] = type;
         } else if (action == 'part') {
             delete active[id];
         }
-
         this.active = active;
     }
 
