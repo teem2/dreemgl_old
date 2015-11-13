@@ -3,7 +3,7 @@
  software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
  either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
-define.class(function(screen, slideviewer, this$slides$intro, this$slides$internal, this$slides$external) {
+define.class(function(screen, slideviewer, this$slides$intro, this$slides$internal, this$slides$external, this$slides$api) {
 
     this.attribute('syntaxCode', {type: String});
 
@@ -21,7 +21,8 @@ define.class(function(screen, slideviewer, this$slides$intro, this$slides$intern
                 {name: 'slides', slideheight: 800, position: 'absolute', x: 0, bgcolor: 'black'},
                 this$slides$intro({flex:1, bgcolor:'transparent', syntaxCode:this.syntaxCode}),
                 this$slides$internal({flex: 1, movies:this.movies, searchCode:this.searchCode, compositionCode:this.compositionCode}),
-                this$slides$external({flex: 1, apiCode:this.apiCode, devices:this.devices})
+                this$slides$external({flex: 1, apiCode:this.apiCode, devices:this.devices}),
+                this$slides$api({flex: 1})
             )
         ]
     }
