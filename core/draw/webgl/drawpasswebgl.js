@@ -112,6 +112,7 @@ define.class(function(require, baseclass){
 			if(!dt){
 				dt = this[drawtarget] = this.device.Texture.createRenderTarget(this.device, width, height, mode === '2D'?'rgba':'rgba_depth_stencil')
 			}
+			else this[drawtarget] = dt
 			dt.passid = passid
 		} 
 		// make sure the drawtarget has the right size
