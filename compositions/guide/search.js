@@ -11,7 +11,7 @@ define.class(function(server, require) {
 
     this.onkeyword = function (key) {
 
-        // request library used by nodejs to fetch data
+        // request lib used by nodejs to fetch data
         // if not found try to run the following:
         // `cd ./compositions/guide/ && npm install`
         var request = require('request');
