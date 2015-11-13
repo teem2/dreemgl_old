@@ -2,7 +2,8 @@
    You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, 
    software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, 
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
-// Dreem server
+
+// Dreem/Dali server
 require = require('./define') // support define.js modules
 
 // load up math core and make it global
@@ -93,10 +94,20 @@ function main(){
 			
 			new GitSync(args)
 		}
-		else
-		if(args['-dali']){
-			var DaliClient = require('$core/renderer/daliclient')
-			new DaliClient(args)
+		else if(args['-dali']){
+            // Place the dali/nodejs package at the root of dreemgl
+
+		    var composition = args['-dali'];
+		    if (composition === true)
+			composition = 'rendertest'
+
+		    define.$rendermode = 'dali'
+		    define.$drawmode = 'dali'
+		    define.$environment = 'dali' // Otherwise it is nodejs
+
+		    // Use a local daliserver as a first pass
+		    var DaliServer = require('$core/server/daliserver')
+		    new DaliServer(args, composition);
 		}
 		else if(args['-test']){
 			require('$core/server/test.js')
