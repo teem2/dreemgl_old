@@ -53,7 +53,7 @@ define.class(function(view, require){
 
 	// deny focus loss
 	this.focuslost = function(){
-//		this.screen.setFocus(this)
+		this.screen.setFocus(this)
 	}
 
 	this.init = function(){

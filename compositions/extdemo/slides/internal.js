@@ -10,11 +10,14 @@ define.class(function (view, codeviewer, text, guide$movie, cells, scrollcontain
     this.attribute('movies', {type: Array});
     this.attribute('searchCode', {type: String});
     this.attribute('compositionCode', {type: String});
+    this.bgcolor = 'transparent';
+    this.flexdirection = 'column'
 
     this.render = function render() {
         return [
-            view({flexdirection: 'row', flex: 1},
-                view({flexdirection: 'column', flex: 1, alignself: 'stretch', margin: vec4(10), padding: vec4(4), clipping:true},
+            text({marginleft:15, fgcolor:'red', text:'Proxy through server when everything can be handeled entirely via nodejs!'}),
+            view({flexdirection: 'row', flex: 1, bgcolor:'transparent'},
+                view({flexdirection: 'column', flex: 1, alignself: 'stretch', margin: vec4(10), padding: vec4(4), clipping:true, bgcolor:'transparent'},
                     text({height:30, flex: 0, fontsize:14, alignself: 'stretch', text:'DreemGL Server (./compositions/guide/search.js)'}),
                     scrollcontainer({hscrollvisible:false}, codeviewer({flex: 1, alignself: 'stretch', code: this.searchCode, fontsize: 14, bgcolor: "#000030", multiline: true})),
                     text({height:30, flex: 0, fontsize:14, alignself: 'stretch', text:'DreemGL Client (./compositions/extdemo/index.js)'}),

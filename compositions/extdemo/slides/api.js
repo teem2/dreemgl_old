@@ -8,6 +8,9 @@ define.class(function (view, text) {
     this.slidetitle = "Attributes via POST API";
 
     this.attribute('setterCode', {type: String, value:
+    'require "net/http";\n' +
+    'require "json";\n' +
+    '\n' +
     'uri = URI.parse("http://localhost:2000/extdemo")\n' +
     '\n' +
     'Net::HTTP.start(uri.hostname, uri.port) do |http|\n' +
@@ -25,6 +28,9 @@ define.class(function (view, text) {
     'end'});
 
     this.attribute('getterCode', {type: String, value:
+    'require "net/http";\n' +
+    'require "json";\n' +
+    '\n' +
     'uri = URI.parse("http://localhost:2000/extdemo")\n' +
     '\n' +
     'Net::HTTP.start(uri.hostname, uri.port) do |http|\n' +
@@ -43,24 +49,27 @@ define.class(function (view, text) {
     'end'});
 
     this.flexdirection = 'column';
+    this.bgcolor = 'transparent';
 
     this.render = function render() {
         return [
-            view({flexdirection: 'row', flex: 1},
+            text({marginleft:15, fgcolor:'red', text:'Use POST API when data is coming from external source, like IoT devices!'}),
+            view({flexdirection: 'row', flex: 1, bgcolor:'transparent'},
                 view(
-                    {flexdirection: 'column', flex: 1, alignself: 'stretch', margin: vec4(10), padding: vec4(4), clipping:true},
+                    {flexdirection: 'column', flex: 1, alignself: 'stretch', margin: vec4(10), padding: vec4(4), clipping:true, bgcolor:'transparent'},
                     text({height:30, fontsize:14, flex: 0, alignself: 'stretch', text:'Set Attribute via API (Ruby Example)'}),
                     text({ flex: 1, alignself: 'stretch', text: this.setterCode, fontsize: 14, fgcolor:'aqua', bgcolor: "#000030", multiline: false})
                 ),
                 view(
-                    {flexdirection: 'column', flex: 1, alignself: 'stretch', margin: vec4(10), padding: vec4(4), clipping:true},
+                    {flexdirection: 'column', flex: 1, alignself: 'stretch', margin: vec4(10), padding: vec4(4), clipping:true, bgcolor:'transparent'},
                     text({height:30, fontsize:14, flex: 0, alignself: 'stretch', text:'Get Attribute via API (Ruby Example)'}),
                     text({ flex: 1, alignself: 'stretch', text: this.getterCode, fontsize: 14, fgcolor:'pink', bgcolor: "#000030", multiline: false})
                 )
             ),
             view(
-                {flexdirection: 'column', flex: 0, alignself: 'stretch', padding:10},
-                text({fontsize:28, text:'${"The current value of search.keyword is: " + this.rpc.search.keyword}', alignself: 'center'})
+                {flexdirection: 'column', flex: 0, alignself: 'stretch', padding:10, bgcolor:'transparent'},
+                text({fontsize:28, text:'${"The current value of search.keyword is: " + this.rpc.search.keyword}', alignself: 'center'}),
+                text({fontsize:18, text:'(Try using the post API to get and set this value!)', alignself: 'center'})
             )
         ];
     }

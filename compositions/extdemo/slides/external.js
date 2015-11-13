@@ -7,6 +7,8 @@ define.class(function (view, text, codeviewer, cells, device) {
 
     this.slidetitle = "External Devices via POST API";
 
+    this.bgcolor = "transparent";
+    this.flexdirection = "column";
     this.attribute('deviceList', {type: Array});
     this.attribute('devices', {type: Object});
 
@@ -22,8 +24,10 @@ define.class(function (view, text, codeviewer, cells, device) {
 
     this.attribute('apiCode', {type: String});
     this.attribute('clientCode', {type: String, value:
-      'uri = URI.parse("http://localhost:2000/extdemo")\n' +
+      'require "net/htttp";\n' +
+      'require "json";\n' +
       '\n' +
+      'uri = URI.parse("http://localhost:2000/extdemo")\n' +
       'Net::HTTP.start(uri.hostname, uri.port) do |http|\n' +
       '\n' +
       '  (req = Net::HTTP::Post.new(uri)).body = {\n' +
@@ -40,16 +44,17 @@ define.class(function (view, text, codeviewer, cells, device) {
 
     this.render = function render() {
         return [
-            view({flexdirection: 'row', flex: 1},
+            text({marginleft:15, fgcolor:'red', text:'Use POST API when data is coming from external source, like IoT devices!'}),
+            view({flexdirection: 'row', flex: 1, bgcolor:'transparent'},
                 view(
-                    {flexdirection: 'column', flex: 1, alignself: 'stretch', margin: vec4(10), padding: vec4(4), clipping:true},
+                    {flexdirection: 'column', flex: 1, alignself: 'stretch', margin: vec4(10), padding: vec4(4), clipping:true, bgcolor:'transparent'},
                     text({height:30, fontsize:14, flex: 0, alignself: 'stretch', text:'DreemGL Server (./compositions/extdemo/devices.js)'}),
-                    codeviewer({ flex: 1, alignself: 'stretch', code: this.apiCode, fotsize: 14, bgcolor: "#000030", multiline: true}),
+                    codeviewer({ flex: 1, alignself: 'stretch', code: this.apiCode, fontsize: 13, bgcolor: "#000030", multiline: true}),
                     text({height:30, flex: 0, alignself: 'stretch', text:'Method call via API (Ruby Example)'}),
-                    text({ flex: 1, alignself: 'stretch', text: this.clientCode, fontsize: 14, fgcolor:'yellow', bgcolor: "#000030", multiline: false})
+                    text({ flex: 1, alignself: 'stretch', text: this.clientCode, fontsize: 12, fgcolor:'yellow', bgcolor: "#000030", multiline: false})
                 ),
                 view(
-                    {flexdirection: 'column', flex: 1, alignself: 'stretch', clipping:true, padding: 4, margin: 10},
+                    {flexdirection: 'column', flex: 1, alignself: 'stretch', clipping:true, padding: 4, margin: 10, bgcolor:'transparent'},
                     text({height:30, flex: 0, alignself: 'stretch', text:'Active Devices'}),
                     text({fontsize:10, height:30, flex: 0, alignself: 'stretch', text:'(run ./compositions/extdemo/bin/createdevices.rb to simulate device activity)'}),
                     cells({flex: 1, bgcolor: '#D1CAB0', cellwidth:80, cellheight:80, data:this.deviceList, celltype:device, cornerradius: 0})
