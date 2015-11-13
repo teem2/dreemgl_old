@@ -60,7 +60,7 @@ define.class(function (view, text) {
             ),
             view(
                 {flexdirection: 'column', flex: 0, alignself: 'stretch', padding:10},
-                text({fontsize:28, text:'The current value of "search.keyword" is: ' + this.rpc.search.keyword, alignself: 'center'})
+                text({fontsize:28, text:'${"The current value of search.keyword is: " + this.rpc.search.keyword}', alignself: 'center'})
             )
         ];
     }

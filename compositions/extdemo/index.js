@@ -3,7 +3,7 @@
  software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
  either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
-define.class(function(composition, require, screens, desktop, devices, guide$search, syntax, this$index){
+define.class(function(composition, require, screens, screen, devices, guide$search, syntax, this$index, slideviewer, this$slides$intro, this$slides$internal, this$slides$external, this$slides$api, this$slides$flowgraph){
 
 	function getSource(obj) {
 		return obj.module.factory.body.toString();
@@ -15,17 +15,28 @@ define.class(function(composition, require, screens, desktop, devices, guide$sea
 			// `compositions/guide/search.js` is used here
 			guide$search({name:'search', keyword:"Aliens"}),
 			screens(
-				desktop({
-					name:'desktop',
-					syntaxCode:getSource(syntax),
-
-					compositionCode:getSource(this$index),
-					searchCode:getSource(guide$search),
-					movies:'${this.rpc.search.results}',
-
-					apiCode:getSource(devices),
-					devices:'${this.rpc.devbus.active}'
-				})
+				screen({name:'desktop'},
+					slideviewer(
+						{name: 'slides', slideheight: 800, position: 'absolute', x: 0, bgcolor: 'black'},
+						this$slides$intro({
+							flex:1,
+							syntaxCode:getSource(syntax)
+						}),
+						this$slides$internal({
+							flex: 1,
+							movies:'${this.rpc.search.results}',
+							searchCode:getSource(guide$search),
+							compositionCode:getSource(this$index)
+						}),
+						this$slides$external({
+							flex: 1,
+							apiCode:getSource(devices),
+							devices:'${this.rpc.devbus.active}'
+						}),
+						this$slides$api({flex: 1}),
+						this$slides$flowgraph({flex: 1})
+					)
+				)
 		    ),
 			devices({name:'devbus'})
 		]
