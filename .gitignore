@@ -1,0 +1,7 @@
+.idea
+**/.idea
+build/
+cache/
+gzcache/
+.DS_Store
+*.marks
