@@ -1,21 +1,27 @@
-define.class(function(composition, require, screens, desktop, devices, guide$search, syntax){
+define.class(function(composition, require, screens, desktop, devices, guide$search, syntax, this$index){
+
+	function getSource(obj) {
+		return obj.module.factory.body.toString();
+	}
 
 	this.render = function render() {
 
 		return [
+			// `compositions/guide/search.js` is used here
+			guide$search({name:'search', keyword:"Cats"}),
 			screens(
 				desktop({
 					name:'desktop',
-					syntaxCode:syntax.module.factory.body.toString(),
+					syntaxCode:getSource(syntax),
 
-					searchCode:guide$search.module.factory.body.toString(),
+					compositionCode:getSource(this$index),
+					searchCode:getSource(guide$search),
 					movies:'${this.rpc.search.results}',
 
-					apiCode:devices.module.factory.body.toString(),
+					apiCode:getSource(devices),
 					devices:'${this.rpc.devbus.active}'
 				})
 		    ),
-			guide$search({name:'search', keyword:"Cats"}),
 			devices({name:'devbus'})
 		]
 	}

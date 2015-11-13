@@ -7,7 +7,7 @@ define.class(function (view, guide$movie, this$slides$device) {
     // (which in this case is, `./compositions/extdemo/slides/device.js`)
 
     this.attribute('movieData', {type:Object});
-    this.attribute('deviceData', {type:Object, value:{ deviceId:'TK-429', deviceType:'syntax' }});
+    this.attribute('deviceData', {type:Object, value:{ deviceId:'TK-429', deviceType:'alarm' }});
 
     this.render = function() {
         // Use the component classes just as you would any normal DreemGL class function.
