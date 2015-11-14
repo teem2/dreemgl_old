@@ -3,7 +3,7 @@
  software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
  either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
-define.class(function(composition, require, screens, screen, devices, guide$search, syntax, this$index, slideviewer, this$slides$intro, this$slides$internal, this$slides$external, this$slides$api, this$slides$resources){
+define.class(function(composition, require, screens, screen, devices, guide$search, syntax, this$index, slideviewer, this$slides$intro, this$slides$diagram, this$slides$internal, this$slides$external, this$slides$api, this$slides$resources){
 
 	function getSource(obj) {
 		return obj.module.factory.body.toString();
@@ -22,6 +22,7 @@ define.class(function(composition, require, screens, screen, devices, guide$sear
 							flex:1,
 							syntaxCode:getSource(syntax)
 						}),
+						this$slides$diagram({flex: 1}),
 						this$slides$internal({
 							flex: 1,
 							movies:'${this.rpc.search.results}',
@@ -34,7 +35,6 @@ define.class(function(composition, require, screens, screen, devices, guide$sear
 							devices:'${this.rpc.devbus.active}'
 						}),
 						this$slides$api({flex: 1}),
-							//add slide about estimote
 						this$slides$resources({flex: 1})
 					)
 				)

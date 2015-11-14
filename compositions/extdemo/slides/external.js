@@ -5,7 +5,7 @@
 
 define.class(function (view, text, codeviewer, cells, device) {
 
-    this.slidetitle = "External Devices via POST API";
+    this.slidetitle = "Method Calls via POST API";
 
     this.bgcolor = "transparent";
     this.flexdirection = "column";

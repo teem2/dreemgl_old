@@ -14,10 +14,10 @@ define.class(function (view, text, codeviewer) {
     this.render = function render() {
         return [
             text({
-                text:'+ Components are just directories - No special work required!',
+                text:'+ Plugin components are directories - No special work required!',
                 fgcolor:'#333',
                 fontsize:25,
-                margintop:30
+                margintop:5
             }),
             text({
                 text:'(note: define.$plugins defaults to $compositions directory for convenience, but can be changed for security)',
@@ -27,7 +27,7 @@ define.class(function (view, text, codeviewer) {
                 marginleft:25
             }),
             text({
-                text:'+ Compositions can auto load classes from component directories',
+                text:'+ Compositions can auto load classes from plugin directories:',
                 fgcolor:'#333',
                 fontsize:25,
                 margintop:15
@@ -50,17 +50,16 @@ define.class(function (view, text, codeviewer) {
                 multiline: true}
             ),
             text({
-                text:'+ Example compositions and docs automatic, no special mounting!',
+                text:'+ Example composition in `index.js`, no special mounting!',
                 fgcolor:'#333',
                 fontsize:25,
                 margintop:10
             }),
             text({
-                text:'(note: see `./compositions/guide/README.md` for more detail)',
-                fgcolor:'#666',
-                fontsize:14,
-                margintop:5,
-                marginleft:25
+                text:'+ See `./compositions/guide/README.md` for more full details.',
+                fgcolor:'#333',
+                fontsize:25,
+                margintop:20
             })
 
         ];
