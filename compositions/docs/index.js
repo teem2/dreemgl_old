@@ -41,6 +41,8 @@ define.class(function(composition, docviewer, fileio, screens, screen, dataset, 
 									name:'filetree', 
 									flex:1, 
 									selectclick:function(sel){
+										// Ignore directories
+										if (sel.item.children && sel.item.children.length) return;
 										// we have to grab the last path set and concatenate a path
 										var path = ''
 										for(var i = sel.path.length - 1; i >= 1; i--){
