@@ -9,7 +9,7 @@ define.class('$parse/onejsgen', function(require, exports, self, baseclass){
 	var gltypes = require('./gltypes')
 	var OneJSParser =  require('$parse/onejsparser')
 	var OneJSGen = require('$parse/onejsgen.js')
-
+	var Texture = require('$draw/$drawmode/texture$drawmode')
 	var vectorParser = require('$parse/vectorparser')
 	var onejsparser = new OneJSParser()
 	onejsparser.parser_cache = {}
@@ -102,7 +102,7 @@ define.class('$parse/onejsgen', function(require, exports, self, baseclass){
 		}
 		else if (typeof obj === 'object'){
 			if(obj instanceof Image){
-				obj = context[name] = GLTexture.fromImage(obj)
+				obj = context[name] = Texture.fromImage(obj)
 			}
 			node.infer = {fn_t:'object', object:obj}
 			if(state.basename) return state.basename + '_DOT_' + outname
