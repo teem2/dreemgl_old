@@ -13,7 +13,6 @@ define.class(function(view, scrollbar){
 	this.alignitems = "stretch";
 	this.flex = 1;
 
-	
 	var scrollcontainer = this.constructor;
 	
 	// Basic usage of the scrollcontainer

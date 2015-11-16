@@ -171,12 +171,12 @@ define.class(function(view,  label, button, icon){
 			fgcolor: vec4(0.5, 0.5, 0.5, 1.),
 			last: 0,
 			color: function(){
-				var pos = mesh.xy * vec2(width, height)
+				var pos = mesh.xy * vec2(view.layout.width, view.layout.height)
 				var center = 18
 				var left = 11
 				var field = shape.union(
-					shape.box(pos, left, 0., 1., height * (1. - last) + center * last),
-					shape.box(pos, left, center, width, 1.)
+					shape.box(pos, left, 0., 1., view.layout.height * (1. - last) + center * last),
+					shape.box(pos, left, center, view.layout.width, 1.)
 				)
 				var edge = 1.
 

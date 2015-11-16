@@ -86,8 +86,8 @@ define.class(function(composition, require, screens, screen, docviewer, button, 
 											view:{vanim:0},
 											patterns: require('./shaderpatterns').prototype,
 											color:function(){
-												return vec4( patterns.wave(mesh.uv, i*.1 + view.vanim * 10., i*.1 + view.vanim * 10.) * pal.pal1(i*.1).xyz, 1.)
-											//	return vec4( patterns.stripe(mesh.uv, 10., i*.1 + view.vanim * 10.) * pal.pal1(i*0.1).xyz, 1.) 
+											//	return vec4( patterns.wave(mesh.uv, i*.1 + view.vanim * 10., i*.1 + view.vanim * 10.) * pal.pal1(i*.1).xyz, 1.)
+												return vec4( patterns.stripe(mesh.uv, 10., i*.1 + view.vanim * 10.) * pal.pal1(i*0.1).xyz, 1.) 
 											}
 										}
 										,rot3d:[PI/3,0,0], pos3d:[floor(i/4)*12-17,(i%4)*10-15,0]

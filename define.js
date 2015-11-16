@@ -532,6 +532,7 @@
 		var base_class
 		var body
 		if(arguments.length >= 3){ // inner class
+			is_inner = true
 			var outer_this = arguments[0]
 			var classname = arguments[1]
 			Object.defineProperty(outer_this, classname, {
@@ -542,9 +543,12 @@
 				},
 				set:function(value){
 					// lets kick the class off
+					if(this.atInnerClassAssign) return this.atInnerClassAssign(classname, value)
+
+					// default
 					if(value === undefined || value === null || value === 0){
 						this['_' + classname] = undefined
-						if(this.atInnerClass) this.atInnerClass(classname, undefined)
+						if(this.atInnerClassAssign) this.atInnerClassAssign(classname, undefined)
 						return
 					}
 					if(typeof value === 'function' && Object.getPrototypeOf(value.prototype) !== Object.prototype){
@@ -617,9 +621,9 @@
 			moduleFactory(outer_require, module.exports, module)
 			if(outer_this){
 				outer_this['_' + classname] = module.exports
-				if(outer_this.atInnerClass) outer_this.atInnerClass(classname, module.exports)
+				if(outer_this.atInnerClassAssign) outer_this.atInnerClassAssign(classname, module.exports)
 			}
-
+	
 			return module.exports
 		}
 

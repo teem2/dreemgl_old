@@ -16,7 +16,7 @@ define.class(function(view, require) {
 
 	this.mode = '2D'
 	this.dirty = true
-	this.flex = 0
+	this.flex = NaN
 	this.flexdirection = "column"
 	
 	this.atConstructor = function(){
@@ -108,7 +108,7 @@ define.class(function(view, require) {
 
 		this.mouse.leftdown = function(){
 			
-			if (this.mouse_capture === false) {
+			if (!this.mouse_capture) {
 				this.mouse_capture = this.mouse_view
 			} 
 			// lets give this thing focus
@@ -124,12 +124,22 @@ define.class(function(view, require) {
 			} 
 		}.bind(this)
 
-		this.mouse.leftup = function(){ 
-			if (this.mouse_view && this.inModalChain(this.mouse_view)) this.mouse_view.emit('mouseleftup', this.remapMouse(this.mouse_view))
-			// lets call a mousemove
-			this.mouse_view = undefined
-			this.mouse.emit('move')
-			this.mouse_capture = false
+		this.mouse.leftup = function(){
+			// make sure we send the right mouse out/overs when losing capture
+			this.device.pickScreen(this.mouse.x, this.mouse.y).then(function(view){
+				if(this.mouse_capture) this.mouse_capture.emit('mouseleftup', this.remapMouse(this.mouse_capture))
+				if(this.mouse_capture !== view){
+					if(this.mouse_capture) this.mouse_capture.emit('mouseout', this.remapMouse(this.mouse_capture))
+					if(view){
+						var pos = this.remapMouse(view)
+						view.emit('mouseover', pos)
+						view.emit('mousemove', pos)
+					}
+				}
+				else if(this.mouse_capture) this.mouse_capture.emit('mouseover', this.remapMouse(view))
+				this.mouse_view = view
+				this.mouse_capture = false
+			}.bind(this))
 		}.bind(this)
 		/*
 		this.mouse.click = function () {

@@ -9,7 +9,7 @@ define.class(function(view, label, icon){
 	
 	this.attributes = {
 		// The label for the button
-		label: {type: String, value: ""},
+		text: {type: String, value: ""},
 		// The icon for the button, see FontAwesome for the available icon-names.
 		icon: {type: String, value: ""},
 
@@ -23,10 +23,10 @@ define.class(function(view, label, icon){
 		col2: {type: vec4, value: vec4("#404040"), duration: 1.0},
 
 		// Color of the label text in neutral state	
-		labelcolor: {type: vec4, value: vec4("#404040")},
+		textcolor: {type: vec4, value: vec4("#404040")},
 
 		// Color of the label text in pressed-down state	
-		labelactivecolor: {type: vec4, value: vec4("black")},
+		textactivecolor: {type: vec4, value: vec4("black")},
 		
 		// First gradient color for the button background in neutral state
 		buttoncolor1: {type: vec4, value: vec4("#fffff0")},
@@ -57,19 +57,18 @@ define.class(function(view, label, icon){
 	
 
 	this.buttonres = {};
-
-	this.bg = {
-		color: function(){
-			return mix(view.col1, view.col2, (uv.y)/0.8)
-		}
-	}
-
 	this.padding = 8
 	this.borderradius = 3
 	this.borderwidth  = 2
 	this.margin = 4
 	this.bordercolor = vec4("lightgray")
 	this.alignItems = "center"
+
+	this.bg = {
+		color: function(){
+			return mix(view.col1, view.col2, (uv.y)/0.8)
+		}
+	}
 
 	// The icon class used for the icon display. Exposed to allow overloading/replacing from the outside.
 	define.class(this, 'iconclass', function(icon){
@@ -78,19 +77,19 @@ define.class(function(view, label, icon){
 	this.statehover = function(){
 		this.col1 = this.hovercolor1
 		this.col2 = this.hovercolor2
-		this.icol = this.labelactivecolor
+		this.icol = this.textactivecolor
 	}
 
 	this.statenormal = function(){
 		this.col1 = this.buttoncolor1
 		this.col2 = this.buttoncolor2
-		this.icol = this.labelcolor
+		this.icol = this.textcolor
 	}
 
 	this.stateclick = function(){
 		this.col1 = this.pressedcolor1
 		this.col2 = this.pressedcolor2
-		this.icol = this.labelactivecolor
+		this.icol = this.textactivecolor
 	}
 
 	this.init = this.statenormal

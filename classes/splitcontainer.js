@@ -17,28 +17,27 @@ define.class(function(view, label){
 		activecolor: {type: vec4, value: vec4("#7070a0")}
 	}
 
-	this.flex = 1.0;
-	this.flexdirection = this.vertical?"column":"row" ;
-	this.position = "relative" ;
-	this.borderwidth =1;
-	this.bordercolor = vec4("#303060");
+	this.flex = 1.0
+	this.flexdirection = this.vertical?"column":"row"
+	this.position = "relative" 
+	this.borderwidth = 1
+	this.bordercolor = vec4("#303060")
 	
 	this.vertical = function(){
 		this.flexdirection = this.vertical?"column":"row" ;
 	}
 	
-	var splitcontainer = this.constructor;
+	var splitcontainer = this.constructor
 	
 	// Basic usage of the splitcontainer
 	define.example(this, function Usage(){ return [
-								splitcontainer({vertical: false, margin: 4, flex: 1.0, borderwidth:2, bordercolor: "darkblue", padding: vec4(2) },
-								label({flex: 0.2, fontsize: 26, text:"A", bgcolor: "transparent" ,multiline: true, align:"center" , fgcolor:"black", margin: 2})
-								,label({flex: 0.2, fontsize: 26, text:"B", bgcolor: "transparent" ,multiline: true, align:"center" ,fgcolor:"black", margin: 2})
-								,label({flex: 0.2, fontsize: 26, text:"C", bgcolor: "transparent" ,multiline: true, align:"center" , fgcolor:"black",margin: 2})
-								,label({flex: 0.2, fontsize: 26, text:"D", bgcolor: "transparent" ,multiline: true, align:"center" , fgcolor:"black",margin: 2})
-		)]});
+		splitcontainer({vertical: false, margin: 4, flex: 1.0, borderwidth:2, bordercolor: "darkblue", padding: vec4(2) },
+		label({flex: 0.2, fontsize: 26, text:"A", bgcolor: "transparent" ,multiline: true, align:"center" , fgcolor:"black", margin: 2})
+		,label({flex: 0.2, fontsize: 26, text:"B", bgcolor: "transparent" ,multiline: true, align:"center" ,fgcolor:"black", margin: 2})
+		,label({flex: 0.2, fontsize: 26, text:"C", bgcolor: "transparent" ,multiline: true, align:"center" , fgcolor:"black",margin: 2})
+		,label({flex: 0.2, fontsize: 26, text:"D", bgcolor: "transparent" ,multiline: true, align:"center" , fgcolor:"black",margin: 2})
+	)]})
 
-	
 	// the visual class that defines the draggable bar between the resizable children
 	define.class(this, 'splitter', function(view){
 		
@@ -55,10 +54,9 @@ define.class(function(view, label){
 			hovercolor: {type: vec4, value: vec4("#5050a0")},
 			activecolor: {type: vec4, value: vec4("#7070a0")}
 		}
-
-		this.bg = {color1: vec4("red"), bgcolorfn: function(A,B){return color1;}};
-		this.pressed = 0;
-		this.hovered = 0;
+		this.flex = 0
+		this.pressed = 0
+		this.hovered = 0
 
 		this.mouseover  = function(){
 			if (this.hovered < 1) this.hovered++;
@@ -74,17 +72,16 @@ define.class(function(view, label){
 			this.pressed++;
 			this.dragstart = {x: this.screen.mouse.x, y:this.screen.mouse.y};
 			
-			this.flexstart = 
-				{
-					left: this.parent.children[this.firstnode].flex, 
-					right: this.parent.children[this.firstnode+2].flex,
-					
-					leftwidth: this.parent.children[this.firstnode].layout.width, 
-					leftheight: this.parent.children[this.firstnode].layout.height,
-					
-					rightwidth: this.parent.children[this.firstnode+2].layout.width,
-					rightheight: this.parent.children[this.firstnode+2].layout.height
-				};
+			this.flexstart = {
+				left: this.parent.children[this.firstnode].flex, 
+				right: this.parent.children[this.firstnode+2].flex,
+				
+				leftwidth: this.parent.children[this.firstnode].layout.width, 
+				leftheight: this.parent.children[this.firstnode].layout.height,
+				
+				rightwidth: this.parent.children[this.firstnode+2].layout.width,
+				rightheight: this.parent.children[this.firstnode+2].layout.height
+			}
 
 			this.mousemove = function(a){				
 				var dx = this.screen.mouse.x - this.dragstart.x;
@@ -110,7 +107,8 @@ define.class(function(view, label){
 					var f2n = h2 / (hadd);					
 					leftnode.flex = f1n * totf;
 					rightnode.flex = f2n* totf;
-				}else{										
+				}
+				else{										
 					var w1 = this.flexstart.leftwidth;
 					var w2 = this.flexstart.rightwidth;
 					
@@ -120,8 +118,8 @@ define.class(function(view, label){
 					if (w1 < this.parent.minimalchildsize || w2 < this.parent.minimalchildsize) return;
 					var f1n = w1 / (wadd);
 					var f2n = w2 / (wadd);
-					leftnode.flex = f1n* totf;
-					rightnode.flex = f2n* totf;
+					leftnode.flex = f1n * totf;
+					rightnode.flex = f2n * totf;
 				}
 				leftnode.setDirty(true);
 				leftnode.reLayout();
@@ -138,7 +136,7 @@ define.class(function(view, label){
 			this.mousemove = function(){};
 			this.setDirty(true);			
 		}
-
+		/*
 		this.atDraw = function(){
 			if (this.hovered > 0){
 				if (this.pressed > 0){
@@ -150,29 +148,44 @@ define.class(function(view, label){
 				this.bg_shader.color1 = this.splittercolor;
 			}
 		}
-
+		*/
 		this.render = function(){
 			if (this.vertical){
-				this.height = this.splitsize;
-				this.width = NaN;
-			}else{
-				this.width = this.splitsize;;
-				this.height = NaN;
-			}				
-		}		
-	});
-	
-	this.render = function(){		
-		if (this.constructor_children.length > 1){
-			this.newchildren = []
-			this.newchildren.push(view({clipping: true, flex: this.constructor_children[0].flex},this.constructor_children[0]));
-			for (var i = 1;i<this.constructor_children.length;i++){
-				this.newchildren.push(this.splitter({vertical: this.vertical,firstnode: (i-1)*2, splitsize: this.splitsize, splittercolor: this.splittercolor, hovercolor: this.hovercolor, activecolor: this.activecolor}));
-				this.newchildren.push(view({clipping: true, flex: this.constructor_children[i].flex },this.constructor_children[i]));				
+				this.height = this.splitsize
+				this.width = NaN
 			}
-			this.children = [];
-			return this.newchildren;
-		}else{
+			else{
+				this.width = this.splitsize
+				this.height = NaN
+			}
+		}	
+	})
+	
+	this.render = function(){
+		if (this.constructor_children.length > 1){
+			var children = []
+			children.push(view({clipping: true, flex: this.constructor_children[0].flex},this.constructor_children[0]));
+
+			for (var i = 1; i < this.constructor_children.length; i++){
+
+				children.push( this.splitter({
+					vertical: this.vertical,
+					firstnode: (i-1)*2, 
+					splitsize: this.splitsize, 
+					splittercolor: this.splittercolor, 
+					hovercolor: this.hovercolor, 
+					activecolor: this.activecolor
+				}))
+
+				children.push(view({
+					clipping: true, 
+					flex: this.constructor_children[i].flex 
+				},this.constructor_children[i]))				
+
+			}
+			return children
+		}
+		else {
 			return this.constructor_children;
 		}
 	}

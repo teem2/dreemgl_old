@@ -45,6 +45,7 @@ define.class('$base/node', function(require, exports, self){
 
 	this.extensions = ''
 	// put extensions as setters to not have to scan for them
+	/*
 	function defExt(ext){
 		Object.defineProperty(self, key,{
 			get:function(){
@@ -57,8 +58,8 @@ define.class('$base/node', function(require, exports, self){
 				this.extensions += ext
 			}
 		})
-	}
-	for(var key in gltypes.extensions) defExt(key)
+	}*/
+	//for(var key in gltypes.extensions) defExt(key)
 
 	//this.OES_standard_derivatives = 1
 

@@ -239,6 +239,9 @@ define.class(function(require, baseclass){
 			draw.colorviewmatrix =
 			draw.viewmatrix = this.viewmatrix
 
+			if(draw.atDraw){
+				draw.atDraw(this)
+			}
 			if(draw._mode && draw.drawpass !== this && draw.drawpass.color_buffer){
 				// ok so when we are drawing a pick pass, we just need to 1 on 1 forward the color data
 				// lets render the view as a layer

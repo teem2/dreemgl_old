@@ -54,6 +54,8 @@ define.class(function(view, require){
 			this.mesh = mesh
 		}
 	})
+	// enable it
+	this.font = 5
 
 	this.bgcolor = vec4("transparent")
 
@@ -68,11 +70,6 @@ define.class(function(view, require){
 	this.sizetocontent = function(width){
 		this.fontshader.update()
 		return {width: this.fontshader.mesh.bound_w, height: this.fontshader.mesh.bound_h};
-	}
-
-	this.atDraw = function(renderstate){
-		this.fg_shader.viewmatrix = renderstate.viewmatrix;
-		this.lazyInit()
 	}
 
 	// A label.

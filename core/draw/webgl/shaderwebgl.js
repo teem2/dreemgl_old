@@ -250,6 +250,7 @@ define.class('../shader', function(require, exports, self){
 		// lets do the texture slots correct
 		if(!gltex){
 			gltex = texture.createGLTexture(gl, TEXTURE_ID, TEXTURE_INFO)
+			if(!gltex) debugger
 		}
 		else{
 			gl.activeTexture(TEXTUREGL_ID) // gl.TEXTURE0 + TEXTURE_ID

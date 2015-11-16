@@ -64,9 +64,7 @@ define.class('$base/composition_base', function(require, baseclass){
 		
 		if(this.screen.title !== undefined) document.title = this.screen.title 
 				
-		if(previous){
-			this.screen.setDirty(true)
-		}
+		this.screen.redraw()
 
 		this.rendered = true
 	}

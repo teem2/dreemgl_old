@@ -50,7 +50,7 @@ define.class( function(node, require){
 		borderrightwidth: {storage:'borderwidth', index:2},
 		borderbottomwidth: {storage:'borderwidth', index:3},
 
-		flex: {type: float, value: undefined},
+		flex: {type: float, value: NaN},
 		flexwrap: {type: String, value: "wrap"},	//'wrap', 'nowrap'
 		flexdirection: {type: String, value: "row"},	//'column', 'row'
 		justifycontent: {type:String, value: ""}, //	'flex-start', 'center', 'flex-end', 'space-between', 'space-around'
@@ -85,6 +85,22 @@ define.class( function(node, require){
 
 	this.rpcproxy = false
 
+	// automatically switch to the rounded shader
+	this.borderradius = function(value){
+		if(typeof value === 'number' && value !== 0 || value[0] !== 0 || value[1] !== 0 || value[2] !== 0 || value[3] !== 0){
+			// this switches the bg shader to the rounded one
+			this.bg = this.rounded
+		}
+	}
+
+	// turn on the border shader
+	this.borderwidth = function(value){
+		if(typeof value === 'number' && value !== 0 || value[0] !== 0 || value[1] !== 0 || value[2] !== 0 || value[3] !== 0){
+			// turn it on by assigning an order number
+			this.border = 2
+		}
+	}
+
 	this.init = function(){
 		this.anims = {}
 		this.layout = {width:0, height:0, left:0, top:0, right:0, bottom:0}
@@ -96,28 +112,83 @@ define.class( function(node, require){
 	}
 
 	this.atInit = function(){
-		for(var key in this.shaders){
+		for(var key in this.shader_order){
+			var onoff = this.shader_order[key]
+			if(!onoff) continue
 			var shader = this[key]
-			if(shader) this.shader_list.push(this[key+'shader'] = new shader(this))
+			if(shader){
+				var shobj = this[key + 'shader'] = new shader(this)
+				shobj.shadername = key
+				this.shader_list.push(shobj)
+			}
 		}
+		this.shader_list = this.shader_list.sort(function(a, b){
+			return this.shader_order[a.shadername] > this.shader_order[b.shadername]
+		}.bind(this))
+
+		if(this.debug !== undefined && this.debug.indexOf('shaderlist') !== -1){
+			console.log(this.shader_order)
+		}
+
 		if(this._mode){
 			// give it a blendshader
 			this.blendshader = new this.blend(this)
 		}
 	}
 
-	this.atInnerClass = function(name, inner){
-		if(inner === undefined){ // someone is trying to remove this class
-			if(this.shaders[name]){
-				if(!this.hasOwnProperty('shaders')) this.shaders = Object.create(this.shaders || {})
-				this.shaders[name] = undefined
-			}	
-			return		
+	this.atDraw = function(){
+		if(this.debug !== undefined && this.debug.indexOf('atdraw')!== -1) console.log(this)
+	}
+
+	// make sure our shader_list is in sync
+	this.syncShaderList = function(){
+
+	}
+
+	this.shaderOrder = function(key, value){
+		if(!this.hasOwnProperty('shaders')) this.shader_order = Object.create(this.shader_order || {})
+		// the first time is always false
+		if(this.shader_order[key] === undefined){
+			this.shader_order[key] = false
+			return
 		}
-		if(inner.prototype instanceof Shader){
-			if(!this.hasOwnProperty('shaders')) this.shaders = Object.create(this.shaders || {})
-			if(!inner.prototype.omit_from_shader_list){
-				this.shaders[name] = inner
+		this.shader_order[key] = value
+	}
+
+	// custom hook in the inner class assignment to handle nested shaders specifically
+	this.atInnerClassAssign = function(key, value){
+
+		// set the shader order
+		if(!value || typeof value === 'number' || typeof value === 'boolean'){
+			return this.shaderOrder(key, value)
+		}
+
+		// its a shader redirect
+		if(typeof value === 'string'){
+			this[key] = this[value]
+			var order = this.shader_order[key]
+			if(typeof order !== 'number') this.shaderOrder(key, 1)
+			return
+		}
+
+		// its a class assignment
+		if(typeof value === 'function' && Object.getPrototypeOf(value.prototype) !== Object.prototype){
+			this['_' + key] = value
+			if(value.prototype instanceof Shader){
+				this.shaderOrder(key, 1)
+			}
+			return
+		}
+
+		// its inheritance
+		var cls = this['_' + key]
+		this['_' + key] = cls.extend(value, this)
+
+		// check if we need to turn it on
+		if(cls.prototype instanceof Shader){
+			var order = this.shader_order[key]
+			if(order !== null && typeof order !== 'number'){
+				this.shaderOrder(key, 1)
 			}
 		}
 	}
@@ -138,9 +209,10 @@ define.class( function(node, require){
 			}.bind(this)
 		}
 		var shaders = this.shader_list
+		if(!shaders)debugger
 		for(var i = 0; i < shaders.length; i ++){
 			var shader = shaders[i]			
-			shader.update()
+			if(shader.update) shader.update()
 		}		
 		if(!this._shaderswired){
 			this._shaderswired = true
@@ -198,7 +270,6 @@ define.class( function(node, require){
 
 	this.update = this.updateShaders
 
-
 	this.startMotion = function(obj, key, value){
 		var config = obj.getAttributeConfig(key)
 		var first = obj['_' + key]
@@ -232,10 +303,31 @@ define.class( function(node, require){
 		return hasanim
 	}
 
-	// shaders
+	// ok so the problem is, the init has already overloaded the class that auto-switches
+	// so what do we do with that. 
+	// thats a real problem
 
-	// rounded corner shader
-	define.class(this, 'bg', this.Shader, function(){
+	// standard bg is undecided
+	define.class(this, 'bg', this.Shader, function(){})
+
+	define.class(this, 'rect', this.Shader, function(){
+		this.mesh = vec2.array()
+		this.mesh.pushQuad(0,0,1,0,0,1,1,1)
+		this.position = function(){
+			uv = mesh.xy
+			pos = vec2(mesh.x * view.layout.width, mesh.y * view.layout.height)
+			return vec4(pos, 0, 1) * view.totalmatrix * view.viewmatrix
+		}
+		this.color = function(){
+			return view.bgcolor
+		}
+	})
+
+	// make rect the default bg shader
+	this.bg = this.rect
+
+	// rounded rect shader class
+	define.class(this, 'rounded', this.Shader, function(){
 
 		this.vertexstruct = define.struct({
 			pos: vec2,
@@ -331,6 +423,7 @@ define.class( function(node, require){
 			return vec4( mesh.x * width, mesh.y * height, 0, 1) * view.layermatrix * view.viewmatrix
 		}
 	})
+	this.blend = null
 	
 	// rounded corner border shader
 	define.class(this, 'border', this.Shader, function(){
@@ -397,26 +490,26 @@ define.class( function(node, require){
 		}
 		
 		this.color = function(){
-			return view.bordercolor;
-			};
+			return view.bordercolor
+		}
 		
 		this.position = function(){
 			
-			pos = mesh.pos.xy;
-			var ca = cos(mesh.angle + PI);
-			var sa = sin(mesh.angle+PI);
+			pos = mesh.pos.xy
+			var ca = cos(mesh.angle + PI)
+			var sa = sin(mesh.angle+PI)
 			
-			var rad  = dot(mesh.radmult, view.borderradius);
+			var rad  = dot(mesh.radmult, view.borderradius)
 			
-			pos.x += ca * rad;
-			pos.y += sa * rad;
+			pos.x += ca * rad
+			pos.y += sa * rad
 			
-			uv = vec2(pos.x/view.width,  pos.y/view.height);
+			uv = vec2(pos.x/view.width,  pos.y/view.height)
 			
 			sized = vec2(pos.x, pos.y)
 			return vec4(sized.x, sized.y, 0, 1) * view.totalmatrix * view.viewmatrix
 		}
 	})
-
+	this.border = false
 
 })

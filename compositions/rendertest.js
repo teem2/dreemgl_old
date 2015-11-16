@@ -1,14 +1,13 @@
 //Pure JS based composition
 define.class(function(composition, screens, screen, view, label, button){
 
-	var mousedebug = define.class(function mousedebug(view){	
+	var mousedebug = define.class(function mousedebug(view){
 		
 		this.attributes = {
 			buttoncolor1: {type: vec4, value: vec4("#9090b0")},
 			buttoncolor2: {type: vec4, value: vec4("#8080c0")}
 		}
 
-		
 		this.bg  = {
 			mousepos: vec2(0), 
 			gridcolor: vec4("#ffffff"),

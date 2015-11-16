@@ -108,7 +108,6 @@ define.class(function(require, exports, self){
 		}.bind(this)
 
 		resize()
-
 	}
 
 	this.clear = function(r, g, b, a){
@@ -196,9 +195,11 @@ define.class(function(require, exports, self){
 	}
 
 	this.doDraw = function(time){
+
 		// lets layout shit that needs layouting.
 		var screen = this.layout_list[this.layout_list.length - 1]
 		screen._size = vec2(this.main_frame.size[0] / this.ratio, this.main_frame.size[1] / this.ratio)
+
 		for(var i = 0; i < this.layout_list.length; i++){
 			// lets do a layout?
 			var view = this.layout_list[i]
@@ -217,7 +218,7 @@ define.class(function(require, exports, self){
 		while(!node._mode){
 			node = node.parent
 		}
-
+		
 		if(!node.parent){ // fast path to chuck the whole set
 			// lets put all the drawpasses in a pool for reuse
 			for(var i = 0; i < this.drawpass_list.length; i++) this.drawpass_list[i].drawpass.poolDrawTargets()
@@ -281,7 +282,7 @@ define.class(function(require, exports, self){
 			this.drawpass_list.splice(this.drawpass_idx,0,view)
 			this.drawpass_idx++
 		}
-		if(!view._flex){
+		if(isNaN(view._flex)){
 			this.layout_list.splice(this.layout_idx,0,view)
 			this.layout_idx++
 		}

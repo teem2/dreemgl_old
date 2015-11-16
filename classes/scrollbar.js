@@ -3,13 +3,12 @@
    software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, 
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
-
 define.class(function(view){
 	
 	this.attributes = {
 		// Color of the draggable part of the scrollbar
 		draggercolor: {type: vec4, value: vec4("#9090b0")},
-		
+	
 		// Color when the mouse is hovering over the draggable part of the scrollbar
 		hovercolor: {type: vec4, value: vec4("#8080c0")},
 		
@@ -23,7 +22,10 @@ define.class(function(view){
 		offset: {type:float, value:0},
 		
 		// Page size. Accepted range is 0 to 1
-		page: {type:float, value:1.0}
+		page: {type:float, value:1.0},
+
+		// set animation on bgcolor
+		bgcolor: {duration: 1.0}
 	}
 
 	var scrollbar = this.constructor;
@@ -101,8 +103,6 @@ define.class(function(view){
 		this.setDirty(true)
 	}
 	
-	this.attribute("bgcolor", {duration: 1.0})
-	
 	this.mouseout = function(){
 		this.hovered--
 		this.setDirty(true)
@@ -155,6 +155,7 @@ define.class(function(view){
 	}
 
 	this.drawcount = 0;
+	/*
 	this.atDraw = function(){
 		this.drawcount ++
 
@@ -174,4 +175,5 @@ define.class(function(view){
 			}
 		}
 	}
+	*/
 })
