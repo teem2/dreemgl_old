@@ -12,7 +12,7 @@ define.class(function(require, shape3d, view, icon){
 	this.attributes = {dimension:{type:vec3, value:vec3(1)}}
 
 	this.init = function(){
-		this.bg_shader.addBox(this.dimension[0], this.dimension[1], this.dimension[2]);
+		this.bgshader.addBox(this.dimension[0], this.dimension[1], this.dimension[2]);
 	}
 	
 	this.mouseover  = function(){

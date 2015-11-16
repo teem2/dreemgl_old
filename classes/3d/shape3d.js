@@ -28,27 +28,8 @@ define.class(function(require, view, icon){
 
 		var normalmat = mat4.transpose(mat4.normalFromMat4(mat4.transpose(mat)));
 
-		this.bg_shader._modelmatrix =  mat;
-		this.bg_shader._camup =  renderstate.camup;
-		this.bg_shader._camleft =  renderstate.camleft;
-		this.bg_shader._normalmatrix =  normalmat;
-		this.bg_shader._projectionmatrix = renderstate.projectionmatrix;
-		this.bg_shader._lookatmatrix = renderstate.lookatmatrix;
-		this.bg_shader._cameraposition = renderstate.cameraposition;
-	//	this.bg_shader.adjustmatrix1 = renderstate.adjustmatrix1;
-		//this.bg_shader.adjustmatrix2 = renderstate.adjustmatrix2;
-		this.bg_shader._flattenmatrix = renderstate.flattenmatrix;
-		var adjust = mat4.identity();;
-		
-			//adjust[3] = 300;
-		this.bg_shader._scaler = renderstate.adjustmatrix;
 		
 		
-	}
-	
-	this.init = function(){
-		this.bg_shader.mesh = this.bg_shader.vertexstruct.array();
-//		this.bg_shader.buildGeometry();
 	}
 	
 	define.class(this, 'bg', this.Shader, function(){
@@ -56,6 +37,10 @@ define.class(function(require, view, icon){
 		//this.attribute("shape", {type: String, value: "cube"} );
 		
 		this.depth_test = 'src_depth < dst_depth';
+		
+		this.update = function(){
+			this.mesh = this.vertexstruct.array();
+		}
 		
 		this.vertexstruct = define.struct({
 			pos: vec3,
@@ -125,20 +110,9 @@ define.class(function(require, view, icon){
 	
 		this.texture = require('$textures/envmap1.png');
 
-		this.matrix = mat4.identity()
-		this.cameraposition = vec3(0,0,0)
-		this.modelmatrix = mat4.identity();
-		this.projectionmatrix = mat4.identity();
-		this.dimension = vec2(1025,1025);
-		this.normalmatrix = mat4.identity();
-		this.lookatmatrix = mat4.identity();
-		this.screenup = vec3(0,1,0);
-		this.screenleft = vec3(-1,0,0);
-		this.flattenmatrix = mat4.identity();
-		this.viewmatrix = mat4.identity();				
-		this.camup = vec3();
-		this.camleft = vec3();
+		
 		this.position = function() {						
+			
 			var temp = (vec4(mesh.norm,1.0) * normalmatrix  );						
 			transnorm = temp.xyz;			
 			

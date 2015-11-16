@@ -38,6 +38,7 @@ define.class( function(node, require){
 		paddingbottom: {storage:'padding', index:3},
 
 		scale: {type: vec3, value: vec3(1)},
+		anchor: {type: vec3, value: vec3(0)},
 		rotate: {type: vec3, value: vec3(0)},
 		translate: {type: vec3, value: vec3(0)},
 
@@ -209,39 +210,47 @@ define.class( function(node, require){
 			}.bind(this)
 		}
 		var shaders = this.shader_list
-		if(!shaders)debugger
+		if(!shaders) debugger
+	
 		for(var i = 0; i < shaders.length; i ++){
 			var shader = shaders[i]			
 			if(shader.update) shader.update()
 		}		
-		if(!this._shaderswired){
+	
+		if(!this._shaderswired) {
 			this._shaderswired = true
 			this.atAttributeGet = undefined
 		}
 	}
 
-	this.updateMatrices = function(parentmatrix){
+	this.updateMatrices = function(parentmatrix, parentmode){
 
-		// compute TSRT matrix
-		if(this.layout){
-			var s = this._scale
-			var r = this._rotate
-			var t0 = this.layout.left, t1 = this.layout.top, t2 = 0
-			if (this._position === "absolute"){
-				t0 = this._pos[0]
-				t1 = this._pos[1]
-			}
-			var hw = ( this.layout.width !== undefined? this.layout.width: this._size[0] ) / 2
-			var hh = ( this.layout.height !== undefined ? this.layout.height: this._size[1]) / 2
-			mat4.TSRT(-hw, -hh, 0, s[0], s[1], s[2], r[0], r[1], r[2], t0 + hw * s[0], t1 + hh * s[1], t2, this.modelmatrix);
+		if (parentmode== '3D'){
+			
+			mat4.TSRT2(this.anchor, this.scale, this.rotate, this.translate, this.modelmatrix);
 		}
 		else{
-			var s = this._scale
-			var r = this._rotate
-			var t = this._translate
-			var hw = this._size[0] / 2
-			var hh = this._size[1] / 2
-			mat4.TSRT(-hw, -hh, 0, s[0], s[1], s[2], 0, 0, r[2], t[0] + hw * s[0], t[1] + hh * s[1], t[2], this.modelmatrix);
+			// compute TSRT matrix
+			if(this.layout){
+				var s = this._scale
+				var r = this._rotate
+				var t0 = this.layout.left, t1 = this.layout.top, t2 = 0
+				if (this._position === "absolute"){
+					t0 = this._pos[0]
+					t1 = this._pos[1]
+				}
+				var hw = ( this.layout.width !== undefined? this.layout.width: this._size[0] ) / 2
+				var hh = ( this.layout.height !== undefined ? this.layout.height: this._size[1]) / 2
+				mat4.TSRT(-hw, -hh, 0, s[0], s[1], s[2], r[0], r[1], r[2], t0 + hw * s[0], t1 + hh * s[1], t2, this.modelmatrix);
+			}
+			else{
+				var s = this._scale
+				var r = this._rotate
+				var t = this._translate
+				var hw = this._size[0] / 2
+				var hh = this._size[1] / 2
+				mat4.TSRT(-hw, -hh, 0, s[0], s[1], s[2], 0, 0, r[2], t[0] + hw * s[0], t[1] + hh * s[1], t[2], this.modelmatrix);
+			}
 		}
 
 		// do the matrix mul
@@ -257,7 +266,7 @@ define.class( function(node, require){
 
 		var children = this.children
 		for(var i = 0; i < children.length; i++){
-			children[i].updateMatrices(this.totalmatrix)
+			children[i].updateMatrices(this.totalmatrix, parentmode)
 		}
 	}
 
@@ -265,7 +274,7 @@ define.class( function(node, require){
 		FlexLayout.fillNodes(this)
 		var layouted = FlexLayout.computeLayout(this)
 		// recursively update matrices?
-		this.updateMatrices()
+		this.updateMatrices(undefined, this._mode)
 	}
 
 	this.update = this.updateShaders
