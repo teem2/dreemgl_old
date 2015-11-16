@@ -93,6 +93,8 @@ define.class(function(require, baseclass){
 					var tgt = pool[i]
 					var size = tgt.size
 					if(size[0] === width && size[1] === height){
+						// lets remove it from the pool
+						pool.splice(i,1)
 						dt = tgt
 						break
 					}
@@ -103,6 +105,7 @@ define.class(function(require, baseclass){
 						var tgt = pool[i]
 						if(passid === tgt.passid){
 							dt = tgt
+							pool.splice(i,1)
 							break
 						}
 					}
