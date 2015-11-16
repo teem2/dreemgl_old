@@ -11,7 +11,6 @@ define.class(function(require, shape3d, text, view, icon){
 	var GLTexture = require('$gl/gltexture')
 	var GLGeom= require('$gl/glgeom')
 	var GLMat = require('$gl/glmaterial')
-
 	
 	this.attributes = {dimension:{type:vec3, value:vec3(1)}}
 
@@ -27,7 +26,5 @@ define.class(function(require, shape3d, text, view, icon){
 		console.log("mouse out geometry!", this.interfaceguid);
 	}
 	
-	this.t = 0;
-
-	
+	this.t = 0	
 })

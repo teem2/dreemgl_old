@@ -55,24 +55,23 @@ define.class(function(view, label){
 			activecolor: {type: vec4, value: vec4("#7070a0")}
 		}
 		this.flex = 0
-		this.pressed = 0
-		this.hovered = 0
 
 		this.mouseover  = function(){
-			if (this.hovered < 1) this.hovered++;
 			//this.setDirty(true);
 		}
 
 		this.mouseout  = function(){
-			if (this.hovered>0)	this.hovered--;
 			//this.setDirty(true);
 		}
 
 		this.mouseleftdown = function(pos){
-			this.pressed++;
-			this.dragstart = {x: this.screen.mouse.x, y:this.screen.mouse.y};
+
+			var dragstart = this.parent.localMouse()
+
+			this.pressed++
+			//var dragstart = {x: this.screen.mouse.x, y:this.screen.mouse.y}
 			
-			this.flexstart = {
+			var flexstart = {
 				left: this.parent.children[this.firstnode].flex, 
 				right: this.parent.children[this.firstnode+2].flex,
 				
@@ -83,58 +82,63 @@ define.class(function(view, label){
 				rightheight: this.parent.children[this.firstnode+2].layout.height
 			}
 
-			this.mousemove = function(a){				
-				var dx = this.screen.mouse.x - this.dragstart.x;
-				var dy = this.screen.mouse.y - this.dragstart.y;
-				
-				var leftnode = this.parent.children[this.firstnode];
-				var rightnode = this.parent.children[this.firstnode+2];
+			this.mousemove = function(pos){
+				var dragnow = this.parent.localMouse()
+				var dx = dragnow[0] - dragstart[0]
+				var dy = dragnow[1] - dragstart[1]
 
-				var f1 = this.flexstart.left;
-				var f2 = this.flexstart.right;
+				var leftnode = this.parent.children[this.firstnode]
+				var rightnode = this.parent.children[this.firstnode + 2]
 
-				var totf = f1 + f2;
+				var f1 = flexstart.left
+				var f2 = flexstart.right
+
+				var totf = f1 + f2
 
 				if (this.vertical){
-					var h1 = this.flexstart.leftheight;
-					var h2 = this.flexstart.rightheight;
+					var h1 = flexstart.leftheight
+					var h2 = flexstart.rightheight
 					
-					var hadd = h1 + h2;	
-					h1 += dy;
-					h2 -= dy;
-					if (h1 < this.parent.minimalchildsize || h2 < this.parent.minimalchildsize) return;
-					var f1n = h1 / (hadd);
-					var f2n = h2 / (hadd);					
-					leftnode.flex = f1n * totf;
-					rightnode.flex = f2n* totf;
+					var hadd = h1 + h2
+					h1 += dy
+					h2 -= dy
+					if (h1 < this.parent.minimalchildsize || h2 < this.parent.minimalchildsize) return
+					var f1n = h1 / (hadd)
+					var f2n = h2 / (hadd)
+					leftnode.flex = f1n * totf
+					rightnode.flex = f2n* totf
 				}
-				else{										
-					var w1 = this.flexstart.leftwidth;
-					var w2 = this.flexstart.rightwidth;
+				else{
+					var w1 = flexstart.leftwidth
+					var w2 = flexstart.rightwidth
 					
-					var wadd = w1 + w2;
-					w1 += dx;
-					w2 -= dx;
-					if (w1 < this.parent.minimalchildsize || w2 < this.parent.minimalchildsize) return;
-					var f1n = w1 / (wadd);
-					var f2n = w2 / (wadd);
-					leftnode.flex = f1n * totf;
-					rightnode.flex = f2n * totf;
-				}
+					var wadd = w1 + w2
+					w1 += dx
+					w2 -= dx
+					if (w1 < this.parent.minimalchildsize || w2 < this.parent.minimalchildsize) return
+					var f1n = w1 / (wadd)
+					var f2n = w2 / (wadd)
+					leftnode.flex = f1n * totf
+					rightnode.flex = f2n * totf
+				} 
+				this.parent.redraw()
+				// lets trigger layout dirty...
+				/*
 				leftnode.setDirty(true);
 				leftnode.reLayout();
 				rightnode.reLayout();
 				rightnode.setDirty(true);
 				this.setDirty(true);
-			}.bind(this);
+				*/
+			}.bind(this)
 
-			this.setDirty(true);
+			//this.setDirty(true);
 		}
 
 		this.mouseleftup = function(){
-			this.pressed--;
+			//this.pressed--;
 			this.mousemove = function(){};
-			this.setDirty(true);			
+			//this.setDirty(true);			
 		}
 		/*
 		this.atDraw = function(){

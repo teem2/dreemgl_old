@@ -83,7 +83,7 @@ define.class( function(node, require){
 	this.layout = {width:0, height:0, left:0, top:0, right:0, bottom:0}
 	this.device = {frame:{size:vec2()}}
 
-	this.rpcproxy = false
+	this.rpcproxy = false	
 
 	// automatically switch to the rounded shader
 	this.borderradius = function(value){
@@ -99,6 +99,10 @@ define.class( function(node, require){
 			// turn it on by assigning an order number
 			this.border = 2
 		}
+	}
+
+	this.localMouse = function(){
+		return vec2(this.screen.remapMouse(this))
 	}
 
 	this.init = function(){

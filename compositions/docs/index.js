@@ -28,7 +28,7 @@ define.class(function(composition, docviewer, fileio, screens, screen, dataset, 
 					return [
 						splitcontainer({ vertical: false, position: "relative", flexdirection: "row", bgcolor: "black", alignitems:"stretch", alignself: "stretch" , flex:1}
 							,view({flexdirection:"column", padding: 0,flex: 0.2}
-								/*,view({alignitems:"center", bgcolor:"#e0e0e0", flexdirection:"row" ,padding: 14},
+								,view({alignitems:"center", bgcolor:"#e0e0e0", flexdirection:"row" ,padding: 14},
 									label({text:"DreemGL", fgcolor:"black", bgcolor:"transparent", fontsize: 30 })
 								)
 								,scrollcontainer({hscrollvisible:false,flex:1},
@@ -50,7 +50,7 @@ define.class(function(composition, docviewer, fileio, screens, screen, dataset, 
 											}
 										})
 									)
-								)*/
+								)
 							)
 							,view({flex:1,bgcolor:'red'}
 								//,scrollcontainer({hscrollvisible:false, move_view_bgcolor: "#f0f0f0"}
