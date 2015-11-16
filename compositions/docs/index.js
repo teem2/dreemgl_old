@@ -14,7 +14,6 @@ define.class(function(composition, docviewer, fileio, screens, screen, dataset, 
 						tree.name = 'Documentation'
 						tree.collapsed = false
 						// lets make a dataset
-						return
 						this.model = filetree.dataset = dataset(tree)
 					}.bind(this))
 					
@@ -34,6 +33,7 @@ define.class(function(composition, docviewer, fileio, screens, screen, dataset, 
 								,scrollcontainer({hscrollvisible:false,flex:1},
 									view({flex:1, flexdirection:"column"}
 										,treeview({
+											//mode:'2D',
 											init:function(){
 												var dataset = this.find('screen').model
 												if(dataset) this.dataset = dataset

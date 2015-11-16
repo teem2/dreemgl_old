@@ -58,6 +58,7 @@ define.class(function(view, require) {
 		var mx =  this.mouse._x / (sx/2) - 1.0
 		var my = -1 * (this.mouse._y / (sy/2) - 1.0)
 		vec2.mul_mat4_t([mx,my], this.remapmatrix, this.invertedmousecoords)
+		//console.log(this.invertedmousecoords)
 		return this.invertedmousecoords
 	}
 

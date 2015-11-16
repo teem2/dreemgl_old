@@ -53,9 +53,8 @@ define.class(function(view, label, icon){
 			,button({label:"Colored!", buttoncolor1: "red", buttoncolor2: "blue", labelcolor: "white"  })
 			,button({label:"With an icon!", icon:"flask" })
 		]
-	});
+	})
 	
-
 	this.buttonres = {};
 	this.padding = 8
 	this.borderradius = 3
@@ -96,16 +95,24 @@ define.class(function(view, label, icon){
 	this.mouseover  = this.statehover
 	this.mouseout = this.statenormal
 	this.mouseleftdown = this.stateclick
-	this.mouseleftup = this.statenormal
+	this.mouseleftup = function(pos){
+		// lets check if its over the button
+		console.log(pos)
+		this.statenormal()
+		if(pos.x >=0 && pos.x < this.layout.width &&
+		   pos.y >=0 && pos.y < this.layout.height){
+			this.emit('click',pos)
+		}
+	}
 
 	this.render = function(){
-		this.buttonres =  label({rotation: 0, bgcolor:"transparent",fgcolor:"black", marginleft: 4,fontsize: this.fontsize, position: "relative", text: this.text})
+		this.buttonres =  label({rotation: 0, bgcolor:"transparent",fgcolor:"black", nopick:true, marginleft: 4,fontsize: this.fontsize, position: "relative", text: this.text})
 		if (!this.icon || this.icon.length == 0){
 			this.iconres = undefined
 			return [this.buttonres]
 		} 
 		else {
-			this.iconres = this.iconclass({fontsize: this.fontsize,fgcolor:this.fgcolor, icon: this.icon}); 
+			this.iconres = this.iconclass({fontsize: this.fontsize, nopick:true, fgcolor:this.fgcolor, icon: this.icon}); 
 			return [this.iconres, this.buttonres]
 		}
 	}

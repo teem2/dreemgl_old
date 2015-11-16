@@ -266,7 +266,8 @@ define.class(function(require, baseclass){
 				for(var j = 0; j < shaders.length; j++){
 					// lets draw em
 					var shader = shaders[j]
-					// we have to set our guid.
+					if(isNaN(shader.order)) continue // was pick only
+						// we have to set our guid.
 					shader.drawArrays(this.device)
 				}
 			}

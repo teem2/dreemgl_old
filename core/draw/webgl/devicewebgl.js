@@ -169,13 +169,15 @@ define.class(function(require, exports, self){
 		// decode the pass and drawid
 		var passid = (data[0]*43)%256 - 1
 		var drawid = (((data[2]<<8) | data[1])*60777)%65536 - 1
-
 		// lets find the view.
 		var passview = this.drawpass_list[passid]
 		var drawpass = passview && passview.drawpass
 		var view = drawpass && drawpass.draw_list[drawid]
-		// lets wait
-		//if(view)console.log(view.name)
+
+		while(view && view.nopick){
+			view = view.parent
+		}
+
 		for(var i = 0; i < pick_resolve.length; i++){
 			pick_resolve[i](view)
 		}
@@ -282,7 +284,8 @@ define.class(function(require, exports, self){
 			this.drawpass_list.splice(this.drawpass_idx,0,view)
 			this.drawpass_idx++
 		}
-		if(isNaN(view._flex)){
+
+		if(isNaN(view._flex) && view.children && view.children.length){
 			this.layout_list.splice(this.layout_idx,0,view)
 			this.layout_idx++
 		}

@@ -291,14 +291,14 @@ define.class( function(node, require){
 		}
 
 		var children = this.children
-		for(var i = 0; i < children.length; i++){
+		if(children) for(var i = 0; i < children.length; i++){
 			children[i].updateMatrices(this.totalmatrix, parentmode)
 		}
 	}
 
 	this.doLayout = function(width, height){
-		FlexLayout.fillNodes(this)
-		var layouted = FlexLayout.computeLayout(this)
+		var copynodes = FlexLayout.fillNodes(this)
+		var layouted = FlexLayout.computeLayout(copynodes)
 		// recursively update matrices?
 		this.updateMatrices(undefined, this._mode)
 	}
@@ -475,8 +475,8 @@ define.class( function(node, require){
 		this.update = function(){
 
 			var view = this.view
-			var width = view.layout?view.layout.width:view.width
-			var height = view.layout?view.layout.height:view.height
+			var width = view.layout? view.layout.width: view.width
+			var height = view.layout? view.layout.height: view.height
 			var radius = view.borderradius
 
 			var mesh = this.mesh = this.vertexstruct.array()
