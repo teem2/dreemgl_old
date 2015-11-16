@@ -71,10 +71,7 @@ define.class( function(node, require){
 
 		lookat: {type: vec3, value: vec3(0)},
 
-		up: {type: vec3, value: vec3(0,1,0)}
-
-		
-		
+		up: {type: vec3, value: vec3(0,1,0)}	
 	}
 
 	this.persists = ['model']
@@ -95,7 +92,6 @@ define.class( function(node, require){
 	this.layermatrix = mat4.identity()
 	this.normalmatrix = mat4.identity()
 	
-	
 	this.layout = {width:0, height:0, left:0, top:0, right:0, bottom:0}
 	this.device = {frame:{size:vec2()}}
 
@@ -107,6 +103,7 @@ define.class( function(node, require){
 			// this switches the bg shader to the rounded one
 			this.bg = this.rounded
 		}
+		else this.bg = this.rect
 	}
 
 	// turn on the border shader
@@ -114,6 +111,14 @@ define.class( function(node, require){
 		if(typeof value === 'number' && value !== 0 || value[0] !== 0 || value[1] !== 0 || value[2] !== 0 || value[3] !== 0){
 			// turn it on by assigning an order number
 			this.border = 2
+		}
+		else this.border = false
+	}
+
+	this.mode = function(value){
+		if(value === '3D'){
+			this.bg = null
+			this.border = null
 		}
 	}
 
@@ -133,12 +138,13 @@ define.class( function(node, require){
 
 	this.atInit = function(){
 		for(var key in this.shader_order){
-			var onoff = this.shader_order[key]
-			if(!onoff) continue
+			var order = this.shader_order[key]
+			if(!order && !isNaN(order)) continue
 			var shader = this[key]
 			if(shader){
 				var shobj = this[key + 'shader'] = new shader(this)
 				shobj.shadername = key
+				shobj.order = order
 				this.shader_list.push(shobj)
 			}
 		}
@@ -179,6 +185,7 @@ define.class( function(node, require){
 	this.atInnerClassAssign = function(key, value){
 
 		// set the shader order
+
 		if(!value || typeof value === 'number' || typeof value === 'boolean'){
 			return this.shaderOrder(key, value)
 		}
