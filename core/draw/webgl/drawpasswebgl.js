@@ -153,6 +153,11 @@ define.class(function(require, baseclass){
 
 		}
 		else if(view._mode === '3D'){
+			
+			var p = mat4.perspective(view._fov, layout.width/layout.height, view._nearplane, view._farplane)
+			var lookat = mat4.lookAt(view._camera, view._lookat, view._up)
+			
+			this.viewmatrix = mat4.mat4_mul_mat4(p, lookat);
 
 		}
 

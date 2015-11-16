@@ -12,25 +12,7 @@ define.class(function(require, view, icon){
 	var GLGeom= require('$core/geometry/basicgeometry')
 	//var GLMat = require('$gl/glmaterial')
 	
-	this.attributes = {
-		pos3d: {type:vec3, value:vec3(0,0,0)},
-		scale3d: {type:vec3, value:vec3(2)},
-		rot3d: {type:vec3, value:vec3(0.)},
-		anchor: {type:vec3, value:vec3(0.)}
-	}
 	
-	this.anchor = this.pos3d = this.scale3d = this.rot3d = function(){
-		this.setDirty();
-	}
-	
-	this.atDraw = function(renderstate){		
-		var mat =mat4.TSRT2(this.anchor, this.scale3d, this.rot3d, this.pos3d);
-
-		var normalmat = mat4.transpose(mat4.normalFromMat4(mat4.transpose(mat)));
-
-		
-		
-	}
 	
 	define.class(this, 'bg', this.Shader, function(){
 		
@@ -73,6 +55,9 @@ define.class(function(require, view, icon){
 					this.mesh.push(v3,n3,t3);
 				}.bind(this)
 			)
+			
+			console.log(this.mesh);
+			
 		}
 		
 		this.addTeapot = function(radius, detail){
@@ -113,43 +98,21 @@ define.class(function(require, view, icon){
 		
 		this.position = function() {						
 			
-			var temp = (vec4(mesh.norm,1.0) * normalmatrix  );						
+			var temp = (vec4(mesh.norm,1.0) * view.normalmatrix  );						
 			transnorm = temp.xyz;			
 			
-			pos = vec4(mesh.pos, 1) * modelmatrix * lookatmatrix;
+			pos = vec4(mesh.pos, 1) * view.modelmatrix * view.viewmatrix;
 			
-			campos = vec4(cameraposition, 1.0) * lookatmatrix;
-			return pos  * projectionmatrix * matrix * viewmatrix; // * matrix *viewmatrix
+			//campos = vec4(cameraposition, 1.0) * lookatmatrix;
+			return pos ; // * matrix *viewmatrix
 		}
 				
 		this.color = function() {
 			//return vec4("yellow") ;			
-			var n = noise.s2d(vec2(sin(mesh.uv.x*6.283)*0.215, sin(mesh.uv.y*6.283)));
-
-			var raydir = -normalize( pos.xyz - campos.xyz);
 			
 			var tn = normalize(transnorm.xyz);
-			var res =texture.sample(vec2(0.5)- 0.5*material.matcap(tn,raydir));
 			
-			var r1 = cross(raydir, camup);
-			var r2 = cross(raydir, r1);
-			var angle = atan(tn.y, tn.x);
-			//return vec4(res.xyz,1) * diffusecolor;
-			var d = dot(cross(camup, camleft), tn);
-			//return vec4(d * vec3(1,1,1)  * 0.5 + vec3(0.5) , 1.0)
-			return texture.sample(-vec2(dot(tn, r1), dot(tn,r2)) * 0.5 + vec2(0.5)) * diffusecolor;
-//			return vec4(dot(raydir, tn)*vec3(1,1,1),1.);
-//			return vec4(vec3(0.5+0.5*sin((1-pow(dot(raydir, tn), 1. )) * 20.)), 1.0)  * diffusecolor + vec4(angle,0,0,0);
-
-			//+ sin(dot(r1, tn)*10.)*vec3(1,1,0) , 1.0);
-			
-			
-			
-			
-	//		res.xyz *= 0.1*n + 0.9;
-	//		return vec4(res.x *diffusecolor.x, res.y * diffusecolor.y, res.z*diffusecolor.z, 1.0) ;
-			
-			//return vec4(l,l,l,1.0);		
+			return vec4(1,0,1,1.0);		
 			
 		}
 	})		

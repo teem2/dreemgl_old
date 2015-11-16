@@ -61,7 +61,7 @@ define.class(function(composition, screens, screen, view, label, button, cube){
 					bgcolor:'#CBD6D9'
 					}
 					,button({text:'I BUTTON!', flex:1})
-					,view({mode:'3D', flex:1, margin:20, bgcolor:'#8FA4A6', name:'view1', borderwidth:4, bordercolor:"black", borderradius:1}
+					,view({mode:'3D', flex:1, margin:2, bgcolor:'lightblue', name:'3dview', borderwidth:4, bordercolor:"black", borderradius:1}
 						,cube()
 					
 					)
