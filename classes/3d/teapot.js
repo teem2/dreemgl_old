@@ -9,11 +9,6 @@ define.class(function(require, shape3d, text, view, icon){
 	
 	if(define.$environment === 'nodejs') return
 
-	var GLShader = require('$gl/glshader')
-	var GLTexture = require('$gl/gltexture')
-	var GLGeom= require('$gl/glgeom')
-	var GLMat = require('$gl/glmaterial')
-
 	this.attributes = {
 		// Size of the teapot
 		radius: {type:float, value:1},

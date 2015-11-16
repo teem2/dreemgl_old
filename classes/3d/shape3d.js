@@ -4,13 +4,13 @@
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
 
-define.class(function(require, view, text, icon){
+define.class(function(require, view, icon){
 	if(define.$environment === 'nodejs') return
 
-	var GLShader = require('$gl/glshader')
-	var GLTexture = require('$gl/gltexture')
-	var GLGeom= require('$gl/glgeom')
-	var GLMat = require('$gl/glmaterial')
+	//var GLShader = require('$gl/glshader')
+	//var GLTexture = require('$gl/gltexture')
+	var GLGeom= require('$core/geometry/basicgeometry')
+	//var GLMat = require('$gl/glmaterial')
 	
 	this.attributes = {
 		pos3d: {type:vec3, value:vec3(0,0,0)},
@@ -51,7 +51,7 @@ define.class(function(require, view, text, icon){
 //		this.bg_shader.buildGeometry();
 	}
 	
-	define.class(this, 'bg', GLShader, function(){
+	define.class(this, 'bg', this.Shader, function(){
 		
 		//this.attribute("shape", {type: String, value: "cube"} );
 		
@@ -64,7 +64,7 @@ define.class(function(require, view, text, icon){
 		})
 	
 		this.diffusecolor = vec4("#ffffff");
-		this.texture = new GLTexture()
+		this.texture = new this.Texture()
 		this.mesh = this.vertexstruct.array();
 		this.has_guid = true;
 		
@@ -123,7 +123,7 @@ define.class(function(require, view, text, icon){
 					
 		}
 	
-		this.texture = require('$textures/matcap6.png');
+		this.texture = require('$textures/envmap1.png');
 
 		this.matrix = mat4.identity()
 		this.cameraposition = vec3(0,0,0)
