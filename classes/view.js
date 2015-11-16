@@ -61,7 +61,20 @@ define.class( function(node, require){
 
 		mode: {type:Enum('','2D','3D'), value:''},
 		
-		model: {type: Object}
+		model: {type: Object},
+		
+		fov: {type:float, value: 45},
+		nearplane: {type:float, value: 0.001},
+		farplane: {type:float, value: 1000},
+		
+		camera: {type: vec3, value: vec3(-2,2,-20)},
+
+		lookat: {type: vec3, value: vec3(0)},
+
+		up: {type: vec3, value: vec3(0,1,0)}
+
+		
+		
 	}
 
 	this.persists = ['model']
@@ -80,7 +93,9 @@ define.class( function(node, require){
 	this.totalmatrix = mat4.identity()
 	this.viewmatrix = mat4.identity()
 	this.layermatrix = mat4.identity()
-
+	this.normalmatrix = mat4.identity()
+	
+	
 	this.layout = {width:0, height:0, left:0, top:0, right:0, bottom:0}
 	this.device = {frame:{size:vec2()}}
 
