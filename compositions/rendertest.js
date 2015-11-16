@@ -1,5 +1,5 @@
 //Pure JS based composition
-define.class(function(composition, screens, screen, view, label, button){
+define.class(function(composition, screens, screen, view, label, button, cube){
 
 	var mousedebug = define.class(function mousedebug(view){
 		
@@ -61,14 +61,17 @@ define.class(function(composition, screens, screen, view, label, button){
 					bgcolor:'#CBD6D9'
 					}
 					,button({text:'I BUTTON!', flex:1})
-					,view({flex:1, margin:20, bgcolor:'#8FA4A6', name:'view1', borderwidth:4, bordercolor:"#F2E5C9", borderradius:12})
+					,view({mode:'3D', flex:1, margin:20, bgcolor:'#8FA4A6', name:'view1', borderwidth:4, bordercolor:"black", borderradius:1}
+						,cube()
+					
+					)
 					,mousedebug({flex:1, margin:20})
 					,view({
 						flex:1, borderradius:vec4(10,20,30,40), name:'view2',
 						margin:20,
 						mode:'2D',
 						blend:{
-							color:function(){
+							acolor:function(){
 								return texture.sample(mesh.xy+0.1*sin(8*mesh.x))
 								//return 'red'
 							}

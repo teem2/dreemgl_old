@@ -7,10 +7,6 @@
 define.class(function(require, shape3d, text, view, icon){
 	if(define.$environment === 'nodejs') return
 
-	var GLShader = require('$gl/glshader')
-	var GLTexture = require('$gl/gltexture')
-	var GLGeom= require('$gl/glgeom')
-	var GLMat = require('$gl/glmaterial')
 	
 	this.attributes = {
 		dimension: {type:vec2, value:vec3(1)},

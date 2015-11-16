@@ -4,18 +4,13 @@
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
 
-define.class(function(require, shape3d, text, view, icon){
+define.class(function(require, shape3d, view, icon){
 	if(define.$environment === 'nodejs') return
 
-	var GLShader = require('$gl/glshader')
-	var GLTexture = require('$gl/gltexture')
-	var GLGeom= require('$gl/glgeom')
-	var GLMat = require('$gl/glmaterial')
-	
 	this.attributes = {dimension:{type:vec3, value:vec3(1)}}
 
 	this.init = function(){
-		this.bg_shader.addBox(this.dimension[0], this.dimension[1], this.dimension[2]);
+		this.bgshader.addBox(this.dimension[0], this.dimension[1], this.dimension[2]);
 	}
 	
 	this.mouseover  = function(){

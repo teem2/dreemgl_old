@@ -4,13 +4,13 @@
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
 
-define.class(function(require, view, text, icon){
+define.class(function(require, view, icon){
 	if(define.$environment === 'nodejs') return
 
-	var GLShader = require('$gl/glshader')
-	var GLTexture = require('$gl/gltexture')
-	var GLGeom= require('$gl/glgeom')
-	var GLMat = require('$gl/glmaterial')
+	//var GLShader = require('$gl/glshader')
+	//var GLTexture = require('$gl/gltexture')
+	var GLGeom= require('$core/geometry/basicgeometry')
+	//var GLMat = require('$gl/glmaterial')
 	
 	this.attributes = {
 		pos3d: {type:vec3, value:vec3(0,0,0)},
@@ -28,34 +28,19 @@ define.class(function(require, view, text, icon){
 
 		var normalmat = mat4.transpose(mat4.normalFromMat4(mat4.transpose(mat)));
 
-		this.bg_shader._modelmatrix =  mat;
-		this.bg_shader._camup =  renderstate.camup;
-		this.bg_shader._camleft =  renderstate.camleft;
-		this.bg_shader._normalmatrix =  normalmat;
-		this.bg_shader._projectionmatrix = renderstate.projectionmatrix;
-		this.bg_shader._lookatmatrix = renderstate.lookatmatrix;
-		this.bg_shader._cameraposition = renderstate.cameraposition;
-	//	this.bg_shader.adjustmatrix1 = renderstate.adjustmatrix1;
-		//this.bg_shader.adjustmatrix2 = renderstate.adjustmatrix2;
-		this.bg_shader._flattenmatrix = renderstate.flattenmatrix;
-		var adjust = mat4.identity();;
-		
-			//adjust[3] = 300;
-		this.bg_shader._scaler = renderstate.adjustmatrix;
 		
 		
 	}
 	
-	this.init = function(){
-		this.bg_shader.mesh = this.bg_shader.vertexstruct.array();
-//		this.bg_shader.buildGeometry();
-	}
-	
-	define.class(this, 'bg', GLShader, function(){
+	define.class(this, 'bg', this.Shader, function(){
 		
 		//this.attribute("shape", {type: String, value: "cube"} );
 		
 		this.depth_test = 'src_depth < dst_depth';
+		
+		this.update = function(){
+			this.mesh = this.vertexstruct.array();
+		}
 		
 		this.vertexstruct = define.struct({
 			pos: vec3,
@@ -64,7 +49,7 @@ define.class(function(require, view, text, icon){
 		})
 	
 		this.diffusecolor = vec4("#ffffff");
-		this.texture = new GLTexture()
+		this.texture = new this.Texture()
 		this.mesh = this.vertexstruct.array();
 		this.has_guid = true;
 		
@@ -123,22 +108,11 @@ define.class(function(require, view, text, icon){
 					
 		}
 	
-		this.texture = require('$textures/matcap6.png');
+		this.texture = require('$textures/envmap1.png');
 
-		this.matrix = mat4.identity()
-		this.cameraposition = vec3(0,0,0)
-		this.modelmatrix = mat4.identity();
-		this.projectionmatrix = mat4.identity();
-		this.dimension = vec2(1025,1025);
-		this.normalmatrix = mat4.identity();
-		this.lookatmatrix = mat4.identity();
-		this.screenup = vec3(0,1,0);
-		this.screenleft = vec3(-1,0,0);
-		this.flattenmatrix = mat4.identity();
-		this.viewmatrix = mat4.identity();				
-		this.camup = vec3();
-		this.camleft = vec3();
+		
 		this.position = function() {						
+			
 			var temp = (vec4(mesh.norm,1.0) * normalmatrix  );						
 			transnorm = temp.xyz;			
 			
