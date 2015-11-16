@@ -8,7 +8,7 @@ define.class(function(require, shape3d, view, icon){
 	if(define.$environment === 'nodejs') return
 
 	this.attributes = {dimension:{type:vec3, value:vec3(1)}}
-
+	
 	this.init = function(){
 		this.bgshader.addBox(this.dimension[0], this.dimension[1], this.dimension[2]);
 	}

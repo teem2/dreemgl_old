@@ -34,32 +34,53 @@ define.class(function(view, require) {
 		this.bindInputs()
 	}
 
-	this.remapmatrix = mat4()
-	this.invertedmousecoords = vec2()
-
+	this.remapmatrix = mat4();
+	this.invertedmousecoords = vec2();
+	
 	this.remapMouse = function(node){
-		var M = node._mode? node.layoutmatrix: node.totalmatrix;	
-		var P = node.parent
 
-		if (!M) {
-			M = mat4.identity()
+		var M = node._mode?  node.layermatrix: node.totalmatrix;	
+			
+		var P = node.parent;
+
+		if (!M){
+			M = mat4.identity();
 		}
+		
+		var scaletemp = mat4.scalematrix([1,1,1]);
+		var transtemp = mat4.translatematrix([1,1,0]);
+					
 		while(P){
 			if (P._mode || !P.parent) {
-				var o = mat4()
-				mat4.mat4_mul_mat4(M, P.colorviewmatrix, o)
-				M = o
+					
+				var o = mat4();
+				var s = P.colorviewmatrix;
+				if (P.parent)
+				{
+					o = mat4.mat4_mul_mat4(M, s);					
+					mat4.scalematrix([P.layout.width/2,P.layout.height/2,1], scaletemp);					
+					o = mat4.mat4_mul_mat4(o, transtemp);
+					o = mat4.mat4_mul_mat4(o, scaletemp);
+					M = mat4.mat4_mul_mat4(o, P.layermatrix);							
+				}
+				else{					
+					mat4.mat4_mul_mat4(M, s, o);
+					M = o;
+				}				
 			}
-			P = P.parent
+			P = P.parent;
 		}
 		mat4.invert(M, this.remapmatrix)
-		var sx = this.device.main_frame.size[0]  / this.device.main_frame.ratio
-		var sy = this.device.main_frame.size[1]  / this.device.main_frame.ratio
-		var mx =  this.mouse._x / (sx/2) - 1.0
-		var my = -1 * (this.mouse._y / (sy/2) - 1.0)
+		var sx =this.device.main_frame.size[0]  / this.device.ratio;
+		var sy =this.device.main_frame.size[1]  / this.device.ratio;
+		var mx =  this.mouse._x/(sx/2) - 1.0
+		var my = -1 * (this.mouse._y/(sy/2) - 1.0)
+		
 		vec2.mul_mat4_t([mx,my], this.remapmatrix, this.invertedmousecoords)
-		return this.invertedmousecoords
+		return this.invertedmousecoords;
 	}
+	
+	
 
 	this.bindInputs = function(){
 		this.keyboard.down = function(v){
