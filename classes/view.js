@@ -302,10 +302,17 @@ define.class( function(node, require){
 	}
 
 	this.doLayout = function(width, height){
+		if(!isNaN(this._flex)){ // means we need to set our layout from external
+			var layout = this.layout
+			this._size = vec2(this.layout.width + this.layout.right, this.layout.height + this.layout.bottom)
+			//return
+		}
 		var copynodes = FlexLayout.fillNodes(this)
 		var layouted = FlexLayout.computeLayout(copynodes)
 		// recursively update matrices?
 		//console.log("hi!", this._mode);
+		//console.log(this.layout)
+		if(layout) this.layout = layout
 		this.updateMatrices(undefined, this._mode)
 	}
 

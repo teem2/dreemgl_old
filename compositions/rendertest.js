@@ -1,5 +1,5 @@
 //Pure JS based composition
-define.class(function(composition, screens, screen, view, label, button, cube){
+define.class(function(composition, screens, screen, view, label, button, cube, splitcontainer){
 
 	var mousedebug = define.class(function mousedebug(view){
 		
@@ -51,8 +51,28 @@ define.class(function(composition, screens, screen, view, label, button, cube){
 	
 	this.render = function(){ return [
 		screens(
-			screen({clearcolor:'#484230'},
-				view({// size:[100,100],
+			screen({clearcolor:'#484230', flexdirection:'row'}
+				,splitcontainer({ vertical: false, flexdirection: "row", bgcolor: "black", flex:1}
+					,view({
+						flex:1,
+						mode:'2D',
+						bgcolor:'red',
+						bg:{
+							color:function(){
+								if(mesh.x<0.1) return 'red'
+								if(mesh.y<0.1) return 'orange'
+								if(mesh.x>0.9) return 'purple'
+								if(mesh.y>0.9) return 'yellow'
+								return 'ocean'
+							}
+						}
+					})
+					,view({
+						flex:4,
+						bgcolor:'blue'
+					})
+				)
+				/*view({// size:[100,100],
 					name:'viewbg',
 					flexdirection:'column',
 					margin:4,
@@ -80,7 +100,7 @@ define.class(function(composition, screens, screen, view, label, button, cube){
 					}
 					,mousedebug({flex:1, margin:20})
 					)
-				)
+				)*/
 			)
 		)
 	]}
