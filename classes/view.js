@@ -25,6 +25,9 @@ define.class( function(node, require){
 		width: {storage:'size', index:0},
 		height: {storage:'size', index:1},
 
+		min: {type: vec2, value:vec2(NaN, NaN)},
+		max: {type: vec2, value:vec2(NaN, NaN)},
+
 		margin: {type: vec4, value: vec4(0,0,0,0)},
 		marginleft: {storage:'margin', index:0},
 		margintop: {storage:'margin', index:1},
@@ -297,23 +300,32 @@ define.class( function(node, require){
 
 		var children = this.children
 		if(children) for(var i = 0; i < children.length; i++){
-			children[i].updateMatrices(this.totalmatrix, parentmode)
+			var child = children[i]
+			if(child._mode) continue // it will get its own pass
+			child.updateMatrices(this.totalmatrix, parentmode)
 		}
 	}
 
 	this.doLayout = function(width, height){
 		if(!isNaN(this._flex)){ // means we need to set our layout from external
 			var layout = this.layout
-			this._size = vec2(this.layout.width + this.layout.right, this.layout.height + this.layout.bottom)
-			//return
+			var flex = this._flex
+			var size = this._size
+			this._flex = undefined
+			this._size = vec2(Math.ceil(this.layout.width + this.layout.right), Math.ceil(this.layout.height))
 		}
+
 		var copynodes = FlexLayout.fillNodes(this)
 		var layouted = FlexLayout.computeLayout(copynodes)
 		// recursively update matrices?
 		//console.log("hi!", this._mode);
 		//console.log(this.layout)
-		if(layout) this.layout = layout
-		this.updateMatrices(undefined, this._mode)
+		if(layout){
+			this._flex = flex
+			this._size = size
+			this.layout = layout
+		}
+		this.updateMatrices(this.parent?this.parent.totalmatrix:undefined, this._mode)
 	}
 
 	this.update = this.updateShaders

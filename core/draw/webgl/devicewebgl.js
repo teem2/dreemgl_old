@@ -197,19 +197,19 @@ define.class(function(require, exports, self){
 	}
 
 	this.doDraw = function(time){
-
+		
 		// lets layout shit that needs layouting.
 		
 		// set the size externally of the main view
-
+		
 		//var screen = this.layout_list[this.layout_list.length - 1]
 		this.screen._size = vec2(this.main_frame.size[0] / this.ratio, this.main_frame.size[1] / this.ratio)
-
 		for(var i = 0; i < this.layout_list.length; i++){
 			// lets do a layout?
 			var view = this.layout_list[i]
 			view.doLayout()
 		}
+
 		// lets draw all the passes
 		for(var i = 0, len = this.drawpass_list.length; i < len; i++){
 			this.drawpass_list[i].drawpass.drawColor(i === len - 1)

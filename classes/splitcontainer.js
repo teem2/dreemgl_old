@@ -20,7 +20,7 @@ define.class(function(view, label){
 	this.flex = 1.0
 	this.flexdirection = this.vertical?"column":"row"
 	this.position = "relative" 
-	this.borderwidth = 1
+	this.borderwidth = 0
 	this.bordercolor = vec4("#303060")
 	
 	this.vertical = function(){
