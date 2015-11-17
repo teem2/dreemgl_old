@@ -1,11 +1,4 @@
-/* Copyright 2015 Teem2 LLC. Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.  
-   You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, 
-   software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, 
-   either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
-
 define(function(require, exports){
-	
-	// Math class
 
 	var vectorParser = require('$parse/vectorparser')
 //	exports.$$ = console.log.bind(console)
@@ -1601,6 +1594,39 @@ define(function(require, exports){
 		}
 		return o
 	}
+
+	exports.mat4.scalematrix = function(v, o)
+	{
+		if(!o) {
+			o = exports.mat4.identity()
+		}
+		else{
+			for (var i =0 ;i<16;i++) o[i] = 0;
+		}
+		o[0] = v[0];
+		o[5] = v[1];
+		o[10] = v[2];
+		o[15] = 1;		
+		return o;
+		
+	}
+	
+	exports.mat4.translatematrix = function(v, o)
+	{
+		if(!o) {
+			o = exports.mat4.identity()
+		}
+		else{
+			for (var i =0 ;i<16;i++) o[i] = 0;
+		}
+		o[3] = v[0];
+		o[7] = v[1];
+		o[11] = v[2];
+		o[15] = 1;		
+		return o;
+		
+	}
+
 
 	// scale matrix a with vector V
 	exports.mat4.scale = function(a, v, o){

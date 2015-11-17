@@ -33,13 +33,13 @@ define.class(function(composition, docviewer, fileio, screens, screen, dataset, 
 								,scrollcontainer({hscrollvisible:false,flex:1},
 									view({flex:1, flexdirection:"column"}
 										,treeview({
-											//mode:'2D',
+											mode:'2D',
 											init:function(){
 												var dataset = this.find('screen').model
 												if(dataset) this.dataset = dataset
 											},
 											name:'filetree', 
-											flex:1, 
+											//flex:1, 
 											selectclick:function(sel){
 												// we have to grab the last path set and concatenate a path
 												var path = ''

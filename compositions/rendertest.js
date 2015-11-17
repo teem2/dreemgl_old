@@ -61,7 +61,7 @@ define.class(function(composition, screens, screen, view, label, button, cube){
 					bgcolor:'#CBD6D9'
 					}
 					,button({text:'I BUTTON!', flex:1})
-					,view({mode:'3D', flex:1, margin:2, bgcolor:'lightblue', name:'3dview', borderwidth:4, bordercolor:"black", borderradius:1}
+					,view({clearcolor:"lightblue", mode:'2D', flex:1, margin:2, bgcolor:'lightblue', name:'3dview', borderwidth:4, bordercolor:"black", borderradius:1}
 						,cube()
 					
 					)
@@ -77,7 +77,9 @@ define.class(function(composition, screens, screen, view, label, button, cube){
 							}
 						},
 						bgcolor:'#A39565', bordercolor:"#484230", borderwidth: 20
-					})
+					}
+					,mousedebug({flex:1, margin:20})
+					)
 				)
 			)
 		)

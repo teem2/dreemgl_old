@@ -19,29 +19,26 @@ define.class(function(require, view, text, view, icon){
 				var dx = a[0] - this.clickstart[0];
 				var dy = a[1] - this.clickstart[1];
 				
-				this.camerastart = vec3.sub(this.target.camera, this.target.lookat );
-				var M4 = mat4.invert(this.target.flattenmatrix);
+				this.camerastart = vec3.sub(this.target._camera, this.target._lookat );
+				var M4 = mat4.invert(this.target.getlookatmatrix());
 				
-	//			console.log(M4);
-				var screenup = vec3.normalize(vec3.vec3_mul_mat4(vec3(0,1,0), M4));
-				
-			//	var M = mat4.R(0,-dy*0.01,-dx*0.01);				
-				
-//				console.log("screenup:", screenup);
+				// console.log(M4);
+				var screenup = vec3.normalize(vec3.vec3_mul_mat4(vec3(0,1,0), M4));				
+				// var M = mat4.R(0,-dy*0.01,-dx*0.01);					
+				// console.log("screenup:", screenup);
 				
 				var M1 = mat4.identity();
 				var M2 = mat4.rotate(M1, dx*0.01, this.target.up)
 				
 				var axis = vec3.normalize(vec3.cross(this.camerastart, this.target.up));
 				var M3 = mat4.rotate(M2, dy*0.01, axis)
-				
-				
+								
 				var Rot = vec3.vec3_mul_mat4(this.camerastart, M3);
 				var Res = vec3.add(Rot, this.target.lookat);
 				
 				this.target.camera = Res;
-				this.target.updateLookAtMatrix();
-				this.target.setDirty();
+				//this.target.updateLookAtMatrix();
+				//this.target.setDirty();
 				
 				this.clickstart = a;
 				this.camerastart = vec3.sub(this.target.camera, this.target.lookat );

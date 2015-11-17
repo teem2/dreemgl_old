@@ -112,6 +112,7 @@ define.class(function(exports){
 	}
 	
 	this.resize = function(width, height){
+		console.log('resizing', width, height)
 		if(this.device && this.frame_buf){
 			var gl = this.device.gl
 			gl.deleteFramebuffer(this.frame_buf)

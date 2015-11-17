@@ -206,7 +206,6 @@ define.class(function(view,  label, button, icon){
 		else{
 			this.data = this.dataset.data
 		}
-		console.log(this.data)
 
 		return [this.treeitem({item:this.data})]
 	}

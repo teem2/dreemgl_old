@@ -231,8 +231,8 @@ define.class(function(require, exports, self){
 			this.addDrawPassRecursive(node)
 		}
 		else{ // else we remove drawpasses first then re-add them
-			this.removeDrawPasses(view)
-			this.addDrawPassRecursive(view)
+			this.removeDrawPasses(node)
+			this.addDrawPassRecursive(node)
 		}
 	}
 
@@ -242,15 +242,15 @@ define.class(function(require, exports, self){
 		var drawpass_list = this.drawpass_list
 		this.drawpass_idx = Infinity
 		for(var i = 0; i < drawpass_list.length; i++){
-			var pass = drawpass_list[i]
-			var node = pass
+			var node = drawpass_list[i]
 			while(node.parent && node !== view){
 				node = node.parent
 			}
 			if(node === view){
 				if(i < this.drawpass_idx) this.drawpass_idx = i
-				pass.drawpass.poolDrawTargets()
+				node.drawpass.poolDrawTargets()
 				drawpass_list.splice(i, 1)
+				break
 			}
 		}
 		if(this.drawpass_idx === Infinity) this.drawpass_idx = 0

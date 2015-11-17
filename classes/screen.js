@@ -34,33 +34,53 @@ define.class(function(view, require) {
 		this.bindInputs()
 	}
 
-	this.remapmatrix = mat4()
-	this.invertedmousecoords = vec2()
-
+	this.remapmatrix = mat4();
+	this.invertedmousecoords = vec2();
+	
 	this.remapMouse = function(node){
-		var M = node._mode? node.layoutmatrix: node.totalmatrix;	
+
+		var M = node._mode?  node.layermatrix: node.totalmatrix
 		var P = node.parent
 
-		if (!M) {
+		if (!M){
 			M = mat4.identity()
 		}
+		
+		var scaletemp = mat4.scalematrix([1,1,1])
+		var transtemp = mat4.translatematrix([1,1,0])
+					
 		while(P){
 			if (P._mode || !P.parent) {
+					
 				var o = mat4()
-				mat4.mat4_mul_mat4(M, P.colorviewmatrix, o)
-				M = o
+				var s = P.colorviewmatrix
+				if (P.parent){
+					o = mat4.mat4_mul_mat4(M, s)	
+					mat4.scalematrix([P.layout.width/2,P.layout.height/2,1], scaletemp)
+					o = mat4.mat4_mul_mat4(o, transtemp)
+					o = mat4.mat4_mul_mat4(o, scaletemp)
+					M = mat4.mat4_mul_mat4(o, P.layermatrix)
+				}
+				else{					
+					mat4.mat4_mul_mat4(M, s, o)
+					M = o
+				}
 			}
 			P = P.parent
 		}
+
 		mat4.invert(M, this.remapmatrix)
-		var sx = this.device.main_frame.size[0]  / this.device.main_frame.ratio
-		var sy = this.device.main_frame.size[1]  / this.device.main_frame.ratio
-		var mx =  this.mouse._x / (sx/2) - 1.0
-		var my = -1 * (this.mouse._y / (sy/2) - 1.0)
+		var sx =this.device.main_frame.size[0]  / this.device.ratio
+		var sy =this.device.main_frame.size[1]  / this.device.ratio
+		var mx =  this.mouse._x/(sx/2) - 1.0
+		var my = -1 * (this.mouse._y/(sy/2) - 1.0)
+		
 		vec2.mul_mat4_t([mx,my], this.remapmatrix, this.invertedmousecoords)
-		//console.log(this.invertedmousecoords)
+
 		return this.invertedmousecoords
 	}
+	
+	
 
 	this.bindInputs = function(){
 		this.keyboard.down = function(v){
@@ -90,6 +110,57 @@ define.class(function(view, require) {
 		}.bind(this)
 
 		this.mouse.move = function(){
+			// lets check the debug click
+			if(this.keyboard.alt && this.keyboard.shift){
+				this.device.pickScreen(this.mouse.x, this.mouse.y).then(function(view){
+					if(this.last_debug_view === view) return
+					this.last_debug_view = view
+					var found 
+					function dump(walk, parent){
+						var layout = walk.layout || {}
+						var named = (new Function("return function "+(walk.name || walk.constructor.name)+'(){}'))()
+						Object.defineProperty(named.prototype, 'zflash', {
+							get:function(){
+								// humm. ok so we wanna flash it
+								// how do we do that.
+								window.view = this.view
+								return "window.view set"
+							}
+						})
+						var obj = new named()
+						obj.geom = 'x:'+layout.left+', y:'+layout.top+', w:'+layout.width+', h:'+layout.height
+						if(walk._mode) obj.mode = walk._mode
+						// write out shader modes
+						var so = ''
+						for(var key in walk.shader_order){
+							if(walk.shader_order[key]){
+								if(so) so += ", "
+								so += key+':'+walk.shader_order[key]
+							}
+						}
+						obj.shaders = so
+						obj.view = walk
+
+						if(walk._text) obj.text = walk.text
+
+						if(walk === view) found = obj
+						if(walk.children){
+							//obj.children = []
+							for(var i = 0; i < walk.children.length;i++){
+								obj[i] = dump(walk.children[i], obj)
+							}
+						}
+						obj._parent = parent
+						return obj
+					}
+					var ret = dump(this, null)
+					if(!found) console.log("Could not find", view)
+					else console.log(found)
+				}.bind(this))
+				return
+			} else this.last_debug_view = undefined
+
+
 			// ok so. lets query the renderer for the view thats under the mouse
 			if(!this.mouse_capture){
 				this.device.pickScreen(this.mouse.x, this.mouse.y).then(function(view){
@@ -108,7 +179,7 @@ define.class(function(view, require) {
 		}.bind(this)
 
 		this.mouse.leftdown = function(){
-			
+
 			if (!this.mouse_capture) {
 				this.mouse_capture = this.mouse_view
 			} 

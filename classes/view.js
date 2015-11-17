@@ -250,12 +250,17 @@ define.class( function(node, require){
 	}
 
 	this.updateMatrices = function(parentmatrix, parentmode){
-
-		if (parentmode== '3D'){
-			
-			mat4.TSRT2(this.anchor, this.scale, this.rotate, this.translate, this.modelmatrix);
+		
+		if (this._mode && this._mode != parentmode ){
+			console.log("modeswitch:", this._mode);
+			parentmatrix = mat4.identity();
+			parentmode = this._mode;
 		}
-		else{
+		if (parentmode== '3D' ){	
+			mat4.TSRT2(this.anchor, this.scale, this.rotate, this.translate, this.modelmatrix);
+			mat4.debug(this.modelmatrix);
+		}
+		else {
 			// compute TSRT matrix
 			if(this.layout){
 				var s = this._scale
@@ -265,11 +270,11 @@ define.class( function(node, require){
 					t0 = this._pos[0]
 					t1 = this._pos[1]
 				}
-				var hw = ( this.layout.width !== undefined? this.layout.width: this._size[0] ) / 2
+				var hw = (  this.layout.width !== undefined ? this.layout.width: this._size[0] ) / 2
 				var hh = ( this.layout.height !== undefined ? this.layout.height: this._size[1]) / 2
 				mat4.TSRT(-hw, -hh, 0, s[0], s[1], s[2], r[0], r[1], r[2], t0 + hw * s[0], t1 + hh * s[1], t2, this.modelmatrix);
 			}
-			else{
+			else {
 				var s = this._scale
 				var r = this._rotate
 				var t = this._translate
@@ -300,6 +305,7 @@ define.class( function(node, require){
 		var copynodes = FlexLayout.fillNodes(this)
 		var layouted = FlexLayout.computeLayout(copynodes)
 		// recursively update matrices?
+		//console.log("hi!", this._mode);
 		this.updateMatrices(undefined, this._mode)
 	}
 
@@ -451,7 +457,7 @@ define.class( function(node, require){
 		this.height = 0
 
 		this.color = function(){
-			return texture.sample(mesh.xy)
+			return texture.sample(mesh.xy+vec2(0))
 		}
 
 		this.position = function(){

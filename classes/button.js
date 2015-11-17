@@ -97,7 +97,6 @@ define.class(function(view, label, icon){
 	this.mouseleftdown = this.stateclick
 	this.mouseleftup = function(pos){
 		// lets check if its over the button
-		console.log(pos)
 		this.statenormal()
 		if(pos.x >=0 && pos.x < this.layout.width &&
 		   pos.y >=0 && pos.y < this.layout.height){

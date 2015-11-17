@@ -120,7 +120,7 @@ define.class(function(require, baseclass){
 		} 
 		// make sure the drawtarget has the right size
 		var tsize = this[drawtarget].size
-		if(width > tsize[0] || height > tsize[1]) this[drawtarget].resize(width, height)
+		if(width !== tsize[0] || height !== tsize[1]) this[drawtarget].resize(width, height)
 	}
 
 	this.drawPick = function(isroot, passid, mousex, mousey, debug){
@@ -129,6 +129,12 @@ define.class(function(require, baseclass){
 		var layout = view.layout
 
 		if(!layout || layout.width === 0 || isNaN(layout.width) || layout.height === 0 || isNaN(layout.height)) return
+
+		// make sure layers are pixel aligned
+		layout.left = Math.floor(layout.left)
+		layout.top = Math.floor(layout.top)
+		layout.width = Math.floor(layout.width)
+		layout.height = Math.floor(layout.height)
 
 		if(isroot){
 			if(!debug) this.allocDrawTarget(4, 4, this.view._mode, 'pick_buffer', passid)
@@ -238,15 +244,24 @@ define.class(function(require, baseclass){
 			}
 		}
 		else if(view._mode === '3D'){
-
+			var p = mat4.perspective(view._fov, layout.width/layout.height, view._nearplane, view._farplane)
+			
+			var lookat = mat4.lookAt(view._camera, view._lookat, view._up)
+			//this.viewmatrix = mat4.mat4_mul_mat4(p, lookat);
+			this.viewmatrix = mat4.mat4_mul_mat4(lookat,p);
+			
+			mat4.debug(this.viewmatrix);
+			
 		}
 
 		// each view has a reference to its layer
 		for(var dl = this.draw_list, i = 0; i < dl.length; i++){
 			var draw = dl[i]
-			draw.colorviewmatrix =
 			draw.viewmatrix = this.viewmatrix
+			if (!view.colorviewmatrix) view.colorviewmatrix = mat4();
+			for(var j = 0;j<16;j++) view.colorviewmatrix[j] = this.viewmatrix[j];
 
+			
 			if(draw.atDraw){
 				draw.atDraw(this)
 			}
