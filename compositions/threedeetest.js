@@ -1,5 +1,5 @@
 //Pure JS based composition
-define.class(function(composition, screens, screen, view, label, button, cube, splitcontainer, button){
+define.class(function(composition, screens, screen, view, label, button, cube, splitcontainer, button, sphere, plane){
 
 	
 	this.render = function(){ return [
@@ -19,11 +19,15 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 							}
 						}
 						,button({text:"Near", click:function(){
-								this.find("theview").camera = vec3(2,2,2);
+							var cam = this.find("theview");
+							cam.camera = vec3(2,2,2);
+							cam.fov = 30;
 							}
 						})
 						,button({text:"Far", click:function(){
-								this.find("theview").camera = vec3(4,0,-20);
+							var cam = this.find("theview");
+							cam.camera = vec3(4,0.2,-10);
+							cam.fov = 90;
 							}
 							
 						})
@@ -32,14 +36,21 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 						flex:4,
 						name:'theview', 
 						bgcolor:'blue',
-						clearcolor: 'green',
+						clearcolor: '#d0efff',
 						mode: '3D', 
-						attributes:{camera:{motion:'linear', duration:1}}
+						camera: vec3(2,2,2),
+						fov: 90,
+						attributes:{
+								camera:{motion:'linear', duration:1}
+								,fov:{motion:'easein', duration:1}
+								}
 						}
 						,cube({translate:vec3(0,1,0), dimension:vec3(0.5)})
 						,cube({translate:vec3(1,0,0), dimension:vec3(0.5)})
 						,cube({translate:vec3(0,0,0), dimension:vec3(0.5)})
 						,cube({translate:vec3(0,0,1), dimension:vec3(0.5)})
+						,plane({translate:vec3(0,0,2), dimension:vec3(500), rotate:vec3(PI/2,0,0)})
+						,sphere({translate:vec3(0,0,2), radius:0.5})
 					)
 				)
 			)

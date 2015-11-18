@@ -4,17 +4,17 @@
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
 
-define.class(function(require, shape3d, text, view, icon){
+define.class(function(require, shape3d, view, icon){
 	if(define.$environment === 'nodejs') return
 
 	
 	this.attributes = {
-		dimension: {type:vec2, value:vec3(1)},
+		dimension: {type:vec2, value:vec2(1)},
 		xdiv:{type:int, value:10},
 		ydiv:{type:int, value:10}
 	}
 
 	this.init = function(){
-		this.bg_shader.addPlane(this.dimension[0], this.dimension[1], this.xdiv, this.ydiv);
+		this.bgshader.setPlane(this.dimension[0], this.dimension[1], this.xdiv, this.ydiv);
 	}
 })

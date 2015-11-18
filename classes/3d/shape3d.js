@@ -31,10 +31,13 @@ define.class(function(require, view, icon){
 	
 		this.diffusecolor = vec4("#ffffff");
 		this.texture = new this.Texture()
-		this.mesh = this.vertexstruct.array();
 		this.has_guid = true;
+		this.mesh = this.vertexstruct.array();
 		
-		this.addPlane = function(width, height, xdiv, ydiv){
+		
+		this.setPlane = function(width, height, xdiv, ydiv){
+			this.mesh = this.vertexstruct.array();
+		
 			GLGeom.createPlane(width,height,xdiv,ydiv,function(triidx,v1,v2,v3,n1,n2,n3,t1,t2,t3,faceidx){
 					this.mesh.push(v1,n1,t1);
 					this.mesh.push(v2,n2,t2);
@@ -43,10 +46,12 @@ define.class(function(require, view, icon){
 			)
 		}
 		
-		this.addBox = function(width, height, depth){
+		this.setBox = function(width, height, depth){
 			if (width === undefined) width = 1;
 			if (height === undefined) height = width;
 			if (depth === undefined) depth = height;
+			this.mesh = this.vertexstruct.array();
+		
 			
 			GLGeom.createCube(width,height,depth,function(triidx,v1,v2,v3,n1,n2,n3,t1,t2,t3,faceidx){
 					this.mesh.push(v1,n1,t1);
@@ -58,7 +63,9 @@ define.class(function(require, view, icon){
 			
 		}
 		
-		this.addTeapot = function(radius, detail){
+		this.setTeapot = function(radius, detail){
+			this.mesh = this.vertexstruct.array();
+		
 			GLGeom.createTeapot(radius, detail, function(triidx,v1,v2,v3,n1,n2,n3,t1,t2,t3,faceidx){
 					this.mesh.push(v1,n1,t1);
 					this.mesh.push(v2,n2,t2);
@@ -67,10 +74,12 @@ define.class(function(require, view, icon){
 			)
 		}
 		
-		this.addSphere = function(radius, xdetail, ydetail){
+		this.setSphere = function(radius, xdetail, ydetail){
 			if (radius === undefined) radius = 1;
 			if (xdetail === undefined) xdetail = 20;
 			if (ydetail === undefined) ydetail = 20;
+			this.mesh = this.vertexstruct.array();
+		
 			GLGeom.createSphere(radius,xdetail,ydetail,function(triidx,v1,v2,v3,n1,n2,n3,t1,t2,t3,faceidx){
 					this.mesh.push(v1,n1,t1);
 					this.mesh.push(v2,n2,t2);
@@ -79,9 +88,10 @@ define.class(function(require, view, icon){
 			)		
 		}
 		
-		 this.addModel = function(data, completioncallback){
+		 this.setModel = function(data, completioncallback){
 						
-			
+			this.mesh = this.vertexstruct.array();
+		
 			GLGeom.createModel(data, function(triidx,v1,v2,v3,n1,n2,n3,t1,t2,t3,faceidx){
 				this.mesh.push(v1,n1,t1);
 				this.mesh.push(v2,n2,t2);
@@ -110,7 +120,7 @@ define.class(function(require, view, icon){
 			
 			var tn = normalize(transnorm.xyz);
 			
-			return vec4(1,0,1,1.0);		
+			return vec4(tn*0.5+0.5,1.0);		
 			
 		}
 	})		
