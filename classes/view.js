@@ -271,14 +271,14 @@ define.class( function(node, require){
 	this.updateMatrices = function(parentmatrix, parentmode){
 		
 		if (this._mode && this._mode != parentmode ){
-			console.log("modeswitch:", this._mode);
+			//console.log("modeswitch:", this._mode);
 			parentmatrix = mat4.identity();
 			this.modelmatrix = mat4.identity();
 			parentmode = this._mode;
 		}
 		if (parentmode== '3D' && !this._mode ){	
 			mat4.TSRT2(this.anchor, this.scale, this.rotate, this.translate, this.modelmatrix);
-			mat4.debug(this.modelmatrix);
+			//mat4.debug(this.modelmatrix);
 		}
 		else {
 			// compute TSRT matrix
