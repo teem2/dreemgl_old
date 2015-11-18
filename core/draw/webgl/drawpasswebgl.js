@@ -163,11 +163,13 @@ define.class(function(require, baseclass){
 		}
 		else if(view._mode === '3D'){
 			
-			var p = mat4.perspective(view._fov, layout.width/layout.height, view._nearplane, view._farplane)
+			var p = mat4.perspective(view._fov * PI * 2/360.0 , layout.width/layout.height, view._nearplane, view._farplane)			
 			var lookat = mat4.lookAt(view._camera, view._lookat, view._up)
-			
-			this.viewmatrix = mat4.mat4_mul_mat4(p, lookat);
+			this.viewmatrix = mat4.mat4_mul_mat4(lookat,p);
 
+			
+			
+	
 		}
 
 		var pick = vec3()
@@ -248,16 +250,10 @@ define.class(function(require, baseclass){
 			}
 		}
 		else if(view._mode === '3D'){
-			var p = mat4.perspective(view._fov * PI * 2/360.0 , layout.width/layout.height, view._nearplane, view._farplane)
-			
+			var p = mat4.perspective(view._fov * PI * 2/360.0 , layout.width/layout.height, view._nearplane, view._farplane)			
 			var lookat = mat4.lookAt(view._camera, view._lookat, view._up)
-			//this.viewmatrix = mat4.mat4_mul_mat4(p, lookat);
-			//console.log(view._nearplane, view._farplane, view._fov);
-			//console.log("lookat");
-			//mat4.debug(lookat);
 			this.viewmatrix = mat4.mat4_mul_mat4(lookat,p);
 			
-			//mat4.debug(this.viewmatrix);
 			
 		}
 
