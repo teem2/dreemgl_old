@@ -40,6 +40,84 @@ define.class(function(view, require) {
 	
 	this.remapMouse = function(node){
 
+	
+		var parentlist = [];
+		var ip = node.parent
+		
+		
+		
+		var sx =this.device.main_frame.size[0]  / this.device.ratio
+		var sy =this.device.main_frame.size[1]  / this.device.ratio
+		var mx =  this.mouse._x/(sx/2) - 1.0
+		var my = -1 * (this.mouse._y/(sy/2) - 1.0)
+		
+		
+		while (ip)
+		{
+			if (ip._mode || !ip.parent) parentlist.push(ip);
+			
+			ip = ip.parent;
+		}
+		
+		
+		if (true){
+			var	parentdesc = "Parentchain: " ;
+			for(var i =parentlist.length-1;i>=0;i--) {
+				
+				parentdesc += parentlist[i].constructor.name + "("+parentlist[i]._mode+") ";
+				
+			}
+			console.log(parentdesc);			
+		}
+		
+		var ressofar = vec2(mx,my);
+		var outtemp = vec2();
+		
+		
+		var scaletemp = mat4.scalematrix([1,1,1])
+		var transtemp2 = mat4.translatematrix([-1,-1,0])
+		console.clear();
+		console.log(parentlist.length, ressofar);
+
+		for(var i =parentlist.length-1;i>=0;i--) {
+			
+			
+			var P = parentlist[i];
+			
+			
+			if (P.parent) {
+				
+				mat4.scalematrix([2.0/P.layout.width,2.0/P.layout.height,1], scaletemp)
+			
+				ressofar = vec2.mul_mat4_t(ressofar, scaletemp)
+				console.log(i, ressofar, "scalematrix");
+
+			
+			
+				mat4.invert(P.layermatrix, this.remapmatrix)
+				ressofar = vec2.mul_mat4_t(ressofar, this.remapmatrix)
+				console.log(i, ressofar, "layermatrix");
+
+			}
+			
+			
+			mat4.invert(P.colorviewmatrix, this.remapmatrix)
+			ressofar = vec2.mul_mat4_t(ressofar, this.remapmatrix)
+			console.log(i, ressofar, "colorview");
+
+
+		
+			
+			
+			
+				
+			
+		
+		}
+		
+		var transtemp = mat4.translatematrix([1,1,0])
+		
+		
 		var M = node._mode?  node.layermatrix: node.totalmatrix
 		var P = node.parent
 
@@ -47,8 +125,6 @@ define.class(function(view, require) {
 			M = mat4.identity()
 		}
 		
-		var scaletemp = mat4.scalematrix([1,1,1])
-		var transtemp = mat4.translatematrix([1,1,0])
 					
 		while(P){
 			if (P._mode || !P.parent) {
@@ -61,6 +137,10 @@ define.class(function(view, require) {
 					o = mat4.mat4_mul_mat4(o, transtemp)
 					o = mat4.mat4_mul_mat4(o, scaletemp)
 					M = mat4.mat4_mul_mat4(o, P.layermatrix)
+					
+//					M = mat4.mat4_mul_mat4(o, scaletemp)
+					
+					
 				}
 				else{					
 					mat4.mat4_mul_mat4(M, s, o)
@@ -71,10 +151,6 @@ define.class(function(view, require) {
 		}
 
 		mat4.invert(M, this.remapmatrix)
-		var sx =this.device.main_frame.size[0]  / this.device.ratio
-		var sy =this.device.main_frame.size[1]  / this.device.ratio
-		var mx =  this.mouse._x/(sx/2) - 1.0
-		var my = -1 * (this.mouse._y/(sy/2) - 1.0)
 		
 		vec2.mul_mat4_t([mx,my], this.remapmatrix, this.invertedmousecoords)
 

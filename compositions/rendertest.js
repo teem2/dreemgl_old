@@ -37,7 +37,7 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 		}
 		
 		this.mousemove = function(a){
-//			console.log(a);
+			console.log("mousecoord", a);
 			this.bgshader.mousepos = vec2(a[0],a[1])
 			this.redraw()
 			//this.screen.addDirtyNode(this);
@@ -61,8 +61,10 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 					bgcolor:'#CBD6D9'
 					}
 					,button({text:'I BUTTON!', flex:1})
-					,view({clearcolor:"lightblue", mode:'3D', flex:1, margin:2, bgcolor:'lightblue', name:'3dview', borderwidth:0, bordercolor:"black", borderradius:1}
-						,cube({dimension:vec3(100)})
+					,view({clearcolor:"lightblue", mode:'3D', flex:1, margin:2, bgcolor:'lightblue', name:'3dview', borderwidth:0, bordercolor:"black", borderradius:1, camera:vec3(2.1,2,2)}
+						,cube({dimension:vec3(1)})
+						,cube({dimension:vec3(1), translate:vec3(1.5,0,-1.5)})
+						,cube({dimension:vec3(1), translate:vec3(-1.5,0,1.5)})
 					
 					)
 					,mousedebug({flex:1,mode:'2D',margin:20})
@@ -78,7 +80,7 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 						},
 						bgcolor:'#A39565', bordercolor:"#484230", borderwidth: 20
 					}
-					,mousedebug({flex:1, margin:20})
+					,mousedebug({flex:1,height:100, width:100, margin:20})
 					)
 				)
 			)
