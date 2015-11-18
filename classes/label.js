@@ -67,7 +67,7 @@ define.class(function(view, require){
 		if(this.typeface) this.typeface = glfontParser(this.typeface)
 	}
 
-	this.sizetocontent = function(width){
+	this.measure = function(width){
 		this.fontshader.update()
 		return {width: this.fontshader.mesh.bound_w, height: this.fontshader.mesh.bound_h};
 	}

@@ -25,32 +25,35 @@ define.class(function(composition, docviewer, fileio, screens, screen, dataset, 
 					}.bind(this))
 					}
 					return [
-						splitcontainer({ vertical: false, position: "relative", flexdirection: "row", bgcolor: "black", alignitems:"stretch", alignself: "stretch" , flex:1}
+						splitcontainer({ vertical: false,  bgcolor: "black", flex:1}
 							,view({flexdirection:"column", padding: 0,flex: 0.2}
 								,view({alignitems:"center", bgcolor:"#e0e0e0", flexdirection:"row" ,padding: 14},
 									label({text:"DreemGL", fgcolor:"black", bgcolor:"transparent", fontsize: 30 })
 								)
-								,scrollcontainer({hscrollvisible:false,flex:1},
-									view({flex:1, flexdirection:"column"}
-										,treeview({
-											mode:'2D',
-											init:function(){
-												var dataset = this.find('screen').model
-												if(dataset) this.dataset = dataset
-											},
-											name:'filetree', 
-											//flex:1, 
-											selectclick:function(sel){
-												// we have to grab the last path set and concatenate a path
-												var path = ''
-												for(var i = sel.path.length - 1; i >= 1; i--){
-													path = sel.path[i].name + (path!==''?'/' + path:'')
-												}
-												this.find('screen').locationhash = {path : '$root/'+path};
-											}
-										})
-									)
-								)
+								//,scrollcontainer({hscrollvisible:false,flex:1}
+								//,view({flex:1}
+									//,view({flex:1, flexdirection:"column"}
+								,treeview({
+									postLayout:function(){
+									},
+									mode:'2D',
+									init:function(){
+										var dataset = this.find('screen').model
+										if(dataset) this.dataset = dataset
+									},
+									name:'filetree', 
+									flex:1, 
+									selectclick:function(sel){
+										// we have to grab the last path set and concatenate a path
+										var path = ''
+										for(var i = sel.path.length - 1; i >= 1; i--){
+											path = sel.path[i].name + (path!==''?'/' + path:'')
+										}
+										this.find('screen').locationhash = {path : '$root/'+path};
+									}
+								})
+									//)
+								//)
 							)
 							,view({flex:1,bgcolor:'red'}
 								//,scrollcontainer({hscrollvisible:false, move_view_bgcolor: "#f0f0f0"}

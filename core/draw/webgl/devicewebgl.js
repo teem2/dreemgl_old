@@ -197,16 +197,19 @@ define.class(function(require, exports, self){
 	}
 
 	this.doDraw = function(time){
-
+		
 		// lets layout shit that needs layouting.
-		var screen = this.layout_list[this.layout_list.length - 1]
-		screen._size = vec2(this.main_frame.size[0] / this.ratio, this.main_frame.size[1] / this.ratio)
-
+		
+		// set the size externally of the main view
+		
+		//var screen = this.layout_list[this.layout_list.length - 1]
+		this.screen._size = vec2(this.main_frame.size[0] / this.ratio, this.main_frame.size[1] / this.ratio)
 		for(var i = 0; i < this.layout_list.length; i++){
 			// lets do a layout?
 			var view = this.layout_list[i]
 			view.doLayout()
 		}
+
 		// lets draw all the passes
 		for(var i = 0, len = this.drawpass_list.length; i < len; i++){
 			this.drawpass_list[i].drawpass.drawColor(i === len - 1)
@@ -215,6 +218,7 @@ define.class(function(require, exports, self){
 
 	this.atNewlyRendered = function(view){
 		// if view is not a layer we have to find the layer, and regenerate that whole layer.
+		if(!view.parent) this.screen = view // its the screen
 		// alright lets do this.
 		var node = view
 		while(!node._mode){
@@ -227,11 +231,13 @@ define.class(function(require, exports, self){
 			this.drawpass_list = []
 			this.layout_list = []
 			this.drawpass_idx = 0
+			this.layout_idx_first = 0
 			this.layout_idx = 0
 			this.addDrawPassRecursive(node)
 		}
 		else{ // else we remove drawpasses first then re-add them
 			this.removeDrawPasses(node)
+			this.layout_idx_first = this.layout_idx
 			this.addDrawPassRecursive(node)
 		}
 	}
@@ -254,7 +260,7 @@ define.class(function(require, exports, self){
 			}
 		}
 		if(this.drawpass_idx === Infinity) this.drawpass_idx = 0
-		// now remove all layouts that have the same
+		// now remove all layouts too
 		this.layout_idx = Infinity
 		var layout_list = this.layout_list
 		for(var i = 0; i < layout_list.length; i++){
@@ -283,10 +289,13 @@ define.class(function(require, exports, self){
 			var pass = new DrawPass(this, view)
 			this.drawpass_list.splice(this.drawpass_idx,0,view)
 			this.drawpass_idx++
-		}
-
-		if(isNaN(view._flex) && view.children && view.children.length){
-			this.layout_list.splice(this.layout_idx,0,view)
+			// lets also add a layout pass
+			if(isNaN(view._flex)){ // if not flex, make sure layout runs before the rest
+				this.layout_list.splice(this.layout_idx_first,0,view)
+			}
+			else{ // we are flex, make sure we layout after
+				this.layout_list.splice(this.layout_idx,0,view)
+			}
 			this.layout_idx++
 		}
 	}

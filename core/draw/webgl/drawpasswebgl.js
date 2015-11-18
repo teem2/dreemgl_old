@@ -229,7 +229,10 @@ define.class(function(require, baseclass){
 			var main_ratio = device.main_frame.ratio, twidth = layout.width * main_ratio, theight = layout.height * main_ratio
 			this.allocDrawTarget(twidth, theight, this.view._mode, 'color_buffer')
 		}
+
 		this.device.bindFramebuffer(this.color_buffer)
+
+
 
 		if(layout.width === 0 || layout.height === 0) return
 
