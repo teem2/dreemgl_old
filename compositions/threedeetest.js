@@ -51,6 +51,21 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 						,cube({translate:vec3(0,0,1), dimension:vec3(0.5)})
 						,plane({translate:vec3(0,0,2), dimension:vec3(500), rotate:vec3(PI/2,0,0)})
 						,sphere({translate:vec3(0,0,2), radius:0.5})
+						,view({mode:'2D'}
+						,button({text:"Near", click:function(){
+							var cam = this.find("theview");
+							cam.camera = vec3(2,2,2);
+							cam.fov = 30;
+							}
+						})
+						,button({text:"Far", click:function(){
+							var cam = this.find("theview");
+							cam.camera = vec3(4,0.2,-10);
+							cam.fov = 90;
+							}
+							
+						}))
+						
 					)
 				)
 			)
