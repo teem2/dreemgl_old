@@ -12,8 +12,12 @@ define.class( function(node, require){
 		pos: {type:vec2, value:vec2(0,0)},
 		x: {storage:'pos', index:0},
 		y: {storage:'pos', index:1},
+
 		left: {storage:'pos', index:0},
 		top: {storage:'pos', index:1},
+		corner: {type:vec2, value:vec2(NaN, NaN)},
+		right: {storage:'corner', index:0},
+		bottom: {storage:'corner',index:1},
 
 		bgcolor: {type:vec4, value: vec4(0,0,0.1,1)},
 		clearcolor: {type:vec4, value: vec4('transparent')},
@@ -26,6 +30,7 @@ define.class( function(node, require){
 		h: {storage:'size', index:1},
 		width: {storage:'size', index:0},
 		height: {storage:'size', index:1},
+
 
 		min: {type: vec2, value:vec2(NaN, NaN)},
 		max: {type: vec2, value:vec2(NaN, NaN)},
