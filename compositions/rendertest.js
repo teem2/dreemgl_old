@@ -52,7 +52,6 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 	this.render = function(){ return [
 		screens(
 			screen({clearcolor:'#484230', flexdirection:'row'}
-				
 				,view({// size:[100,100],
 					name:'viewbg',
 					flexdirection:'column',
@@ -62,8 +61,8 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 					bgcolor:'#CBD6D9'
 					}
 					,button({text:'I BUTTON!', flex:1})
-					,view({clearcolor:"lightblue", mode:'2D', flex:1, margin:2, bgcolor:'lightblue', name:'3dview', borderwidth:4, bordercolor:"black", borderradius:1}
-						,cube()
+					,view({clearcolor:"lightblue", mode:'3D', flex:1, margin:2, bgcolor:'lightblue', name:'3dview', borderwidth:0, bordercolor:"black", borderradius:1}
+						,cube({dimension:vec3(100)})
 					
 					)
 					,mousedebug({flex:1,mode:'2D',margin:20})
