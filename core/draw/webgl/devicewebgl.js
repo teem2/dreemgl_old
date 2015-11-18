@@ -27,7 +27,9 @@ define.class(function(require, exports, self){
 		this.shadercache = previous &&  previous.shadercache || {}
 		this.drawpass_list = previous && previous.drawpass_list || []
 		this.layout_list = previous && previous.layout_list || []
-		this.pick_resolve = []
+		this.pick_resolve = []	
+		this.doPick = this.doPick.bind(this)
+
 		this.animFrame = function(time){
 			this.anim_req = false
 			this.doDraw(time)
@@ -190,7 +192,7 @@ define.class(function(require, exports, self){
 			this.pick_x = x
 			this.pick_y = y
 			if(!this.pick_timer){
-				this.pick_timer = setTimeout(this.doPick.bind(this), 0)
+				this.pick_timer = setTimeout(this.doPick, 0)
 			}
 			//this.doPick()
 		}.bind(this))
@@ -208,13 +210,14 @@ define.class(function(require, exports, self){
 		this.screen._max =
 		this.screen._size = vec2(this.main_frame.size[0] / this.ratio, this.main_frame.size[1] / this.ratio)
 
+		// do the dirty layouts
 		for(var i = 0; i < this.layout_list.length; i++){
 			// lets do a layout?
 			var view = this.layout_list[i]
 			view.doLayout()
 		}
 
-		// lets draw all the passes
+		// lets draw draw all dirty passes.
 		for(var i = 0, len = this.drawpass_list.length; i < len; i++){
 			this.drawpass_list[i].drawpass.drawColor(i === len - 1)
 		}
