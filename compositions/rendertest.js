@@ -71,8 +71,8 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 						flex:4,
 						bgcolor:'blue'
 					})
-				)
-				/*view({// size:[100,100],
+				),
+				view({
 					name:'viewbg',
 					flexdirection:'column',
 					margin:4,
@@ -100,7 +100,7 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 					}
 					,mousedebug({flex:1, margin:20})
 					)
-				)*/
+				)
 			)
 		)
 	]}
