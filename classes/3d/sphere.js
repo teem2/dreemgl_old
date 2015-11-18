@@ -9,12 +9,12 @@ define.class(function(require, shape3d){
 
 
 	this.attributes = {
-		radius: {type:float, value:1},
-		xdiv: {type:int, value:40}},
-		ydiv: {type:int, value:40}}
+		radius: {type:float, value:0.5},
+		xdiv: {type:int, value:40},
+		ydiv: {type:int, value:40}
 	}
 
 	this.init = function(){
-		this.bg_shader.addSphere(this.radius, this.xdiv, this.ydiv);
+		this.bgshader.setSphere(this.radius, this.xdiv, this.ydiv);
 	}
 })

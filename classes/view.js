@@ -74,9 +74,9 @@ define.class( function(node, require){
 		nearplane: {type:float, value: 0.001},
 		farplane: {type:float, value: 1000},
 		
-		camera: {type: vec3, value: vec3(-2,2,-20)},
+		camera: {type: vec3, value: vec3(-2,2,-2)},
 		lookat: {type: vec3, value: vec3(0)},
-		up: {type: vec3, value: vec3(0,1,0)}	
+		up: {type: vec3, value: vec3(0,-1,0)}	
 	}
 
 	
