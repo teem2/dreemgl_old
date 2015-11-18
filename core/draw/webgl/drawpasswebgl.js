@@ -80,6 +80,7 @@ define.class(function(require, baseclass){
 	}
 
 	this.allocDrawTarget = function(width, height, mode, drawtarget, passid){
+		var Texture = this.device.Texture
 		if(!this.drawtargets) this.drawtargets = []
 		if(this.drawtargets.indexOf(drawtarget) === -1) this.drawtargets.push(drawtarget)
 		var dt = this[drawtarget]
@@ -113,14 +114,17 @@ define.class(function(require, baseclass){
 			}
 			// otherwise we create a new one
 			if(!dt){
-				dt = this[drawtarget] = this.device.Texture.createRenderTarget(this.device, width, height, mode === '2D'?'rgba':'rgba_depth_stencil')
+				dt = this[drawtarget] = Texture.createRenderTarget(mode === '2D'?Texture.RGBA:Texture.RGBA|Texture.DEPTH|Texture.STENCIL, width, height, this.device)
 			}
 			else this[drawtarget] = dt
 			dt.passid = passid
 		} 
 		// make sure the drawtarget has the right size
 		var tsize = this[drawtarget].size
-		if(width !== tsize[0] || height !== tsize[1]) this[drawtarget].resize(width, height)
+		if(width !== tsize[0] || height !== tsize[1]){
+			this[drawtarget].delete()
+			this[drawtarget] = Texture.createRenderTarget(mode === '2D'?Texture.RGBA:Texture.RGBA|Texture.DEPTH|Texture.STENCIL, width, height, this.device)
+		}
 	}
 
 	this.drawPick = function(isroot, passid, mousex, mousey, debug){
