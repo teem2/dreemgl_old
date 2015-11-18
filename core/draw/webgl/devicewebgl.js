@@ -128,7 +128,7 @@ define.class(function(require, exports, self){
 	}
 
 	this.redraw = function(){
-		if(this.anim_req) return
+		if(this.anim_req || this.in_draw) return
 		this.anim_req = true
 		window.requestAnimationFrame(this.animFrame)
 	}
@@ -201,6 +201,7 @@ define.class(function(require, exports, self){
 
 	this.doDraw = function(time){
 		if(!this.first_time) this.first_time = time
+
 		var stime = (time - this.first_time) / 1000
 		// lets layout shit that needs layouting.
 		var loop = this.screen.doAnimation(stime)
@@ -222,6 +223,8 @@ define.class(function(require, exports, self){
 		for(var i = 0, len = this.drawpass_list.length; i < len; i++){
 			this.drawpass_list[i].drawpass.drawColor(i === len - 1)
 		}
+
+		if(loop) this.redraw()
 	}
 
 	this.atNewlyRendered = function(view){
