@@ -86,7 +86,8 @@ define.class( function(node, require){
 		"mouserightdown","mouserightup",
 		"mousewheelx","mousewheely",
 		"keyup","keydown","keypress","keypaste",
-		"focusget","focuslost"
+		"focusget","focuslost",
+		"postLayout"
 	]
 
 	this.modelmatrix = mat4.identity()
@@ -312,14 +313,14 @@ define.class( function(node, require){
 			var flex = this._flex
 			var size = this._size
 			this._flex = undefined
-			this._size = vec2(Math.ceil(this.layout.width + this.layout.right), Math.ceil(this.layout.height))
+			this._size = vec2(Math.ceil(this.layout.width + this.layout.right), Math.ceil(this.layout.height+ this.layout.bottom))
 		}
 
 		var copynodes = FlexLayout.fillNodes(this)
 		var layouted = FlexLayout.computeLayout(copynodes)
+
 		// recursively update matrices?
 		//console.log("hi!", this._mode);
-		//console.log(this.layout)
 		if(layout){
 			this._flex = flex
 			this._size = size

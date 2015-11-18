@@ -34,6 +34,8 @@ define.class(function(composition, docviewer, fileio, screens, screen, dataset, 
 								//,view({flex:1}
 									//,view({flex:1, flexdirection:"column"}
 								,treeview({
+									postLayout:function(){
+									},
 									mode:'2D',
 									init:function(){
 										var dataset = this.find('screen').model
