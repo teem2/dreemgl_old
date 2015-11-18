@@ -21,7 +21,6 @@ define.class(function(require, view, icon){
 		this.depth_test = 'src_depth < dst_depth';
 		
 		this.update = function(){
-			this.mesh = this.vertexstruct.array();
 		}
 		
 		this.vertexstruct = define.struct({
@@ -56,7 +55,6 @@ define.class(function(require, view, icon){
 				}.bind(this)
 			)
 			
-			console.log(this.mesh);
 			
 		}
 		
