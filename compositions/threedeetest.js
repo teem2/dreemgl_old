@@ -10,6 +10,7 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 							flex:1,
 							mode:'2D',
 							flexdirection:"column",
+							alignitems:'stretch',
 							bgcolor:'red',
 							bg:{
 								color:function(){
@@ -17,11 +18,11 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 								}
 							}
 						}
-						,button({text:"Button 1", click:function(){
+						,button({text:"Near", click:function(){
 								this.find("theview").camera = vec3(2,2,2);
 							}
 						})
-						,button({text:"Button 2", click:function(){
+						,button({text:"Far", click:function(){
 								this.find("theview").camera = vec3(4,0,-20);
 							}
 							
