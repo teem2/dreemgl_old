@@ -179,6 +179,7 @@ define.class(function(require, baseclass){
 			pick[2] = (id>>8)/255
 
 			var draw = dl[i]
+			draw.pickguid = pick[0]*255<<16 | pick[1]*255 << 8 | pick[2]*255
 			draw.viewmatrix = this.viewmatrix
 			if(draw._mode && draw.drawpass !== this && draw.drawpass.pick_buffer){
 				// ok so the pick pass needs the alpha from the color buffer

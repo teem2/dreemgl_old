@@ -7,7 +7,8 @@ define.class(function(view, require) {
 	
 	var FlexLayout = require('$lib/layout')
 	var Render = require('$base/render')
-	
+	var Animate = require('$base/animate')
+
 	this.attributes = {
 		locationhash: {type:Object}
 	}
@@ -80,8 +81,6 @@ define.class(function(view, require) {
 		return this.invertedmousecoords
 	}
 	
-	
-
 	this.bindInputs = function(){
 		this.keyboard.down = function(v){
 			if(!this.focus_view) return
@@ -416,4 +415,39 @@ define.class(function(view, require) {
 		location.hash = '#' + str
 	}
 
+
+	// animation
+
+	this.startAnimationRoot = function(obj, key, value){
+		var config = obj.getAttributeConfig(key)
+		var first = obj['_' + key]
+		var trk = new Animate(config, obj, key, first, value)
+		var animkey = obj.guid + '_' + key
+		this.anims[animkey] = trk
+		obj.redraw()
+		return true
+	}
+
+	this.doAnimation = function(time){
+		var hasanim = false
+		for(var key in this.anims){
+			var anim = this.anims[key]
+			if(anim.start_time === undefined) anim.start_time = time
+			var mytime = time - anim.start_time
+			var value = anim.compute(mytime)
+			if(value instanceof anim.End){
+				delete this.anims[key] 
+				//console.log(value.last_value)
+				anim.obj.emit(anim.key, value.last_value)
+				anim.obj.redraw()
+			}
+			else{
+				anim.obj.emit(anim.key, value)
+				anim.obj.redraw()
+				if(!hasanim) hasanim = true
+			}
+		}
+
+		return hasanim
+	}
 })

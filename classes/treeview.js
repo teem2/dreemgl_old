@@ -40,7 +40,7 @@ define.class(function(view,  label, button, icon){
 		this.fgcolor = "black"
 		this.margin = 0
 		this.bg = NaN 
-		this.flex = 1
+		this.flex = 0
 		this.alignself = "flex-start" 	
 	})
 

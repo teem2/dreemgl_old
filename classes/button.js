@@ -26,7 +26,7 @@ define.class(function(view, label, icon){
 		textcolor: {type: vec4, value: vec4("#404040")},
 
 		// Color of the label text in pressed-down state	
-		textactivecolor: {type: vec4, value: vec4("black")},
+		textactivecolor: {type: vec4, value: vec4("green")},
 		
 		// First gradient color for the button background in neutral state
 		buttoncolor1: {type: vec4, value: vec4("#fffff0")},
@@ -71,24 +71,27 @@ define.class(function(view, label, icon){
 
 	// The icon class used for the icon display. Exposed to allow overloading/replacing from the outside.
 	define.class(this, 'iconclass', function(icon){
+		this.attributes = {
+			fgcolor:{motion:'linear', duration:0.1}
+		}
 	})
 
 	this.statehover = function(){
 		this.col1 = this.hovercolor1
 		this.col2 = this.hovercolor2
-		this.icol = this.textactivecolor
+		if(this.iconres)this.iconres.fgcolor = this.textactivecolor
 	}
 
 	this.statenormal = function(){
 		this.col1 = this.buttoncolor1
 		this.col2 = this.buttoncolor2
-		this.icol = this.textcolor
+		if(this.iconres)this.iconres.fgcolor = this.textcolor
 	}
 
 	this.stateclick = function(){
 		this.col1 = this.pressedcolor1
 		this.col2 = this.pressedcolor2
-		this.icol = this.textactivecolor
+		if(this.iconres)this.iconres.fgcolor = this.textactivecolor
 	}
 
 	this.init = this.statenormal

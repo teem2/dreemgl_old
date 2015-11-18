@@ -66,6 +66,7 @@ define.class(function(exports){
  		}
 
  		new_version.children = new_version.render()
+ 		if(new_version.atRender) new_version.atRender() // allow postprocessing of children
 
 		new_version.atAttributeGet = undefined
 

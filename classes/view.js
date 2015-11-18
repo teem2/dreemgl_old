@@ -20,6 +20,8 @@ define.class( function(node, require){
 
 		size: {type:vec2, value:vec2(NaN, NaN)},
 
+		overflow: {type: Enum('','hidden','scroll','auto'), value:''},
+
 		w: {storage:'size', index:0},
 		h: {storage:'size', index:1},
 		width: {storage:'size', index:0},
@@ -57,15 +59,16 @@ define.class( function(node, require){
 		flex: {type: float, value: NaN},
 		flexwrap: {type: String, value: "wrap"},	//'wrap', 'nowrap'
 		flexdirection: {type: String, value: "row"},	//'column', 'row'
-		justifycontent: {type:String, value: ""}, //	'flex-start', 'center', 'flex-end', 'space-between', 'space-around'
-		alignitems: {type:String, value:"stretch"},  // 	'flex-start', 'center', 'flex-end', 'stretch'
-		alignself: {type:String, value:"stretch"},  // 	'flex-start', 'center', 'flex-end', 'stretch'
+		justifycontent: {type: String, value: ""}, //	'flex-start', 'center', 'flex-end', 'space-between', 'space-around'
+		alignitems: {type: String, value:"stretch"},  // 	'flex-start', 'center', 'flex-end', 'stretch'
+		alignself: {type: String, value:"stretch"},  // 	'flex-start', 'center', 'flex-end', 'stretch'
 		position: {type: String, value: "relative" },	//'relative', 'absolute'
 
 		mode: {type:Enum('','2D','3D'), value:''},
 		
 		model: {type: Object},
 		
+		visible: {type:boolean, value: true},
 		fov: {type:float, value: 45},
 		nearplane: {type:float, value: 0.001},
 		farplane: {type:float, value: 1000},
@@ -100,6 +103,10 @@ define.class( function(node, require){
 	this.device = {frame:{size:vec2()}}
 
 	this.rpcproxy = false	
+
+	// lets make a nested class
+	define.class(this, 'scrollbar', require('$classes/scrollbar'),function(){
+	})
 
 	// automatically switch to the rounded shader
 	this.borderradius = function(value){
@@ -164,6 +171,12 @@ define.class( function(node, require){
 			// give it a blendshader
 			this.blendshader = new this.blend(this)
 		}
+	}
+
+	this.atRender = function(){
+		// lets modify this.children
+		//if(this._overflow === ')
+		//this.children.push()
 	}
 
 	this.atDraw = function(){
@@ -312,16 +325,16 @@ define.class( function(node, require){
 			var layout = this.layout
 			var flex = this._flex
 			var size = this._size
-			this._flex = undefined
-			this._size = vec2(Math.ceil(this.layout.width + this.layout.right), Math.ceil(this.layout.height+ this.layout.bottom))
+			this._flex = 1
+			// we have to have unbounded 
+			this._size = vec2(NaN,NaN)//Math.ceil(this.layout.width + this.layout.right), Math.ceil(this.layout.height+ this.layout.bottom))
 		}
 
 		var copynodes = FlexLayout.fillNodes(this)
 		var layouted = FlexLayout.computeLayout(copynodes)
 
-		// recursively update matrices?
-		//console.log("hi!", this._mode);
 		if(layout){
+			this.computedsize = this.layout
 			this._flex = flex
 			this._size = size
 			this.layout = layout
@@ -331,37 +344,11 @@ define.class( function(node, require){
 
 	this.update = this.updateShaders
 
-	this.startMotion = function(obj, key, value){
-		var config = obj.getAttributeConfig(key)
-		var first = obj['_' + key]
-		var trk = new Animate(config, obj, key, first, value)
-		var animkey = obj.interfaceguid + '_' + key
-		this.anims[animkey] = trk
-		obj.setDirty(true)
-		return true
-	}
-
-	this.doAnimation = function(time){
-		var hasanim = false
-		for(var key in this.anims){
-			var anim = this.anims[key]
-			if(anim.start_time === undefined) anim.start_time = time
-			var mytime = time - anim.start_time
-			var value = anim.compute(mytime)
-			if(value instanceof anim.End){
-				delete this.anims[key] 
-				//console.log(value.last_value)
-				anim.obj.emit(anim.key, value.last_value)
-				anim.obj.setDirty(true)
-			}
-			else{
-				anim.obj.emit(anim.key, value)
-				anim.obj.setDirty(true)
-				if(!hasanim) hasanim = true
-			}
+	this.startAnimation = function(key, value){
+		if(this.screen) this.screen.startAnimationRoot(this, key, value)
+		else{
+			this['_' + key] = value
 		}
-
-		return hasanim
 	}
 
 	// ok so the problem is, the init has already overloaded the class that auto-switches

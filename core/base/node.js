@@ -527,7 +527,7 @@ define.class(function(require, constructor){
 					store = this[storage_key]
 				}
 				var config = this[config_key]
-				if(config.motion && this.startMotion(key, value)){
+				if(config.motion && this.startAnimation(key, value)){
 					return
 				}
 
@@ -565,7 +565,7 @@ define.class(function(require, constructor){
 					if(type !== Object && type !== Array) value = type(value)
 				}
 
-				if(config.motion && this.startMotion(key, value)){
+				if(config.motion && this.startAnimation(key, value)){
 					// store the end value
 					return
 				}
