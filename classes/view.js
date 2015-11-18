@@ -52,12 +52,12 @@ define.class( function(node, require){
 		borderbottomwidth: {storage:'borderwidth', index:3},
 
 		flex: {type: float, value: NaN},
-		flexwrap: {type: String, value: "wrap"},	//'wrap', 'nowrap'
-		flexdirection: {type: String, value: "row"},	//'column', 'row'
-		justifycontent: {type:String, value: ""}, //	'flex-start', 'center', 'flex-end', 'space-between', 'space-around'
-		alignitems: {type:String, value:"stretch"},  // 	'flex-start', 'center', 'flex-end', 'stretch'
-		alignself: {type:String, value:"stretch"},  // 	'flex-start', 'center', 'flex-end', 'stretch'
-		position: {type: String, value: "relative" },	//'relative', 'absolute'
+		flexwrap: {type: String, value: "wrap"},		//	'wrap', 'nowrap'
+		flexdirection: {type: String, value: "row"},	//	'column', 'row'
+		justifycontent: {type:String, value: ""}, 		//	'flex-start', 'center', 'flex-end', 'space-between', 'space-around'
+		alignitems: {type:String, value:"stretch"},  	// 	'flex-start', 'center', 'flex-end', 'stretch'
+		alignself: {type:String, value:"stretch"},  	// 	'flex-start', 'center', 'flex-end', 'stretch'
+		position: {type: String, value: "relative" },	//	'relative', 'absolute'
 
 		mode: {type:Enum('','2D','3D'), value:''},
 		
@@ -68,12 +68,13 @@ define.class( function(node, require){
 		farplane: {type:float, value: 1000},
 		
 		camera: {type: vec3, value: vec3(-2,2,-20)},
-
 		lookat: {type: vec3, value: vec3(0)},
-
 		up: {type: vec3, value: vec3(0,1,0)}	
 	}
 
+	
+	this.camera = this.lookat = this.up = function(){this.redraw();};
+	
 	this.persists = ['model']
 
 	this.events = [
@@ -254,9 +255,10 @@ define.class( function(node, require){
 		if (this._mode && this._mode != parentmode ){
 			console.log("modeswitch:", this._mode);
 			parentmatrix = mat4.identity();
+			this.modelmatrix = mat4.identity();
 			parentmode = this._mode;
 		}
-		if (parentmode== '3D' ){	
+		if (parentmode== '3D' && !this._mode ){	
 			mat4.TSRT2(this.anchor, this.scale, this.rotate, this.translate, this.modelmatrix);
 			mat4.debug(this.modelmatrix);
 		}
@@ -302,11 +304,16 @@ define.class( function(node, require){
 	}
 
 	this.doLayout = function(width, height){
-		var copynodes = FlexLayout.fillNodes(this)
-		var layouted = FlexLayout.computeLayout(copynodes)
-		// recursively update matrices?
-		//console.log("hi!", this._mode);
-		this.updateMatrices(undefined, this._mode)
+		console.log("layout on " + this._mode);
+		if (this._mode == '3D') {
+		}
+		else {
+			var copynodes = FlexLayout.fillNodes(this)
+			var layouted = FlexLayout.computeLayout(copynodes)
+			// recursively update matrices?
+			//console.log("hi!", this._mode);
+			this.updateMatrices(undefined, this._mode)
+		}
 	}
 
 	this.update = this.updateShaders
