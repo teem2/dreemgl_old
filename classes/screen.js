@@ -81,6 +81,54 @@ define.class(function(view, require) {
 		return this.invertedmousecoords
 	}
 	
+	this.debugPick = function(){
+		this.device.pickScreen(this.mouse.x, this.mouse.y).then(function(view){
+			if(this.last_debug_view === view) return
+			this.last_debug_view = view
+			var found 
+			function dump(walk, parent){
+				var layout = walk.layout || {}
+				var named = (new Function("return function "+(walk.name || walk.constructor.name)+'(){}'))()
+				Object.defineProperty(named.prototype, 'zflash', {
+					get:function(){
+						// humm. ok so we wanna flash it
+						// how do we do that.
+						window.view = this.view
+						return "window.view set"
+					}
+				})
+				var obj = new named()
+				obj.geom = 'x:'+layout.left+', y:'+layout.top+', w:'+layout.width+', h:'+layout.height
+				if(walk._mode) obj.mode = walk._mode
+				// write out shader modes
+				var so = ''
+				for(var key in walk.shader_order){
+					if(walk.shader_order[key]){
+						if(so) so += ", "
+						so += key+':'+walk.shader_order[key]
+					}
+				}
+				obj.shaders = so
+				obj.view = walk
+
+				if(walk._text) obj.text = walk.text
+
+				if(walk === view) found = obj
+				if(walk.children){
+					//obj.children = []
+					for(var i = 0; i < walk.children.length;i++){
+						obj[i] = dump(walk.children[i], obj)
+					}
+				}
+				obj._parent = parent
+				return obj
+			}
+			var ret = dump(this, null)
+			if(!found) console.log("Could not find", view)
+			else console.log(found)
+		}.bind(this))
+	}
+
 	this.bindInputs = function(){
 		this.keyboard.down = function(v){
 			if(!this.focus_view) return
@@ -111,52 +159,7 @@ define.class(function(view, require) {
 		this.mouse.move = function(){
 			// lets check the debug click
 			if(this.keyboard.alt && this.keyboard.shift){
-				this.device.pickScreen(this.mouse.x, this.mouse.y).then(function(view){
-					if(this.last_debug_view === view) return
-					this.last_debug_view = view
-					var found 
-					function dump(walk, parent){
-						var layout = walk.layout || {}
-						var named = (new Function("return function "+(walk.name || walk.constructor.name)+'(){}'))()
-						Object.defineProperty(named.prototype, 'zflash', {
-							get:function(){
-								// humm. ok so we wanna flash it
-								// how do we do that.
-								window.view = this.view
-								return "window.view set"
-							}
-						})
-						var obj = new named()
-						obj.geom = 'x:'+layout.left+', y:'+layout.top+', w:'+layout.width+', h:'+layout.height
-						if(walk._mode) obj.mode = walk._mode
-						// write out shader modes
-						var so = ''
-						for(var key in walk.shader_order){
-							if(walk.shader_order[key]){
-								if(so) so += ", "
-								so += key+':'+walk.shader_order[key]
-							}
-						}
-						obj.shaders = so
-						obj.view = walk
-
-						if(walk._text) obj.text = walk.text
-
-						if(walk === view) found = obj
-						if(walk.children){
-							//obj.children = []
-							for(var i = 0; i < walk.children.length;i++){
-								obj[i] = dump(walk.children[i], obj)
-							}
-						}
-						obj._parent = parent
-						return obj
-					}
-					var ret = dump(this, null)
-					if(!found) console.log("Could not find", view)
-					else console.log(found)
-				}.bind(this))
-				return
+				return this.debugPick()
 			} else this.last_debug_view = undefined
 
 
@@ -418,12 +421,16 @@ define.class(function(view, require) {
 
 	// animation
 
-	this.startAnimationRoot = function(obj, key, value){
+	this.startAnimationRoot = function(obj, key, value, track, resolve){
+		// ok so. if we get a config passed in, we pass that in
 		var config = obj.getAttributeConfig(key)
 		var first = obj['_' + key]
-		var trk = new Animate(config, obj, key, first, value)
+
+		var anim = new Animate(config, obj, key, track, first, value)
+
+		anim.resolve_anim = resolve
 		var animkey = obj.guid + '_' + key
-		this.anims[animkey] = trk
+		this.anims[animkey] = anim
 		obj.redraw()
 		return true
 	}
@@ -440,6 +447,7 @@ define.class(function(view, require) {
 				//console.log(value.last_value)
 				anim.obj.emit(anim.key, value.last_value)
 				anim.obj.redraw()
+				if(anim.resolve_anim) anim.resolve_anim()
 			}
 			else{
 				anim.obj.emit(anim.key, value)

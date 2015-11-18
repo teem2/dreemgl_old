@@ -77,6 +77,7 @@ define.class(function(view, label, icon){
 	})
 
 	this.statehover = function(){
+
 		this.col1 = this.hovercolor1
 		this.col2 = this.hovercolor2
 		if(this.iconres)this.iconres.fgcolor = this.textactivecolor
@@ -89,6 +90,7 @@ define.class(function(view, label, icon){
 	}
 
 	this.stateclick = function(){
+		//this.animate({col1:{0:vec4('red'),3:vec4('green')}})
 		this.col1 = this.pressedcolor1
 		this.col2 = this.pressedcolor2
 		if(this.iconres)this.iconres.fgcolor = this.textactivecolor

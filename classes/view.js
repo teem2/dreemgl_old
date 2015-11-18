@@ -353,8 +353,8 @@ define.class( function(node, require){
 
 	this.update = this.updateShaders
 
-	this.startAnimation = function(key, value){
-		if(this.screen) this.screen.startAnimationRoot(this, key, value)
+	this.startAnimation = function(key, value, track, resolve){
+		if(this.screen) this.screen.startAnimationRoot(this, key, value, track, resolve)
 		else{
 			this['_' + key] = value
 		}
