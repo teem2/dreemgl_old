@@ -189,6 +189,8 @@ define.class(function(require, baseclass){
 			var draw = dl[i]
 			draw.pickguid = pick[0]*255<<16 | pick[1]*255 << 8 | pick[2]*255
 			draw.viewmatrix = this.viewmatrix
+
+			if(!draw._visible) continue
 			if(draw._mode && draw.drawpass !== this && draw.drawpass.pick_buffer){
 				// ok so the pick pass needs the alpha from the color buffer
 				// and then hard forward the color
@@ -247,20 +249,20 @@ define.class(function(require, baseclass){
 
 		device.clear(view._clearcolor)
 		// 2d/3d switch
+		var scrollx = view._scrolloffset[0], scrolly = view._scrolloffset[1]
+
 		if(view._mode === '2D'){
 			if (isroot){
-				mat4.ortho(0, layout.width, 0, layout.height, -100, 100, this.viewmatrix)
+				mat4.ortho(scrollx, layout.width+scrollx, scrolly, layout.height+scrolly, -100, 100, this.viewmatrix)
 			}
 			else{
-				mat4.ortho(0, layout.width, layout.height, 0, 100, -100, this.viewmatrix)
+				mat4.ortho(scrollx, layout.width+scrollx, layout.height+scrolly, scrolly,100, -100, this.viewmatrix)
 			}
 		}
 		else if(view._mode === '3D'){
 			var p = mat4.perspective(view._fov * PI * 2/360.0 , layout.width/layout.height, view._nearplane, view._farplane)			
 			var lookat = mat4.lookAt(view._camera, view._lookat, view._up)
 			this.viewmatrix = mat4.mat4_mul_mat4(lookat,p);
-			
-			
 		}
 
 		// each view has a reference to its layer
@@ -270,7 +272,8 @@ define.class(function(require, baseclass){
 			if (!view.colorviewmatrix) view.colorviewmatrix = mat4();
 			for(var j = 0;j<16;j++) view.colorviewmatrix[j] = this.viewmatrix[j];
 
-			
+			if(!draw._visible) continue
+
 			if(draw.atDraw){
 				draw.atDraw(this)
 			}

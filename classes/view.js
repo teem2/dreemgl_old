@@ -7,9 +7,10 @@ define.class( function(node, require){
 	var Animate = require('$base/animate')
 	var FlexLayout = require('$lib/layout')
 	var Shader = this.Shader = require('$draw/$drawmode/shader$drawmode')
+	var view = this.constructor
 
 	this.attributes = {
-		pos: {type:vec2, value:vec2(0,0)},
+		pos: {type:vec2, value:vec2(NaN,NaN)},
 		x: {storage:'pos', index:0},
 		y: {storage:'pos', index:1},
 
@@ -21,7 +22,7 @@ define.class( function(node, require){
 
 		bgcolor: {type:vec4, value: vec4(0,0,0.1,1)},
 		clearcolor: {type:vec4, value: vec4('transparent')},
-
+		scrolloffset: {type:vec3, value:vec2(0, 0, 0)},
 		size: {type:vec2, value:vec2(NaN, NaN)},
 
 		overflow: {type: Enum('','hidden','scroll','auto'), value:''},
@@ -32,9 +33,8 @@ define.class( function(node, require){
 		width: {storage:'size', index:0},
 		height: {storage:'size', index:1},
 
-
-		min: {type: vec2, value:vec2(NaN, NaN)},
-		max: {type: vec2, value:vec2(NaN, NaN)},
+		minsize: {type: vec2, value:vec2(NaN, NaN)},
+		maxsize: {type: vec2, value:vec2(NaN, NaN)},
 
 		margin: {type: vec4, value: vec4(0,0,0,0)},
 		marginleft: {storage:'margin', index:0},
@@ -112,10 +112,6 @@ define.class( function(node, require){
 
 	this.rpcproxy = false	
 
-	// lets make a nested class
-	define.class(this, 'scrollbar', require('$classes/scrollbar'),function(){
-	})
-
 	// automatically switch to the rounded shader
 	this.borderradius = function(value){
 		if(typeof value === 'number' && value !== 0 || value[0] !== 0 || value[1] !== 0 || value[2] !== 0 || value[3] !== 0){
@@ -181,12 +177,6 @@ define.class( function(node, require){
 		}
 	}
 
-	this.atRender = function(){
-		// lets modify this.children
-		//if(this._overflow === ')
-		//this.children.push()
-	}
-
 	this.atDraw = function(){
 		if(this.debug !== undefined && this.debug.indexOf('atdraw')!== -1) console.log(this)
 	}
@@ -231,7 +221,6 @@ define.class( function(node, require){
 			}
 			return
 		}
-
 		// its inheritance
 		var cls = this['_' + key]
 		this['_' + key] = cls.extend(value, this)
@@ -292,10 +281,11 @@ define.class( function(node, require){
 				var s = this._scale
 				var r = this._rotate
 				var t0 = this.layout.left, t1 = this.layout.top, t2 = 0
-				if (this._position === "absolute"){
-					t0 = this._pos[0]
-					t1 = this._pos[1]
-				}
+
+				//if (this._position === "absolute"){ // layout engine does this
+				//	t0 = this._pos[0]
+				//	t1 = this._pos[1]
+				//}
 				var hw = (  this.layout.width !== undefined ? this.layout.width: this._size[0] ) / 2
 				var hh = ( this.layout.height !== undefined ? this.layout.height: this._size[1]) / 2
 				mat4.TSRT(-hw, -hh, 0, s[0], s[1], s[2], r[0], r[1], r[2], t0 + hw * s[0], t1 + hh * s[1], t2, this.modelmatrix);
@@ -329,27 +319,114 @@ define.class( function(node, require){
 		}
 	}
 
+	function emitPostLayout(node){
+		if(node.ref._listen_postLayout || node.ref.onpostLayout) node.ref.emit('postLayout')
+		var children = node.children
+		for(var i = 0; i < children.length;i++){
+			emitPostLayout(children[i])
+		}
+	}
+
+	this.purelayout = {_flex:1,_size:vec2(NaN),_pos:vec2(NaN),_margin:vec4(NaN),_padding:vec4(NaN),_borderwidth:vec4(NaN),_minsize:vec2(NaN),_maxsize:vec2(NaN),_corner:vec2(NaN)}
+
+	this.preRender = function(){
+		//return this
+		// lets modify this.children
+		if(this._mode === '2D' && (this._overflow === 'SCROLL'|| this._overflow === 'AUTO')){
+			// ok lets return a new view
+			
+			var inner = this.scrollcontainer({
+				layoutforward:this,
+				},
+				this, 
+				this.vscrollbar = this.scrollbar({
+					position:'absolute',
+					vertical:true,
+					offset:function(value){
+						// riight we have a problem though. we scroll ourselves out of the way
+						// goddamnit.
+						this.scroll = vec2(this._scroll[0],-this._offset)
+						this.parent._scroll = vec2(this.parent._scroll[0],this._offset)
+					},
+					postLayout:function(){
+						var parent_layout = this.parent.layout
+						var this_layout = this.layout
+						this_layout.top = 0
+						this_layout.width = 10
+						this_layout.height = parent_layout.height
+						this_layout.left = parent_layout.width - this_layout.width
+					}
+				}),
+				this.hscrollbar = this.scrollbar({
+					position:'absolute',
+					postLayout:function(){
+						var parent_layout = this.parent.layout
+						var this_layout = this.layout
+						this_layout.left = 0
+						this_layout.height = 10
+						this_layout.width = parent_layout.width
+						this_layout.top = parent_layout.height - this_layout.height
+					}
+				})
+			)
+			this.layoutforward = this.purelayout
+			inner.bgcolor = this.bgcolor
+			inner.bg = this.bg
+			this.bg = undefined
+			return inner
+		}
+		return this
+		//this.children.push()
+	}
+
 	this.doLayout = function(width, height){
-		if(!isNaN(this._flex)){ // means we need to set our layout from external
+		if(!isNaN(this._flex)){ // means our layout has been externally defined
 			var layout = this.layout
 			var flex = this._flex
 			var size = this._size
 			this._flex = 1
-			// we have to have unbounded 
-			this._size = vec2(NaN,NaN)//Math.ceil(this.layout.width + this.layout.right), Math.ceil(this.layout.height+ this.layout.bottom))
-		}
+			this._size = vec2(NaN,NaN)
 
-		var copynodes = FlexLayout.fillNodes(this)
-		var layouted = FlexLayout.computeLayout(copynodes)
-
-		if(layout){
+			var copynodes = FlexLayout.fillNodes(this)
+			FlexLayout.computeLayout(copynodes)
+		
 			this.computedsize = this.layout
 			this._flex = flex
 			this._size = size
 			this.layout = layout
-		}
-		this.updateMatrices(this.parent?this.parent.totalmatrix:undefined, this._mode)
+	
+			emitPostLayout(copynodes)
 
+			// hide/show scrollbars depending on computed inner size
+			if(this.vscrollbar){
+				var scroll = this.vscrollbar
+				// hide/show the vscrollbar and or set its range
+				var compheight = this.computedsize.height, height = this.layout.height
+				if(compheight > height){
+					scroll._visible = true
+					scroll._total = compheight
+					scroll._page = height
+					var off = clamp(scroll._offset,0, scroll._total - scroll._page)
+					// trigger listeners
+					if(off !== scroll._offset) scroll.offset = off
+					//this.vscrollbar._offset = 0.
+					// set scrollbar props
+				}
+				else{
+					this.vscrollbar._visible = false
+				}
+				// 
+
+				// hide show the hscrollbar and or set its range
+			}
+		}
+		else{
+			var copynodes = FlexLayout.fillNodes(this)
+			FlexLayout.computeLayout(copynodes)
+			emitPostLayout(copynodes)
+		}
+
+		this.updateMatrices(this.parent?this.parent.totalmatrix:undefined, this._mode)
 	}
 
 	this.update = this.updateShaders
@@ -372,10 +449,6 @@ define.class( function(node, require){
 	this.pauseAnimation = function(key){
 		if(this.screen) this.screen.pauseAnimationRoot(this, key)
 	}
-
-	// ok so the problem is, the init has already overloaded the class that auto-switches
-	// so what do we do with that. 
-	// thats a real problem
 
 	// standard bg is undecided
 	define.class(this, 'bg', this.Shader, function(){})
@@ -581,5 +654,14 @@ define.class( function(node, require){
 		}
 	})
 	this.border = false
+
+	// lets pull in the scrollbar on the view
+	define.class(this, 'scrollbar', require('$classes/scrollbar'),function(){
+	})
+
+	define.class(this, 'scrollcontainer', function(view){
+		bgcolor:'red'
+	})
+
 
 })
