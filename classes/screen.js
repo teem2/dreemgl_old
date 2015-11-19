@@ -59,15 +59,16 @@ define.class(function(view, require) {
 			ip = ip.parent;
 		}
 		
-		
-		if (true){
+	//	console.clear();
+		if (false){
 			var	parentdesc = "Parentchain: " ;
 			for(var i =parentlist.length-1;i>=0;i--) {
 				
 				parentdesc += parentlist[i].constructor.name + "("+parentlist[i]._mode+") ";
 				
 			}
-			console.log(parentdesc);			
+			
+	//		console.log(parentdesc);			
 		}
 		
 		var ressofar = vec2(mx,my);
@@ -76,8 +77,8 @@ define.class(function(view, require) {
 		
 		var scaletemp = mat4.scalematrix([1,1,1])
 		var transtemp2 = mat4.translatematrix([-1,-1,0])
-		console.clear();
-		console.log(parentlist.length, ressofar);
+		
+	//	console.log(parentlist.length, ressofar, "mousecoords in GL space");
 
 		for(var i =parentlist.length-1;i>=0;i--) {
 			
@@ -86,24 +87,29 @@ define.class(function(view, require) {
 			
 			
 			if (P.parent) {
-				
-				mat4.scalematrix([2.0/P.layout.width,2.0/P.layout.height,1], scaletemp)
 			
-				ressofar = vec2.mul_mat4_t(ressofar, scaletemp)
-				console.log(i, ressofar, "scalematrix");
-
-			
-			
+		
+			//	console.log("all bets are off - 3d mode detected");
 				mat4.invert(P.layermatrix, this.remapmatrix)
 				ressofar = vec2.mul_mat4_t(ressofar, this.remapmatrix)
-				console.log(i, ressofar, "layermatrix");
+		//		console.log(i, ressofar, "layermatrix");
+
+				mat4.scalematrix([P.layout.width/2,P.layout.height/2,1], scaletemp)
+				mat4.invert(scaletemp, this.remapmatrix)
+
+			
+				ressofar = vec2.mul_mat4_t(ressofar, this.remapmatrix)				
+			//	console.log(i, ressofar, "scalematrix");	
+				
+				ressofar = vec2.mul_mat4_t(ressofar, transtemp2)
+		//		console.log(i, ressofar, "transmatrix");
 
 			}
 			
 			
 			mat4.invert(P.colorviewmatrix, this.remapmatrix)
 			ressofar = vec2.mul_mat4_t(ressofar, this.remapmatrix)
-			console.log(i, ressofar, "colorview");
+		//	console.log(i, ressofar, "colorview");
 
 
 		
@@ -114,6 +120,12 @@ define.class(function(view, require) {
 			
 		
 		}
+		
+		
+		var MM = node._mode?  node.layermatrix: node.totalmatrix;
+		mat4.invert(MM, this.remapmatrix)
+			ressofar = vec2.mul_mat4_t(ressofar, this.remapmatrix)
+		//	console.log("_", ressofar, "result");
 		
 		var transtemp = mat4.translatematrix([1,1,0])
 		
@@ -154,7 +166,10 @@ define.class(function(view, require) {
 		
 		vec2.mul_mat4_t([mx,my], this.remapmatrix, this.invertedmousecoords)
 
-		return this.invertedmousecoords
+		//console.log("_", this.invertedmousecoords, "reference using old method");
+
+		
+		return ressofar
 	}
 	
 	this.bindInputs = function(){
