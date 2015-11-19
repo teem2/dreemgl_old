@@ -104,6 +104,7 @@ define.class( function(node, require){
 	this.modelmatrix = mat4.identity()
 	this.totalmatrix = mat4.identity()
 	this.viewmatrix = mat4.identity()
+	this.staticmatrix = mat4.identity()
 	this.layermatrix = mat4.identity()
 	this.normalmatrix = mat4.identity()
 	
@@ -327,6 +328,43 @@ define.class( function(node, require){
 		}
 	}
 
+
+	this.atRender = function(){
+		if(this._mode === '2D' && (this._overflow === 'SCROLL'|| this._overflow === 'AUTO')){
+			this.children.push(
+				this.vscrollbar = this.scrollbar({
+						position:'absolute',
+						vertical:true,
+						offset:function(value){
+							// riight we have a problem though. we scroll ourselves out of the way
+							// goddamnit.
+							//this.scrolloffset = vec2(this._scrolloffset[0],-this._offset)
+							this.parent._scrolloffset = vec2(this.parent._scrolloffset[0],this._offset)
+						},
+						postLayout:function(){
+							var parent_layout = this.parent.layout
+							var this_layout = this.layout
+							this_layout.top = 0
+							this_layout.width = 10
+							this_layout.height = parent_layout.height
+							this_layout.left = parent_layout.width - this_layout.width
+						}
+					}),
+					this.hscrollbar = this.scrollbar({
+						position:'absolute',
+						postLayout:function(){
+							var parent_layout = this.parent.layout
+							var this_layout = this.layout
+							this_layout.left = 0
+							this_layout.height = 10
+							this_layout.width = parent_layout.width
+							this_layout.top = parent_layout.height - this_layout.height
+						}
+					})
+			)
+		}
+	}
+	/*
 	this.purelayout = {_flex:1,_size:vec2(NaN),_pos:vec2(NaN),_margin:vec4(NaN),_padding:vec4(NaN),_borderwidth:vec4(NaN),_minsize:vec2(NaN),_maxsize:vec2(NaN),_corner:vec2(NaN)}
 
 	this.preRender = function(){
@@ -377,7 +415,7 @@ define.class( function(node, require){
 		}
 		return this
 		//this.children.push()
-	}
+	}*/
 
 	this.doLayout = function(width, height){
 		if(!isNaN(this._flex)){ // means our layout has been externally defined

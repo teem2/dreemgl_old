@@ -77,7 +77,7 @@ define.class(function(view){
 		mesh: mesh,
 		update:function(){},
 		position: function(){
-			return vec4(mesh.x * view.layout.width, mesh.y * view.layout.height, 0, 1) * view.totalmatrix * view.viewmatrix
+			return vec4(mesh.x * view.layout.width, mesh.y * view.layout.height, 0, 1) * view.totalmatrix * view.staticmatrix
 		}
 	}
 

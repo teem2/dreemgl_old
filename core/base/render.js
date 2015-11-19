@@ -16,7 +16,7 @@ define.class(function(exports){
 			state = {wires:[], render_block: []}
 			is_root = true
 		}
-
+		/*
  		if(new_version.preRender && !rerender){
  			if(state.render_block.indexOf(new_version) == -1){
  				state.render_block.push(new_version)
@@ -25,7 +25,7 @@ define.class(function(exports){
 	 				new_version.parent = inew_version.parent
 	 			}
 	 		}
- 		}
+ 		}*/
 
 		for(var key in globals){
 			new_version[key] = globals[key]
@@ -80,7 +80,7 @@ define.class(function(exports){
 
 		if(!Array.isArray(new_version.children) && new_version.children) new_version.children = [new_version.children]
 
-
+		if(new_version.atRender) new_version.atRender()
  		// what we need to do, is 
 
 		var new_children = new_version.children
