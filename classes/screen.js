@@ -81,11 +81,7 @@ define.class(function(view, require) {
 	//	console.log(parentlist.length, ressofar, "mousecoords in GL space");
 
 		for(var i =parentlist.length-1;i>=0;i--) {
-			
-			
 			var P = parentlist[i];
-			
-			
 			if (P.parent) {
 			
 		
@@ -108,9 +104,12 @@ define.class(function(view, require) {
 		//		console.log(i, ressofar, "transmatrix");
 
 			}
-			
-			
-			mat4.invert(P.colorviewmatrix, this.remapmatrix)
+			if(i == 0 && node.noscroll){
+				mat4.invert(P.colornoscrollmatrix, this.remapmatrix)
+			} 
+			else {
+				mat4.invert(P.colorviewmatrix, this.remapmatrix)
+			}
 			raystart = vec3.mul_mat4(raystart, this.remapmatrix)
 			rayend = vec3.mul_mat4(rayend, this.remapmatrix)
 		//	console.log(i, ressofar, "colorview");

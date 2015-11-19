@@ -104,7 +104,6 @@ define.class( function(node, require){
 	this.modelmatrix = mat4.identity()
 	this.totalmatrix = mat4.identity()
 	this.viewmatrix = mat4.identity()
-	this.staticmatrix = mat4.identity()
 	this.layermatrix = mat4.identity()
 	this.normalmatrix = mat4.identity()
 	
@@ -335,10 +334,8 @@ define.class( function(node, require){
 				this.vscrollbar = this.scrollbar({
 						position:'absolute',
 						vertical:true,
+						noscroll:true,
 						offset:function(value){
-							// riight we have a problem though. we scroll ourselves out of the way
-							// goddamnit.
-							//this.scrolloffset = vec2(this._scrolloffset[0],-this._offset)
 							this.parent._scrolloffset = vec2(this.parent._scrolloffset[0],this._offset)
 						},
 						postLayout:function(){
@@ -352,6 +349,7 @@ define.class( function(node, require){
 					}),
 					this.hscrollbar = this.scrollbar({
 						position:'absolute',
+						noscroll:true,
 						postLayout:function(){
 							var parent_layout = this.parent.layout
 							var this_layout = this.layout
@@ -695,10 +693,10 @@ define.class( function(node, require){
 
 	// lets pull in the scrollbar on the view
 	define.class(this, 'scrollbar', require('$classes/scrollbar'),function(){
+		this.bg = -1
 	})
 
 	define.class(this, 'scrollcontainer', function(view){
-		bgcolor:'red'
 	})
 
 
