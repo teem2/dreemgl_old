@@ -9,20 +9,30 @@ define.class(function(exports){
 
 	var initializing = false
 
-	exports.process = function render(new_version, old_version, globals, wireinits, rerender){
-
-		var init_wires = false
-		if(!wireinits){
-			wireinits = []
-			init_wires = true
+	exports.process = function render(inew_version, old_version, globals, state, rerender){
+		var new_version = inew_version
+		var is_root = false
+		if(!state){
+			state = {wires:[], render_block: []}
+			is_root = true
 		}
+
+ 		if(new_version.preRender && !rerender){
+ 			if(state.render_block.indexOf(new_version) == -1){
+ 				state.render_block.push(new_version)
+	 			new_version = new_version.preRender() // allow postprocessing of children and or replacement of self
+	 			if(new_version !== inew_version){
+	 				new_version.parent = inew_version.parent
+	 			}
+	 		}
+ 		}
 
 		for(var key in globals){
 			new_version[key] = globals[key]
 		}
 		
 		// call connect wires before
-		if(!rerender) new_version.connectWires(wireinits)
+		if(!rerender) new_version.connectWires(state.wires)
 
 		var old_children = old_version? old_version.children: undefined
 
@@ -66,11 +76,13 @@ define.class(function(exports){
  		}
 
  		new_version.children = new_version.render()
- 		if(new_version.atRender) new_version.atRender() // allow postprocessing of children
-
 		new_version.atAttributeGet = undefined
 
 		if(!Array.isArray(new_version.children) && new_version.children) new_version.children = [new_version.children]
+
+
+ 		// what we need to do, is 
+
 		var new_children = new_version.children
 
 		if(new_children) for(var i = 0; i < new_children.length; i++){
@@ -90,8 +102,7 @@ define.class(function(exports){
 				old_child = old_children[i]
 			}
 			new_child.parent = new_version
-			// render new child
-			new_child = new_children[i] = render(new_child, old_child, globals, wireinits)
+			new_child =  new_children[i] = render(new_child, old_child, globals, state)
 	
 			// set the childs name
 			var name = new_child.name || new_child.constructor.name
@@ -104,10 +115,10 @@ define.class(function(exports){
 
 		if(old_version) old_version.emit('deinit')
 
-		if(init_wires){
+		if(is_root){
 			initializing = true
-			for(var i = 0; i < wireinits.length; i++){
-				wireinits[i]()
+			for(var i = 0; i < state.wires.length; i++){
+				state.wires[i]()
 			}
 			initializing = false
 

@@ -36,8 +36,12 @@ define.class(function(composition, docviewer, fileio, screens, screen, dataset, 
 								,treeview({
 									postLayout:function(){
 									},
+									clearcolor:'white',
+									bgcolor:'white',
 									mode:'2D',
+									overflow:'scroll',
 									init:function(){
+										window.test = this
 										var dataset = this.find('screen').model
 										if(dataset) this.dataset = dataset
 									},
