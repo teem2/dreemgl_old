@@ -524,6 +524,7 @@ define(function(require, exports){
 		return o
 	}
 
+	
 	exports.vec3.mul_mat4_minor = 
 	exports.vec3.vec3_mul_mat4_minor = function(v, m, o){
 		if(!o) o = exports.vec3()

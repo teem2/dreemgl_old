@@ -71,8 +71,8 @@ define.class(function(view, require) {
 	//		console.log(parentdesc);			
 		}
 		
-		var ressofar = vec2(mx,my);
-		var outtemp = vec2();
+		var raystart = vec3(mx,my,-100);
+		var rayend   = vec3(mx,my,100);
 		
 		
 		var scaletemp = mat4.scalematrix([1,1,1])
@@ -91,24 +91,28 @@ define.class(function(view, require) {
 		
 			//	console.log("all bets are off - 3d mode detected");
 				mat4.invert(P.layermatrix, this.remapmatrix)
-				ressofar = vec2.mul_mat4_t(ressofar, this.remapmatrix)
+				raystart = vec3.mul_mat4(raystart, this.remapmatrix)
+				rayend = vec3.mul_mat4(rayend, this.remapmatrix)
 		//		console.log(i, ressofar, "layermatrix");
 
-				mat4.scalematrix([P.layout.width/2,P.layout.height/2,1], scaletemp)
+				mat4.scalematrix([P.layout.width/2,P.layout.height/2,1000/2], scaletemp)
 				mat4.invert(scaletemp, this.remapmatrix)
 
 			
-				ressofar = vec2.mul_mat4_t(ressofar, this.remapmatrix)				
+				raystart = vec3.mul_mat4(raystart, this.remapmatrix)				
+				rayend = vec3.mul_mat4(rayend, this.remapmatrix)				
 			//	console.log(i, ressofar, "scalematrix");	
 				
-				ressofar = vec2.mul_mat4_t(ressofar, transtemp2)
+				raystart = vec3.mul_mat4(raystart, transtemp2)
+				rayend = vec3.mul_mat4(rayend, transtemp2)
 		//		console.log(i, ressofar, "transmatrix");
 
 			}
 			
 			
 			mat4.invert(P.colorviewmatrix, this.remapmatrix)
-			ressofar = vec2.mul_mat4_t(ressofar, this.remapmatrix)
+			raystart = vec3.mul_mat4(raystart, this.remapmatrix)
+			rayend = vec3.mul_mat4(rayend, this.remapmatrix)
 		//	console.log(i, ressofar, "colorview");
 
 
@@ -124,7 +128,8 @@ define.class(function(view, require) {
 		
 		var MM = node._mode?  node.layermatrix: node.totalmatrix;
 		mat4.invert(MM, this.remapmatrix)
-			ressofar = vec2.mul_mat4_t(ressofar, this.remapmatrix)
+			raystart = vec3.mul_mat4(raystart, this.remapmatrix)
+			rayend = vec3.mul_mat4(rayend, this.remapmatrix)
 		//	console.log("_", ressofar, "result");
 		
 		var transtemp = mat4.translatematrix([1,1,0])
@@ -166,11 +171,11 @@ define.class(function(view, require) {
 		
 		vec2.mul_mat4_t([mx,my], this.remapmatrix, this.invertedmousecoords)
 		
-		this.invertedmousecoords  = ressofar;
+		this.invertedmousecoords  = vec2(raystart.x, raystart.y);
 		this.invertedmousecoords.flags = flags
 
 		//console.log("_", this.invertedmousecoords, "reference using old method");
-
+		//console.log(raystart, rayend);
 		
 		return this.invertedmousecoords
 	}
