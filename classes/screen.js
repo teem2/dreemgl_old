@@ -81,9 +81,8 @@ define.class(function(view, require) {
 	//	console.log(parentlist.length, ressofar, "mousecoords in GL space");
 
 		for(var i =parentlist.length-1;i>=0;i--) {
-			
-			var P = parentlist[i];	
-			
+			var P = parentlist[i];
+
 			if (P.parent) {
 
 				if (P.parent._mode == "3D") {
@@ -107,8 +106,12 @@ define.class(function(view, require) {
 				rayend = vec3.mul_mat4(rayend, transtemp2)
 				// console.log(i, ressofar, "transmatrix");
 			}
-
-			mat4.invert(P.colorviewmatrix, this.remapmatrix)
+			if(i == 0 && node.noscroll){
+				mat4.invert(P.colornoscrollmatrix, this.remapmatrix)
+			} 
+			else {
+				mat4.invert(P.colorviewmatrix, this.remapmatrix)
+			}
 			raystart = vec3.mul_mat4(raystart, this.remapmatrix)
 			rayend = vec3.mul_mat4(rayend, this.remapmatrix)
 		}
@@ -154,14 +157,11 @@ define.class(function(view, require) {
 		mat4.invert(M, this.remapmatrix)
 		vec2.mul_mat4_t([mx,my], this.remapmatrix, this.invertedmousecoords)
 		*/
-		
-		this.invertedmousecoords  = vec2(raystart.x, raystart.y);
-		this.invertedmousecoords.flags = flags
 
-		//console.log("_", this.invertedmousecoords, "reference using old method");
-		//console.log(raystart, rayend);
-		
-		return this.invertedmousecoords
+		var ret = vec2(raystart.x, raystart.y);
+		ret.flags = flags
+
+		return ret
 	}
 	
 	this.debugPick = function(){
@@ -216,27 +216,27 @@ define.class(function(view, require) {
 		this.keyboard.down = function(v){
 			if(!this.focus_view) return
 			if(!this.inModalChain(this.focus_view)) return
-			this.focus_view.emit('keydown', v)
+			this.focus_view.emitUpward('keydown', v)
 		}.bind(this)
 
 		this.keyboard.up = function(v){
 			if(!this.focus_view) return
 			if(!this.inModalChain(this.focus_view)) return
-			this.focus_view.emit('keyup', v)
+			this.focus_view.emitUpward('keyup', v)
 		}.bind(this)
 
 		this.keyboard.press = function(v){
 			// lets reroute it to the element that has focus
 			if(!this.focus_view) return
 			if(!this.inModalChain(this.focus_view)) return
-			this.focus_view.emit('keypress', v)
+			this.focus_view.emitUpward('keypress', v)
 		}.bind(this)
 
 		this.keyboard.paste = function(v){
 			// lets reroute it to the element that has focus
 			if(!this.focus_view) return
 			if(!this.inModalChain(this.focus_view)) return
-			this.focus_view.emit('keypaste', v)
+			this.focus_view.emitUpward('keypaste', v)
 		}.bind(this)
 
 		this.mouse.move = function(){
@@ -300,6 +300,19 @@ define.class(function(view, require) {
 				this.mouse_capture = false
 			}.bind(this))
 		}.bind(this)
+
+		this.mouse.wheelx = function(){
+			if (this.mouse_capture) this.mouse_capture.emitUpward('mousewheelx', this.mouse.wheelx)
+			else if(this.inModalChain(this.mouse_view)) this.mouse_view.emitUpward('mousewheelx', this.mouse.wheelx)
+		}.bind(this)
+
+		this.mouse.wheely = function(){
+			if (this.mouse_capture) this.mouse_capture.emitUpward('mousewheely', this.mouse.wheely)
+			else if(this.inModalChain(this.mouse_view)){
+				this.mouse_view.emitUpward('mousewheely', this.mouse.wheely)
+			}
+		}.bind(this)
+
 		/*
 		this.mouse.click = function () {
 			if(this.modal_miss){
@@ -329,31 +342,6 @@ define.class(function(view, require) {
 			}
 		}.bind(this)
 
-		this.mouse.wheelx = function(){
-			var overnode = this.guidmap[this.lastmouseguid]
-			if(overnode && this.inModalChain(overnode)){
-				while(overnode){
-					if(overnode.hasListeners('mousewheelx')){
-						overnode.emit('mousewheelx', this.mouse.wheelx)
-						break
-					}
-					overnode = overnode.parent
-				}
-			}
-		}.bind(this)
-
-		this.mouse.wheely = function(){
-			var overnode = this.guidmap[this.lastmouseguid]
-			if(overnode && this.inModalChain(overnode)){
-				while(overnode){
-					if(overnode.hasListeners('mousewheely')){
-						overnode.emit('mousewheely', this.mouse.wheely)
-						break
-					}
-					overnode = overnode.parent
-				}
-			}
-		}.bind(this)	
 		*/
 	}
 

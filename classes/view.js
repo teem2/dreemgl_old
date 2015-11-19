@@ -177,13 +177,13 @@ define.class( function(node, require){
 		}
 	}
 
-	this.atDraw = function(){
-		if(this.debug !== undefined && this.debug.indexOf('atdraw')!== -1) console.log(this)
+	this.emitUpward = function(key, msg){
+		if(this['_listen_'+key] || this['on'+key]) return this.emit(key, msg)
+		if(this.parent) this.parent.emitUpward(key, msg)
 	}
 
-	// make sure our shader_list is in sync
-	this.syncShaderList = function(){
-
+	this.atDraw = function(){
+		if(this.debug !== undefined && this.debug.indexOf('atdraw')!== -1) console.log(this)
 	}
 
 	this.shaderOrder = function(key, value){
@@ -327,26 +327,16 @@ define.class( function(node, require){
 		}
 	}
 
-	this.purelayout = {_flex:1,_size:vec2(NaN),_pos:vec2(NaN),_margin:vec4(NaN),_padding:vec4(NaN),_borderwidth:vec4(NaN),_minsize:vec2(NaN),_maxsize:vec2(NaN),_corner:vec2(NaN)}
 
-	this.preRender = function(){
-		//return this
-		// lets modify this.children
+	this.atRender = function(){
 		if(this._mode === '2D' && (this._overflow === 'SCROLL'|| this._overflow === 'AUTO')){
-			// ok lets return a new view
-			
-			var inner = this.scrollcontainer({
-				layoutforward:this,
-				},
-				this, 
+			this.children.push(
 				this.vscrollbar = this.scrollbar({
 					position:'absolute',
 					vertical:true,
+					noscroll:true,
 					offset:function(value){
-						// riight we have a problem though. we scroll ourselves out of the way
-						// goddamnit.
-						this.scroll = vec2(this._scroll[0],-this._offset)
-						this.parent._scroll = vec2(this.parent._scroll[0],this._offset)
+						this.parent._scrolloffset = vec2(this.parent._scrolloffset[0],this._offset)
 					},
 					postLayout:function(){
 						var parent_layout = this.parent.layout
@@ -359,6 +349,7 @@ define.class( function(node, require){
 				}),
 				this.hscrollbar = this.scrollbar({
 					position:'absolute',
+					noscroll:true,
 					postLayout:function(){
 						var parent_layout = this.parent.layout
 						var this_layout = this.layout
@@ -369,16 +360,13 @@ define.class( function(node, require){
 					}
 				})
 			)
-			this.layoutforward = this.purelayout
-			inner.bgcolor = this.bgcolor
-			inner.bg = this.bg
-			this.bg = undefined
-			return inner
+			this.mousewheely = function(pos){
+				if(this.vscrollbar._visible)
+					this.vscrollbar.offset += pos
+			}
 		}
-		return this
-		//this.children.push()
 	}
-
+	
 	this.doLayout = function(width, height){
 		if(!isNaN(this._flex)){ // means our layout has been externally defined
 			var layout = this.layout
@@ -657,10 +645,10 @@ define.class( function(node, require){
 
 	// lets pull in the scrollbar on the view
 	define.class(this, 'scrollbar', require('$classes/scrollbar'),function(){
+		this.bg = -1
 	})
 
 	define.class(this, 'scrollcontainer', function(view){
-		bgcolor:'red'
 	})
 
 

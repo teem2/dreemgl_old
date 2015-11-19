@@ -92,6 +92,26 @@ define(function(require, exports){
 	exports.mod = typeFn2(Math.mod)
 	exports.random = Math.random
 
+	
+	exports.intersectrayplane = function(out, origin, direction, normal, dist) {
+		var denom = vec3.dot(direction, normal)
+		if (denom !== 0) {
+			var t = -(vec3.dot(origin, normal) + dist) / denom
+			if (t < 0) {
+				return null
+			}			
+			return vec3.add(origin, vec3.vec3_mul_float(direction, t));
+		} 
+		else {
+			if (vec3.dot(normal, origin) + dist === 0) {
+				return origin
+			} 
+			else {
+				return null
+			}
+		}
+	}
+	
 	exports.sign = typeFn(function(v){
 		if(v === 0) return 0
 		if(v < 0 ) return -1
