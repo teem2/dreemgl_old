@@ -82,57 +82,44 @@ define.class(function(view, require) {
 
 		for(var i =parentlist.length-1;i>=0;i--) {
 			
-			
-			var P = parentlist[i];
-			
+			var P = parentlist[i];	
 			
 			if (P.parent) {
-			
+				if (P.parent._mode == "3D") {
+					console.log(raystart, rayend);
+				}
 		
-			//	console.log("all bets are off - 3d mode detected");
+				// console.log("all bets are off - 3d mode detected");
 				mat4.invert(P.layermatrix, this.remapmatrix)
 				raystart = vec3.mul_mat4(raystart, this.remapmatrix)
 				rayend = vec3.mul_mat4(rayend, this.remapmatrix)
-		//		console.log(i, ressofar, "layermatrix");
+				// console.log(i, ressofar, "layermatrix");
 
 				mat4.scalematrix([P.layout.width/2,P.layout.height/2,1000/2], scaletemp)
 				mat4.invert(scaletemp, this.remapmatrix)
 
-			
 				raystart = vec3.mul_mat4(raystart, this.remapmatrix)				
 				rayend = vec3.mul_mat4(rayend, this.remapmatrix)				
-			//	console.log(i, ressofar, "scalematrix");	
-				
+				// console.log(i, ressofar, "scalematrix");	
+
 				raystart = vec3.mul_mat4(raystart, transtemp2)
 				rayend = vec3.mul_mat4(rayend, transtemp2)
-		//		console.log(i, ressofar, "transmatrix");
-
+				// console.log(i, ressofar, "transmatrix");
 			}
-			
-			
+
 			mat4.invert(P.colorviewmatrix, this.remapmatrix)
 			raystart = vec3.mul_mat4(raystart, this.remapmatrix)
 			rayend = vec3.mul_mat4(rayend, this.remapmatrix)
-		//	console.log(i, ressofar, "colorview");
-
-
-		
-			
-			
-			
-				
-			
-		
 		}
-		
-		
+
 		var MM = node._mode?  node.layermatrix: node.totalmatrix;
 		mat4.invert(MM, this.remapmatrix)
-			raystart = vec3.mul_mat4(raystart, this.remapmatrix)
-			rayend = vec3.mul_mat4(rayend, this.remapmatrix)
-		//	console.log("_", ressofar, "result");
+		raystart = vec3.mul_mat4(raystart, this.remapmatrix)
+		rayend = vec3.mul_mat4(rayend, this.remapmatrix)
+	
+		// console.log("_", ressofar, "result");
 		
-		var transtemp = mat4.translatematrix([1,1,0])
+		/*var transtemp = mat4.translatematrix([1,1,0])
 		
 		
 		var M = node._mode?  node.layermatrix: node.totalmatrix
@@ -153,11 +140,7 @@ define.class(function(view, require) {
 					mat4.scalematrix([P.layout.width/2,P.layout.height/2,1], scaletemp)
 					o = mat4.mat4_mul_mat4(o, transtemp)
 					o = mat4.mat4_mul_mat4(o, scaletemp)
-					M = mat4.mat4_mul_mat4(o, P.layermatrix)
-					
-//					M = mat4.mat4_mul_mat4(o, scaletemp)
-					
-					
+					M = mat4.mat4_mul_mat4(o, P.layermatrix)					
 				}
 				else{					
 					mat4.mat4_mul_mat4(M, s, o)
@@ -168,8 +151,8 @@ define.class(function(view, require) {
 		}
 
 		mat4.invert(M, this.remapmatrix)
-		
 		vec2.mul_mat4_t([mx,my], this.remapmatrix, this.invertedmousecoords)
+		*/
 		
 		this.invertedmousecoords  = vec2(raystart.x, raystart.y);
 		this.invertedmousecoords.flags = flags
