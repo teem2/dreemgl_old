@@ -95,6 +95,7 @@ define.class(function(view){
 	}
 	
 	this.mouseleftdown = function(start){
+		console.log('start',start)
 		// detect if we clicked not on the button
 		if(this.vertical){
 			var p = start[1] / this.layout.height
@@ -116,7 +117,7 @@ define.class(function(view){
 				this.offset = value
 			}
 		}
-		var start_offset = this.offset / this.total
+		var start_offset = offset//this.offset / this.total
 		this.mousemove = function(pos){
 			if(this.vertical){
 				var p = start_offset + (pos[1] - start[1]) / this.layout.height
