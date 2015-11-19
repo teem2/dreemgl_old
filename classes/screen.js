@@ -58,9 +58,9 @@ define.class(function(view, require) {
 			
 			ip = ip.parent;
 		}
-		
-		console.clear();
-		if (false){
+		var logging = true;
+		if (logging) console.clear();
+		if (logging){
 			var	parentdesc = "Parentchain: " ;
 			for(var i =parentlist.length-1;i>=0;i--) {
 				
@@ -68,7 +68,7 @@ define.class(function(view, require) {
 				
 			}
 			
-	//		console.log(parentdesc);			
+			console.log(parentdesc);			
 		}
 		
 		var raystart = vec3(mx,my,-100);
@@ -78,7 +78,7 @@ define.class(function(view, require) {
 		var scaletemp = mat4.scalematrix([1,1,1])
 		var transtemp2 = mat4.translatematrix([-1,-1,0])
 		
-	//	console.log(parentlist.length, ressofar, "mousecoords in GL space");
+		if (logging)  console.log(parentlist.length, raystart, "mousecoords in GL space");
 		var lastmode = "2D";
 		
 		for(var i =parentlist.length-1;i>=0;i--) {
@@ -95,16 +95,15 @@ define.class(function(view, require) {
 
 				
 				if (lastmode == "3D" && newmode == "2D") { // 3d to 2d transition -> do a raypick.
-					console.log(i, raystart, "going from 3d in to 2d" );
-					mat4.debug(P.layermatrix);	
+					if (logging) console.log(i, raystart, "going from 3d in to 2d" );
+					if (logging) mat4.debug(P.layermatrix);	
 					
 					var R =intersectrayplane(raystart, vec3.sub(rayend, raystart), [0,0,-1], 0);
-					console.log(i, R, "intersectpoint");
+					if (logging) console.log(i, R, "intersectpoint");
 					
 				}
-				else
-				{
-					
+			
+			
 				// console.log(i, ressofar, "layermatrix");
 
 				mat4.scalematrix([P.layout.width/2,P.layout.height/2,1000/2], scaletemp)
@@ -117,8 +116,8 @@ define.class(function(view, require) {
 				raystart = vec3.mul_mat4(raystart, transtemp2)
 				rayend = vec3.mul_mat4(rayend, transtemp2)
 				
-				}
-				// console.log(i, ressofar, "transmatrix");
+			
+				if (logging)  console.log(i, raystart, "transmatrix");
 			}
 			if(i == 0 && node.noscroll){
 				mat4.invert(P.colornoscrollmatrix, this.remapmatrix)
@@ -130,7 +129,7 @@ define.class(function(view, require) {
 			rayend = vec3.mul_mat4(rayend, this.remapmatrix)
 			
 			lastmode = newmode;
-			console.log(i, raystart, "last");	
+	//		console.log(i, raystart, "last");	
 		}
 
 		var MM = node._mode?node.layermatrix: node.totalmatrix;
@@ -139,9 +138,9 @@ define.class(function(view, require) {
 		rayend = vec3.mul_mat4(rayend, this.remapmatrix)
 		if (lastmode == "3D")
 		{
-			console.log("last mode was 3d..");
+			if (logging)  console.log("last mode was 3d..");
 		}
-		console.log(" ", raystart, "final transform using own worldmodel");	
+		if (logging)  console.log(" ", raystart, "final transform using own worldmodel");	
 
 		
 		// console.log("_", ressofar, "result");
