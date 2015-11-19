@@ -13,13 +13,6 @@ define.class(function(require, shape3d, view, icon){
 		this.bgshader.setBox(this.dimension[0], this.dimension[1], this.dimension[2]);
 	}
 	
-	this.mouseover  = function(){
-		console.log("mouse over geometry!", this.interfaceguid);
-	}
-	
-	this.mouseout = function(){
-		console.log("mouse out geometry!", this.interfaceguid);
-	}
 	
 	this.t = 0	
 })

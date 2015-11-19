@@ -67,12 +67,14 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 							}
 						}
 						,button({text:"Near", click:function(){
+							console.log("meh?");
 							var cam = this.find("theview");
 							cam.camera = vec3(0,0,4);
 							cam.fov = 30;
 							}
 						})
 						,button({text:"Far", click:function(){
+							console.log("meh?");
 							var cam = this.find("theview");
 							cam.camera = vec3(4,0.2,5);
 							cam.fov = 90;

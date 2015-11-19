@@ -165,12 +165,14 @@ define.class(function(view, require) {
 		mat4.invert(M, this.remapmatrix)
 		
 		vec2.mul_mat4_t([mx,my], this.remapmatrix, this.invertedmousecoords)
+		
+		this.invertedmousecoords  = ressofar;
 		this.invertedmousecoords.flags = flags
 
 		//console.log("_", this.invertedmousecoords, "reference using old method");
 
 		
-		return ressofar
+		return this.invertedmousecoords
 	}
 	
 	this.debugPick = function(){
