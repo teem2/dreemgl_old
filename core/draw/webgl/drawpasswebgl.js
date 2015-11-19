@@ -281,10 +281,38 @@ define.class(function(require, baseclass){
 
 		view.colorviewmatrix = this.color_viewmatrix
 		view.colornoscrollmatrix = this.color_noscrollmatrix
-
+		
 		// each view has a reference to its layer
 		for(var dl = this.draw_list, i = 0; i < dl.length; i++){
 			var draw = dl[i]
+			var subview = draw.layout
+
+			// we make some bad shit early out assumptions here
+			if(view._mode === '2D' && view.boundscheck){ // do early out check using bounding boxes
+				var height = layout.height
+				var width = layout.width
+				if(draw.parent && draw.parent !== view){
+					subview.absx = draw.parent.layout.absx + subview.left
+					subview.absy = draw.parent.layout.absy + subview.top
+				}
+				else{
+					subview.absx = subview.left
+					subview.absy = subview.top
+				}
+				if(draw === view && view.sublayout){
+					width = view.sublayout.width
+					height = view.sublayout.height
+				}
+				// early out check
+				if(draw !== view && !draw.noscroll){
+					if( subview.absy - scrolly > height || subview.absy + subview.height - scrolly < 0){
+						continue
+					} 
+					if(subview.absx - scrollx > width || subview.absx + subview.width - scrollx < 0){
+						continue
+					}
+				}
+			}
 
 			draw.viewmatrix = this.color_viewmatrix
 

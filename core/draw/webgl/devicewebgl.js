@@ -31,8 +31,8 @@ define.class(function(require, exports, self){
 		this.doPick = this.doPick.bind(this)
 
 		this.animFrame = function(time){
-			this.anim_req = false
 			this.doDraw(time)
+			this.anim_req = false
 			//if(this.pick_resolve.length) this.doPick()
 		}.bind(this)
 	
@@ -128,7 +128,7 @@ define.class(function(require, exports, self){
 	}
 
 	this.redraw = function(){
-		if(this.anim_req || this.in_draw) return
+		if(this.anim_req) return
 		this.anim_req = true
 		window.requestAnimationFrame(this.animFrame)
 	}
@@ -156,7 +156,11 @@ define.class(function(require, exports, self){
 			var last = i === len - 1 
 			// lets set up glscissor on last
 			// and then read the goddamn pixel
-			this.drawpass_list[i].drawpass.drawPick(last, i, x, y, this.debug_pick)
+			var view = this.drawpass_list[i]
+			if(last || view.draw_dirty & 2){
+				view.draw_dirty &= 1
+				view.drawpass.drawPick(last, i, x, y, this.debug_pick)
+			}
 		}
 		// now lets read the pixel under the mouse
 		var pick_resolve = this.pick_resolve
@@ -211,17 +215,24 @@ define.class(function(require, exports, self){
 		//var screen = this.layout_list[this.layout_list.length - 1]
 		this.screen._max =
 		this.screen._size = vec2(this.main_frame.size[0] / this.ratio, this.main_frame.size[1] / this.ratio)
-
 		// do the dirty layouts
 		for(var i = 0; i < this.layout_list.length; i++){
 			// lets do a layout?
 			var view = this.layout_list[i]
-			view.doLayout()
+			if(view.layout_dirty){
+				view.doLayout()
+				view.layout_dirty = false
+			}
 		}
 
 		// lets draw draw all dirty passes.
 		for(var i = 0, len = this.drawpass_list.length; i < len; i++){
-			this.drawpass_list[i].drawpass.drawColor(i === len - 1)
+			var view = this.drawpass_list[i]	
+			if(view.draw_dirty & 1){
+				view.drawpass.drawColor(i === len - 1)
+				view.draw_dirty &= 2
+			}
+			//else console.log("NOT DIRTY", view)
 		}
 
 		if(loop) this.redraw()
@@ -251,6 +262,7 @@ define.class(function(require, exports, self){
 			this.layout_idx_first = this.layout_idx
 			this.addDrawPassRecursive(node)
 		}
+		node.relayout()
 	}
 
 	// remove drawpasses related to a view
@@ -302,6 +314,7 @@ define.class(function(require, exports, self){
 			this.drawpass_idx++
 			// lets also add a layout pass
 			if(isNaN(view._flex)){ // if not flex, make sure layout runs before the rest
+				// we are self contained
 				this.layout_list.splice(this.layout_idx_first,0,view)
 			}
 			else{ // we are flex, make sure we layout after
@@ -311,7 +324,19 @@ define.class(function(require, exports, self){
 		}
 	}
 
+	this.relayout = function(){
+		var layout_list = this.layout_list
+		for(var i = 0; i < layout_list.length; i++){
+			view = layout_list[i]
+			if(!isNaN(view._flex) || view == this.screen){
+				view.relayout()
+			}
+		}
+	}
+
 	this.atResize = function(){
+		// lets relayout the whole fucker
+		this.relayout()
 		this.redraw()
 		// do stuff
 	}

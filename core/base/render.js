@@ -54,7 +54,10 @@ define.class(function(exports){
 			//console.log('Rerendering',key)
 			//debugger
 			// we need to call re-render on this
-			if(!initializing) render(this, undefined, globals, undefined, true)
+			if(!initializing){
+				render(this, undefined, globals, undefined, true)
+				this.redraw()
+			}
 			//this.setDirty(true)
 			//if(this.reLayout) this.reLayout()
 		}
@@ -81,6 +84,10 @@ define.class(function(exports){
 		if(!Array.isArray(new_version.children) && new_version.children) new_version.children = [new_version.children]
 
 		if(new_version.atRender) new_version.atRender()
+
+		if(new_version._mode){
+			new_version.layer = new_version
+		}
  		// what we need to do, is 
 
 		var new_children = new_version.children
@@ -102,6 +109,7 @@ define.class(function(exports){
 				old_child = old_children[i]
 			}
 			new_child.parent = new_version
+			new_child.layer = new_version.layer
 			new_child =  new_children[i] = render(new_child, old_child, globals, state)
 	
 			// set the childs name
