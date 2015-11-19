@@ -361,15 +361,15 @@ define.class( function(node, require){
 	}
 
 	this.stopAnimation = function(key){
-		if(this.screen) this.screen.stopAnimationRoot(key)
+		if(this.screen) this.screen.stopAnimationRoot(this, key)
 	}
 
 	this.playAnimation = function(key){
-		if(this.screen) this.screen.playAnimationRoot(key)
+		if(this.screen) this.screen.playAnimationRoot(this, key)
 	}
 
 	this.pauseAnimation = function(key){
-		if(this.screen) this.screen.pauseAnimationRoot(key)
+		if(this.screen) this.screen.pauseAnimationRoot(this, key)
 	}
 
 	// ok so the problem is, the init has already overloaded the class that auto-switches
