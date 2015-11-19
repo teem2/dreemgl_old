@@ -543,8 +543,7 @@ define.class(function(view, require) {
 
 	}
 
-	this.doAnimation = function(time){
-		var hasanim = false
+	this.doAnimation = function(time, redrawlist){
 		for(var key in this.anims){
 			var anim = this.anims[key]
 			if(anim.start_time === undefined) anim.start_time = time
@@ -559,11 +558,8 @@ define.class(function(view, require) {
 			}
 			else{
 				anim.obj.emit(anim.key, value)
-				anim.obj.redraw()
-				if(!hasanim) hasanim = true
+				redrawlist.push(anim.obj)
 			}
 		}
-
-		return hasanim
 	}
 })
