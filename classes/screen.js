@@ -59,7 +59,7 @@ define.class(function(view, require) {
 			ip = ip.parent;
 		}
 		
-	//	console.clear();
+		console.clear();
 		if (false){
 			var	parentdesc = "Parentchain: " ;
 			for(var i =parentlist.length-1;i>=0;i--) {
@@ -79,20 +79,32 @@ define.class(function(view, require) {
 		var transtemp2 = mat4.translatematrix([-1,-1,0])
 		
 	//	console.log(parentlist.length, ressofar, "mousecoords in GL space");
-
+		var lastmode = "2D";
+		
 		for(var i =parentlist.length-1;i>=0;i--) {
 			var P = parentlist[i];
-
+			
+			var newmode = P.parent? P._mode:"2D";
+			
 			if (P.parent) {
 
-				if (P.parent._mode == "3D") {
-					console.log(raystart, rayend);
-				}
-		
 				// console.log("all bets are off - 3d mode detected");
 				mat4.invert(P.layermatrix, this.remapmatrix)
 				raystart = vec3.mul_mat4(raystart, this.remapmatrix)
 				rayend = vec3.mul_mat4(rayend, this.remapmatrix)
+
+				
+				if (lastmode == "3D" && newmode == "2D") { // 3d to 2d transition -> do a raypick.
+					console.log(i, raystart, "going from 3d in to 2d" );
+					mat4.debug(P.layermatrix);	
+					
+					var R =intersectrayplane(raystart, vec3.sub(rayend, raystart), [0,0,-1], 0);
+					console.log(i, R, "intersectpoint");
+					
+				}
+				else
+				{
+					
 				// console.log(i, ressofar, "layermatrix");
 
 				mat4.scalematrix([P.layout.width/2,P.layout.height/2,1000/2], scaletemp)
@@ -104,6 +116,8 @@ define.class(function(view, require) {
 
 				raystart = vec3.mul_mat4(raystart, transtemp2)
 				rayend = vec3.mul_mat4(rayend, transtemp2)
+				
+				}
 				// console.log(i, ressofar, "transmatrix");
 			}
 			if(i == 0 && node.noscroll){
@@ -114,13 +128,22 @@ define.class(function(view, require) {
 			}
 			raystart = vec3.mul_mat4(raystart, this.remapmatrix)
 			rayend = vec3.mul_mat4(rayend, this.remapmatrix)
+			
+			lastmode = newmode;
+			console.log(i, raystart, "last");	
 		}
 
 		var MM = node._mode?node.layermatrix: node.totalmatrix;
 		mat4.invert(MM, this.remapmatrix)
 		raystart = vec3.mul_mat4(raystart, this.remapmatrix)
 		rayend = vec3.mul_mat4(rayend, this.remapmatrix)
+		if (lastmode == "3D")
+		{
+			console.log("last mode was 3d..");
+		}
+		console.log(" ", raystart, "final transform using own worldmodel");	
 
+		
 		// console.log("_", ressofar, "result");
 		
 		/*var transtemp = mat4.translatematrix([1,1,0])

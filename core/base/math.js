@@ -93,7 +93,7 @@ define(function(require, exports){
 	exports.random = Math.random
 
 	
-	exports.intersectrayplane = function(out, origin, direction, normal, dist) {
+	exports.intersectrayplane = function(origin, direction, normal, dist) {
 		var denom = vec3.dot(direction, normal)
 		if (denom !== 0) {
 			var t = -(vec3.dot(origin, normal) + dist) / denom
@@ -459,8 +459,15 @@ define(function(require, exports){
 		s:'x',t:'y',p:'z',
 		x:exports.float32, y:exports.float32, z:exports.float32
 	}, 'vec3')
-	vecApi(exports.vec3)
-
+	vecApi(exports.vec3)	
+	
+	exports.vec2.dot = function(a,b){
+		return a.x * b.x + a.y * b.y ;
+	}
+	exports.vec3.dot = function(a,b){
+		return a.x * b.x + a.y * b.y + a.z * b.z;
+	}
+	
 	exports.vec3.fromString = function(color){
 		var o = this
 		if(this === exports.vec3) o = exports.vec3()
@@ -620,8 +627,14 @@ define(function(require, exports){
 		s:'x',t:'y',p:'z',q:'w',
 		x:exports.float32, y:exports.float32, z:exports.float32, w:exports.float32
 	}, 'vec4')
+	
 	vecApi(exports.vec4)
 
+	exports.vec4.dot = function(a,b){
+		return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+	}
+	
+	
 	exports.vec4.equals = function(a,b)
 	{
 		if (a[0] != b[0]) return false;

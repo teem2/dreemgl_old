@@ -67,16 +67,16 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 							}
 						}
 						,button({text:"Near", click:function(){
-							console.log("meh?");
+							
 							var cam = this.find("theview");
-							cam.camera = vec3(0,0,4);
+							cam.camera = vec3(1,2,3);
 							cam.fov = 30;
 							}
 						})
 						,button({text:"Far", click:function(){
-							console.log("meh?");
+							
 							var cam = this.find("theview");
-							cam.camera = vec3(4,0.2,5);
+							cam.camera = vec3(4,0.2,4);
 							cam.fov = 90;
 							}
 							
@@ -87,9 +87,19 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 						flex:4,
 						name:'theview', 
 						bgcolor:'blue',
-						clearcolor: '#d0efff',
+						clearcolor: 'rgba(255,255,255,0)',
 						mode: '3D', 
 						camera: vec3(2,2,2),
+						blend:{
+							color:function(){
+		
+							var t = texture.sample(mesh.xy)
+								
+								return mix(t,  vec4(0.6, 0.6, 0.2+ (1-mesh.y)*0.8,1.0), 1-t.a);
+								//return 'red'
+							}
+						},
+						
 						fov: 90,
 						attributes:{
 								camera:{motion:'linear', duration:1}
@@ -103,22 +113,29 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 						,plane({translate:vec3(0,-2,0), dimension:vec3(500), rotate:vec3(PI/2,0,0)})
 						,sphere({translate:vec3(0,0,2), radius:0.5})
 						,view({mode:'2D', bgcolor:"red", pixelratio:10, scale: vec3(0.01, -0.01, 0.01), rotate:vec3(0,PI, 0)}
-							,button({text:"Near2", click:function(){
-								console.log("meh?");
+							,button({text:"Near", click:function(){
+								
 								var cam = this.find("theview");
-								cam.camera = vec3(0,0,-2);
+								cam.camera = vec3(1,2,3);
 								cam.fov = 30;
 								}
 							})
-							,button({text:"Far2", click:function(){
-								console.log("meh?");
+							,mousedebug({width:100, height:100})
+							,button({text:"Far", click:function(){
 								var cam = this.find("theview");
-								cam.camera = vec3(4,0.2,-10);
+								cam.camera = vec3(4,0.2,4);
 								cam.fov = 90;
 								}
 								
 							})		
 							,mousedebug({width:100, height:100})
+							,button({text:"Left", click:function(){
+								var cam = this.find("theview");
+								cam.camera = vec3(-5,0.2,0);
+								cam.fov = 90;
+								}
+								
+							})		
 
 												)
 						
