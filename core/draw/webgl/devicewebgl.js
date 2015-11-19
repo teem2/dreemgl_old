@@ -28,11 +28,14 @@ define.class(function(require, exports, self){
 		this.drawpass_list = previous && previous.drawpass_list || []
 		this.layout_list = previous && previous.layout_list || []
 		this.pick_resolve = []	
+		this.anim_redraws = []
 		this.doPick = this.doPick.bind(this)
 
 		this.animFrame = function(time){
-			this.doDraw(time)
-			this.anim_req = false
+			if(this.doDraw(time)){
+				window.requestAnimationFrame(this.animFrame)
+			}
+			else this.anim_req = false
 			//if(this.pick_resolve.length) this.doPick()
 		}.bind(this)
 	
@@ -208,7 +211,9 @@ define.class(function(require, exports, self){
 
 		var stime = (time - this.first_time) / 1000
 		// lets layout shit that needs layouting.
-		var loop = this.screen.doAnimation(stime)
+		var anim_redraw = this.anim_redraws
+		anim_redraw.length = 0
+		this.screen.doAnimation(stime, anim_redraw)
 
 		// set the size externally of the main view
 
@@ -235,7 +240,12 @@ define.class(function(require, exports, self){
 			//else console.log("NOT DIRTY", view)
 		}
 
-		if(loop) this.redraw()
+		if(anim_redraw.length){
+			for(var i = 0; i < anim_redraw.length; i++){
+				anim_redraw[i].redraw()
+			}
+			return true
+		}
 	}
 
 	this.atNewlyRendered = function(view){
