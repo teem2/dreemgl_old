@@ -77,6 +77,7 @@ define.class(function(view, label, icon){
 	})
 
 	this.statehover = function(){
+
 		this.col1 = this.hovercolor1
 		this.col2 = this.hovercolor2
 		if(this.iconres)this.iconres.fgcolor = this.textactivecolor
@@ -89,6 +90,7 @@ define.class(function(view, label, icon){
 	}
 
 	this.stateclick = function(){
+		//this.animate({col1:{0:vec4('red'),3:vec4('green')}})
 		this.col1 = this.pressedcolor1
 		this.col2 = this.pressedcolor2
 		if(this.iconres)this.iconres.fgcolor = this.textactivecolor
@@ -101,8 +103,7 @@ define.class(function(view, label, icon){
 	this.mouseleftup = function(pos){
 		// lets check if its over the button
 		this.statenormal()
-		if(pos.x >=0 && pos.x < this.layout.width &&
-		   pos.y >=0 && pos.y < this.layout.height){
+		if(pos.flags && pos.flags.over){
 			this.emit('click',pos)
 		}
 	}

@@ -38,7 +38,7 @@ define.class(function(view, require) {
 	this.remapmatrix = mat4();
 	this.invertedmousecoords = vec2();
 	
-	this.remapMouse = function(node){
+	this.remapMouse = function(node, flags){
 
 	
 		var parentlist = [];
@@ -165,6 +165,7 @@ define.class(function(view, require) {
 		mat4.invert(M, this.remapmatrix)
 		
 		vec2.mul_mat4_t([mx,my], this.remapmatrix, this.invertedmousecoords)
+		this.invertedmousecoords.flags = flags
 
 		//console.log("_", this.invertedmousecoords, "reference using old method");
 
@@ -172,6 +173,54 @@ define.class(function(view, require) {
 		return ressofar
 	}
 	
+	this.debugPick = function(){
+		this.device.pickScreen(this.mouse.x, this.mouse.y).then(function(view){
+			if(this.last_debug_view === view) return
+			this.last_debug_view = view
+			var found 
+			function dump(walk, parent){
+				var layout = walk.layout || {}
+				var named = (new Function("return function "+(walk.name || walk.constructor.name)+'(){}'))()
+				Object.defineProperty(named.prototype, 'zflash', {
+					get:function(){
+						// humm. ok so we wanna flash it
+						// how do we do that.
+						window.view = this.view
+						return "window.view set"
+					}
+				})
+				var obj = new named()
+				obj.geom = 'x:'+layout.left+', y:'+layout.top+', w:'+layout.width+', h:'+layout.height
+				if(walk._mode) obj.mode = walk._mode
+				// write out shader modes
+				var so = ''
+				for(var key in walk.shader_order){
+					if(walk.shader_order[key]){
+						if(so) so += ", "
+						so += key+':'+walk.shader_order[key]
+					}
+				}
+				obj.shaders = so
+				obj.view = walk
+
+				if(walk._text) obj.text = walk.text
+
+				if(walk === view) found = obj
+				if(walk.children){
+					//obj.children = []
+					for(var i = 0; i < walk.children.length;i++){
+						obj[i] = dump(walk.children[i], obj)
+					}
+				}
+				obj._parent = parent
+				return obj
+			}
+			var ret = dump(this, null)
+			if(!found) console.log("Could not find", view)
+			else console.log(found)
+		}.bind(this))
+	}
+
 	this.bindInputs = function(){
 		this.keyboard.down = function(v){
 			if(!this.focus_view) return
@@ -202,52 +251,7 @@ define.class(function(view, require) {
 		this.mouse.move = function(){
 			// lets check the debug click
 			if(this.keyboard.alt && this.keyboard.shift){
-				this.device.pickScreen(this.mouse.x, this.mouse.y).then(function(view){
-					if(this.last_debug_view === view) return
-					this.last_debug_view = view
-					var found 
-					function dump(walk, parent){
-						var layout = walk.layout || {}
-						var named = (new Function("return function "+(walk.name || walk.constructor.name)+'(){}'))()
-						Object.defineProperty(named.prototype, 'zflash', {
-							get:function(){
-								// humm. ok so we wanna flash it
-								// how do we do that.
-								window.view = this.view
-								return "window.view set"
-							}
-						})
-						var obj = new named()
-						obj.geom = 'x:'+layout.left+', y:'+layout.top+', w:'+layout.width+', h:'+layout.height
-						if(walk._mode) obj.mode = walk._mode
-						// write out shader modes
-						var so = ''
-						for(var key in walk.shader_order){
-							if(walk.shader_order[key]){
-								if(so) so += ", "
-								so += key+':'+walk.shader_order[key]
-							}
-						}
-						obj.shaders = so
-						obj.view = walk
-
-						if(walk._text) obj.text = walk.text
-
-						if(walk === view) found = obj
-						if(walk.children){
-							//obj.children = []
-							for(var i = 0; i < walk.children.length;i++){
-								obj[i] = dump(walk.children[i], obj)
-							}
-						}
-						obj._parent = parent
-						return obj
-					}
-					var ret = dump(this, null)
-					if(!found) console.log("Could not find", view)
-					else console.log(found)
-				}.bind(this))
-				return
+				return this.debugPick()
 			} else this.last_debug_view = undefined
 
 
@@ -289,7 +293,9 @@ define.class(function(view, require) {
 		this.mouse.leftup = function(){
 			// make sure we send the right mouse out/overs when losing capture
 			this.device.pickScreen(this.mouse.x, this.mouse.y).then(function(view){
-				if(this.mouse_capture) this.mouse_capture.emit('mouseleftup', this.remapMouse(this.mouse_capture))
+				if(this.mouse_capture){
+					this.mouse_capture.emit('mouseleftup', this.remapMouse(this.mouse_capture, {over:this.mouse_capture === view}))
+				}
 				if(this.mouse_capture !== view){
 					if(this.mouse_capture) this.mouse_capture.emit('mouseout', this.remapMouse(this.mouse_capture))
 					if(view){
@@ -509,14 +515,36 @@ define.class(function(view, require) {
 
 	// animation
 
-	this.startAnimationRoot = function(obj, key, value){
+	this.startAnimationRoot = function(obj, key, value, track, promise){
+		// ok so. if we get a config passed in, we pass that in
 		var config = obj.getAttributeConfig(key)
 		var first = obj['_' + key]
-		var trk = new Animate(config, obj, key, first, value)
-		var animkey = obj.guid + '_' + key
-		this.anims[animkey] = trk
+
+		var anim = new Animate(config, obj, key, track, first, value)
+
+		anim.promise = promise
+		var animkey = obj.pickguid + '_' + key
+		this.anims[animkey] = anim
 		obj.redraw()
 		return true
+	}
+
+	this.stopAnimationRoot = function(obj, key){
+		var animkey = obj.pickguid + '_' + key
+		var anim = this.anims[animkey]
+		if(anim){
+			delete this.anims[animkey]			
+			if(anim.promise)anim.promise.reject()
+		}
+	}
+
+	this.pauseAnimationRoot = function(obj, key){
+		// uh ok pausing an animation.
+
+	}
+
+	this.playAnimationRoot = function(obj, key){
+
 	}
 
 	this.doAnimation = function(time){
@@ -531,6 +559,7 @@ define.class(function(view, require) {
 				//console.log(value.last_value)
 				anim.obj.emit(anim.key, value.last_value)
 				anim.obj.redraw()
+				if(anim.promise)anim.promise.resolve()
 			}
 			else{
 				anim.obj.emit(anim.key, value)

@@ -419,9 +419,9 @@ define.class(function(require, constructor){
 		}
 	})
 
-	Object.defineProperty(this, 'handlers', {
+	Object.defineProperty(this, 'listeners', {
 		get:function(){
-			throw new Error("handler can only be assigned to")
+			throw new Error("listeners can only be assigned to")
 		},
 		set:function(arg){
 			for(var key in arg){
@@ -452,6 +452,46 @@ define.class(function(require, constructor){
 			}
 		}
 	})
+
+	Object.defineProperty(this, 'animate', {
+		get:function(){ return this.animateAttribute },
+		set:function(arg){
+			this.animateAttribute(arg)
+		}
+	})
+
+	this.animateAttribute = function(arg){
+		// count
+		var arr = []
+		for(var key in arg){
+			var value = arg[key]
+			if(typeof value === 'object'){
+				var resolve, reject
+				var promise = new Promise(function(res, rej){ resolve = res, reject = rej })
+				promise.resolve = resolve
+				promise.reject = reject
+				arr.push(promise)
+				this.startAnimation(key, undefined, value, promise)
+			}
+			else{
+				if(typeof value === 'string'){
+					value = value.toLowerCase()	
+					if(value === 'stop'){
+						this.stopAnimation(key)
+					}
+					else if(value === 'play'){
+						this.playAnimation(key)
+					}
+					else if(value === 'pause'){
+						this.pauseAnimation(key)
+					}
+				}
+				resolve()
+			}
+		}
+		if(arr.length <= 1) return arr[0]
+		return Promise.all(arr)
+	}
 
 	this.defineAttribute = function(key, config){
 		if(!this.hasOwnProperty('_attributes')){

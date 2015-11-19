@@ -3,47 +3,46 @@
    software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
    See the License for the specific language governing permissions and limitations under the License.*/
 
-define.class('$base/node', function(require, exports, self){
+define.class(function(require, exports){
 
 	// instance of checkable end object
-	self.End = function(){
+	this.End = function(){
 	}
 
-	self.delay = 0
-	self.interrupt = false
-	self.repeat = 1
-	self.bounce = false
-	self.type = float32
-	self.motion = ease.linear
-	self.speed = 1
-	self.interpolator = mix
+	this.delay = 0
+	this.interrupt = false
+	this.repeat = 1
+	this.bounce = false
+	this.type = float32
+	this.motion = ease.linear
+	this.speed = 1
+	this.interpolator = mix
 
-	self.atConstructor = function(config, obj, key, first_value, last_value){
+	this.atConstructor = function(config, obj, key, track, first_value, last_value){
 		this.config = config
 		this.obj = obj
 		this.key = key
 		// the internal track construct
-		if(config) for(var key in config) this[key] = config[key]
+		if(track) this.track = track
+		else this.track = config
+
 		if(typeof this.motion === 'string') this.motion = ease[this.motion] || ease.linear
 		if(config.type) this.type = config.type
 		this.first_value = first_value
-
-		if(config.duration !== undefined){
-			this[config.duration] = last_value
-		}
+		this.last_value = last_value
 	}
-
+ 	
 	this.compute = function(local_time, time_skew){
 		// lazily initialize order
 		if(!this.order){
 			this.order = [0]
 			this.values = {}
 			this.end_time = 0
-			for(var key in this){
+			for(var key in this.track){
 				var time = parseFloat(key)
 				if(parseFloat(key) == time){
 					var desc = {}
-					var value = this[key]
+					var value = this.track[key]
 					if(value === undefined) continue
 					//check if we have a descriptor object in the key
 					if(value && typeof value == 'object' && value.value !== undefined){
@@ -58,6 +57,12 @@ define.class('$base/node', function(require, exports, self){
 					this.order.push(key)
 					if(time > this.end_time) this.end_time = time
 				}
+			}
+			if(this.config.duration !== undefined){
+				var duration = this.config.duration
+				this.order.push(duration)
+				this.values[duration] = {value:this.type(this.last_value)}
+				if(duration > this.end_time) this.end_time = duration
 			}
 			this.order.sort()
 		}
@@ -114,6 +119,7 @@ define.class('$base/node', function(require, exports, self){
 		if(end_gap !== undefined){ // alright we are stopping
 			var end = new this.End()
 			// fetch the last key of our track and pass it in as the new first for the next one 
+
 			end.last_value = norm_time >= 0.99? this.values[this.order[this.order.length - 1]].value: this.values[this.order[0]].value
 			end.skew = end_gap * this.end_time
 			return end
@@ -169,17 +175,17 @@ define.class('$base/node', function(require, exports, self){
 	}
 	/*
 	// stops an animation, untill resumed
-	self.pause = function(){
+	this.pause = function(){
 		this.pause_time = this.last_time_stamp - this.start_time_stamp
 	}
 
 	// resume a paused track
-	self.resume = function(){
+	this.resume = function(){
 		this.pause_time = undefined
 	}
 
 	// this reverses the playback. it will just play the current trackbackwards starting now
-	self.reverse = function(){
+	this.reverse = function(){
 		// alright if we have reverse time, calculate the right start_time_stamp
 		if(this.reverse_time !== undefined){
 			// calculate the current time
