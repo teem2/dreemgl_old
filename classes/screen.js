@@ -38,7 +38,7 @@ define.class(function(view, require) {
 	this.remapmatrix = mat4();
 	this.invertedmousecoords = vec2();
 	
-	this.remapMouse = function(node){
+	this.remapMouse = function(node, flags){
 
 		var M = node._mode?  node.layermatrix: node.totalmatrix
 		var P = node.parent
@@ -77,6 +77,7 @@ define.class(function(view, require) {
 		var my = -1 * (this.mouse._y/(sy/2) - 1.0)
 		
 		vec2.mul_mat4_t([mx,my], this.remapmatrix, this.invertedmousecoords)
+		this.invertedmousecoords.flags = flags
 
 		return this.invertedmousecoords
 	}
@@ -201,7 +202,9 @@ define.class(function(view, require) {
 		this.mouse.leftup = function(){
 			// make sure we send the right mouse out/overs when losing capture
 			this.device.pickScreen(this.mouse.x, this.mouse.y).then(function(view){
-				if(this.mouse_capture) this.mouse_capture.emit('mouseleftup', this.remapMouse(this.mouse_capture))
+				if(this.mouse_capture){
+					this.mouse_capture.emit('mouseleftup', this.remapMouse(this.mouse_capture, {over:this.mouse_capture === view}))
+				}
 				if(this.mouse_capture !== view){
 					if(this.mouse_capture) this.mouse_capture.emit('mouseout', this.remapMouse(this.mouse_capture))
 					if(view){
@@ -421,18 +424,36 @@ define.class(function(view, require) {
 
 	// animation
 
-	this.startAnimationRoot = function(obj, key, value, track, resolve){
+	this.startAnimationRoot = function(obj, key, value, track, promise){
 		// ok so. if we get a config passed in, we pass that in
 		var config = obj.getAttributeConfig(key)
 		var first = obj['_' + key]
 
 		var anim = new Animate(config, obj, key, track, first, value)
 
-		anim.resolve_anim = resolve
-		var animkey = obj.guid + '_' + key
+		anim.promise = promise
+		var animkey = obj.pickguid + '_' + key
 		this.anims[animkey] = anim
 		obj.redraw()
 		return true
+	}
+
+	this.stopAnimationRoot = function(obj, key){
+		var animkey = obj.pickguid + '_' + key
+		var anim = this.anims[animkey]
+		if(anim){
+			delete this.anims[animkey]			
+			if(anim.promise)anim.promise.reject()
+		}
+	}
+
+	this.pauseAnimationRoot = function(obj, key){
+		// uh ok pausing an animation.
+
+	}
+
+	this.playAnimationRoot = function(obj, key){
+
 	}
 
 	this.doAnimation = function(time){
@@ -447,7 +468,7 @@ define.class(function(view, require) {
 				//console.log(value.last_value)
 				anim.obj.emit(anim.key, value.last_value)
 				anim.obj.redraw()
-				if(anim.resolve_anim) anim.resolve_anim()
+				if(anim.promise)anim.promise.resolve()
 			}
 			else{
 				anim.obj.emit(anim.key, value)

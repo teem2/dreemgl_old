@@ -464,11 +464,32 @@ define.class(function(require, constructor){
 		// count
 		var arr = []
 		for(var key in arg){
-			arr.push(new Promise(function(resolve, reject){
-				this.startAnimation(key, undefined, arg[key], resolve)
-			}.bind(this)))
+			var value = arg[key]
+			if(typeof value === 'object'){
+				var resolve, reject
+				var promise = new Promise(function(res, rej){ resolve = res, reject = rej })
+				promise.resolve = resolve
+				promise.reject = reject
+				arr.push(promise)
+				this.startAnimation(key, undefined, value, promise)
+			}
+			else{
+				if(typeof value === 'string'){
+					value = value.toLowerCase()	
+					if(value === 'stop'){
+						this.stopAnimation(key)
+					}
+					else if(value === 'play'){
+						this.playAnimation(key)
+					}
+					else if(value === 'pause'){
+						this.pauseAnimation(key)
+					}
+				}
+				resolve()
+			}
 		}
-		if(arr.length == 1) return arr[0]
+		if(arr.length <= 1) return arr[0]
 		return Promise.all(arr)
 	}
 
