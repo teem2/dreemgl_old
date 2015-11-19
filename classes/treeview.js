@@ -22,6 +22,10 @@ define.class(function(view,  label, button, icon){
 
 	this.persists = ['selected']
 	this.events = ['selectclick']
+	this.bgcolor = 'white'
+	this.boundscheck = true
+	this.mode = '2D'
+	this.overflow ='scroll'
 
 	// The fold button is a very very flat button. 
 	define.class(this, 'foldbutton', function(button){

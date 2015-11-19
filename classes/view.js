@@ -85,7 +85,7 @@ define.class( function(node, require){
 		up: {type: vec3, value: vec3(0,-1,0)}	
 	}
 
-	
+
 	this.camera = this.lookat = this.up = function(){this.redraw();};
 	
 	this.persists = ['model']
@@ -116,9 +116,9 @@ define.class( function(node, require){
 	this.borderradius = function(value){
 		if(typeof value === 'number' && value !== 0 || value[0] !== 0 || value[1] !== 0 || value[2] !== 0 || value[3] !== 0){
 			// this switches the bg shader to the rounded one
-			this.bg = this.rounded
+			this.bg = this.roundedrect
 		}
-		else this.bg = this.rect
+		else this.bg = this.hardrect
 	}
 
 	// turn on the border shader
@@ -141,6 +141,9 @@ define.class( function(node, require){
 		return vec2(this.screen.remapMouse(this))
 	}
 
+	this.draw_dirty = 3
+	this.layout_dirty = true
+
 	this.init = function(){
 		this.anims = {}
 		this.layout = {width:0, height:0, left:0, top:0, right:0, bottom:0}
@@ -148,6 +151,7 @@ define.class( function(node, require){
 		this.modelmatrix = mat4()
 		this.totalmatrix = mat4.identity()
 		this.layermatrix = mat4()
+
 		this.atInit()
 	}
 
@@ -247,10 +251,51 @@ define.class( function(node, require){
 		}
 	}
 
-	// redraw our view
+	this.relayout = function(deep){
+		if(!this.layer || this.layer.layout_dirty) return
+		var parent = this
+		while(parent){
+			var layer = parent.layer
+			if(!layer || layer.layout_dirty) break
+			layer.layout_dirty = true
+			parent = layer.parent 
+		}
+		// layout happens in the drawloop
+		this.redraw()
+	}
+
+	// redraw our view and bubble up the layer dirtiness to the root
 	this.redraw = function(){
+		if(!this.layer || this.layer.draw_dirty === 3) return
+		var parent = this
+		while(parent){
+			var layer = parent.layer
+			if(!layer || layer.draw_dirty === 3) break
+			layer.draw_dirty = 3
+			parent = layer.parent 
+		}
 		if(this.device && this.device.redraw) this.device.redraw()
 	}
+
+	
+	// things that trigger a relayout
+	this.pos = 
+	this.corner =
+	this.size =
+	this.minsize =
+	this.maxsize = 
+	this.margin =
+	this.padding =
+	this.borderwidth =
+	this.flex =
+	this.flexwrap =
+	this.flexdirection =
+	this.justifycontent =
+	this.alignitems =
+	this.alignself =
+	this.position =
+	this.relayout
+
 
 	// when do we call this?..
 	this.updateShaders = function(){
@@ -378,11 +423,13 @@ define.class( function(node, require){
 				})
 			)
 			this.mousewheelx = function(pos){
-				if(this.hscrollbar._visible) this.hscrollbar.offset += pos
+				if(this.hscrollbar._visible){
+					this.hscrollbar.offset = clamp(this.hscrollbar._offset + pos, 0, this.hscrollbar._total - this.hscrollbar._page)
+				}
 			}
 
 			this.mousewheely = function(pos){
-				if(this.vscrollbar._visible) this.vscrollbar.offset += pos
+				this.vscrollbar.offset = clamp(this.vscrollbar._offset + pos, 0, this.vscrollbar._total - this.vscrollbar._page)
 			}
 			this.bg = -1
 		}
@@ -392,7 +439,7 @@ define.class( function(node, require){
 	this.showScrollbars = function(){
 		if(this.vscrollbar){
 			var scroll = this.vscrollbar
-			var totalsize = this.computedsize.height, viewsize = this.layout.height
+			var totalsize = this.sublayout.height, viewsize = this.layout.height
 
 			if(totalsize > viewsize){
 				scroll._visible = true
@@ -408,7 +455,7 @@ define.class( function(node, require){
 		}
 		if(this.hscrollbar){
 			var scroll = this.hscrollbar
-			var totalsize = this.computedsize.width, viewsize = this.layout.width
+			var totalsize = this.sublayout.width, viewsize = this.layout.width
 
 			if(totalsize > viewsize){
 				scroll._visible = true
@@ -435,7 +482,7 @@ define.class( function(node, require){
 			var copynodes = FlexLayout.fillNodes(this)
 			FlexLayout.computeLayout(copynodes)
 		
-			this.computedsize = this.layout
+			this.sublayout = this.layout
 			this._flex = flex
 			this._size = size
 			this.layout = layout
@@ -476,7 +523,7 @@ define.class( function(node, require){
 	// standard bg is undecided
 	define.class(this, 'bg', this.Shader, function(){})
 
-	define.class(this, 'rect', this.Shader, function(){
+	define.class(this, 'hardrect', this.Shader, function(){
 		this.mesh = vec2.array()
 		this.mesh.pushQuad(0,0,1,0,0,1,1,1)
 		this.position = function(){
@@ -490,10 +537,10 @@ define.class( function(node, require){
 	})
 
 	// make rect the default bg shader
-	this.bg = this.rect
+	this.bg = this.hardrect
 
 	// rounded rect shader class
-	define.class(this, 'rounded', this.Shader, function(){
+	define.class(this, 'roundedrect', this.Shader, function(){
 
 		this.vertexstruct = define.struct({
 			pos: vec2,
