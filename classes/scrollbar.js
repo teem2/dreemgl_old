@@ -95,7 +95,6 @@ define.class(function(view){
 	}
 	
 	this.mouseleftdown = function(start){
-		console.log('start',start)
 		// detect if we clicked not on the button
 		if(this.vertical){
 			var p = start[1] / this.layout.height
