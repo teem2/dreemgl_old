@@ -85,6 +85,7 @@ define.class(function(view, require) {
 			var P = parentlist[i];	
 			
 			if (P.parent) {
+
 				if (P.parent._mode == "3D") {
 					console.log(raystart, rayend);
 				}
@@ -112,16 +113,16 @@ define.class(function(view, require) {
 			rayend = vec3.mul_mat4(rayend, this.remapmatrix)
 		}
 
-		var MM = node._mode?  node.layermatrix: node.totalmatrix;
+		var MM = node._mode?node.layermatrix: node.totalmatrix;
 		mat4.invert(MM, this.remapmatrix)
 		raystart = vec3.mul_mat4(raystart, this.remapmatrix)
 		rayend = vec3.mul_mat4(rayend, this.remapmatrix)
-	
+
 		// console.log("_", ressofar, "result");
 		
 		/*var transtemp = mat4.translatematrix([1,1,0])
-		
-		
+
+
 		var M = node._mode?  node.layermatrix: node.totalmatrix
 		var P = node.parent
 
