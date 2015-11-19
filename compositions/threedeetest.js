@@ -102,23 +102,23 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 						,cube({translate:vec3(0,0,1), dimension:vec3(0.5)})
 						,plane({translate:vec3(0,-2,0), dimension:vec3(500), rotate:vec3(PI/2,0,0)})
 						,sphere({translate:vec3(0,0,2), radius:0.5})
-						,view({mode:'2D', bgcolor:"red", scale: vec3(0.01, -0.01, 0.01), rotate:vec3(0,PI, 0)}
-						,button({text:"Near2", click:function(){
-							console.log("meh?");
-							var cam = this.find("theview");
-							cam.camera = vec3(0,0,-2);
-							cam.fov = 30;
-							}
-						})
-						,button({text:"Far2", click:function(){
-							console.log("meh?");
-							var cam = this.find("theview");
-							cam.camera = vec3(4,0.2,-10);
-							cam.fov = 90;
-							}
-							
-						})		
-						,mousedebug({width:100, height:100})
+						,view({mode:'2D', bgcolor:"red", pixelratio:10, scale: vec3(0.01, -0.01, 0.01), rotate:vec3(0,PI, 0)}
+							,button({text:"Near2", click:function(){
+								console.log("meh?");
+								var cam = this.find("theview");
+								cam.camera = vec3(0,0,-2);
+								cam.fov = 30;
+								}
+							})
+							,button({text:"Far2", click:function(){
+								console.log("meh?");
+								var cam = this.find("theview");
+								cam.camera = vec3(4,0.2,-10);
+								cam.fov = 90;
+								}
+								
+							})		
+							,mousedebug({width:100, height:100})
 
 												)
 						

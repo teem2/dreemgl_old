@@ -25,6 +25,7 @@ define.class( function(node, require){
 		size: {type:vec2, value:vec2(NaN, NaN)},
 
 		overflow: {type: Enum('','hidden','scroll','auto'), value:''},
+		pixelratio: {type: float, value:NaN},
 
 		w: {storage:'size', index:0},
 		h: {storage:'size', index:1},
