@@ -36,7 +36,6 @@ define.class(function(composition, docviewer, fileio, screens, screen, dataset, 
 								,treeview({
 									postLayout:function(){
 									},
-									clearcolor:'white',
 									bgcolor:'white',
 									mode:'2D',
 									overflow:'scroll',

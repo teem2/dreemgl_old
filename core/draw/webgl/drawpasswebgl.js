@@ -166,16 +166,17 @@ define.class(function(require, baseclass){
 
 		 // 2d/3d switch
 		if(view._mode === '2D'){
-			if(isroot && !debug)
+			if(isroot && !debug){
 				mat4.ortho(mousex-3, 2 + mousex, 2 + mousey,  mousey-3, -100, 100, this.pick_viewmatrix)
+			}
 			else{
 				if (isroot){
 					mat4.ortho(scrollx, layout.width+scrollx, scrolly, layout.height+scrolly, -100, 100, this.pick_viewmatrix)
 					mat4.ortho(0, layout.width, 0, layout.height, -100, 100, this.pick_noscrollmatrix)
 				}
 				else{
-					mat4.ortho(scrollx, layout.width+scrollx, layout.height+scrolly, scrolly,100, -100, this.pick_viewmatrix)
-					mat4.ortho(0, layout.width, layout.height, 0, 100, -100, this.pick_noscrollmatrix)
+					mat4.ortho(scrollx, layout.width+scrollx, layout.height+scrolly, scrolly, -100, 100, this.pick_viewmatrix)
+					mat4.ortho(0, layout.width, layout.height, 0, -100, 100, this.pick_noscrollmatrix)
 				}
 			}
 		}
@@ -217,6 +218,7 @@ define.class(function(require, baseclass){
 					var shader = shaders[j]
 					// we have to set our guid.
 					shader.pick = pick
+					//if(shader.order < 0) console.log(draw)
 					if(shader.order < 0) draw.viewmatrix = this.pick_noscrollmatrix
 					else draw.viewmatrix = this.pick_viewmatrix
 					shader.drawArrays(this.device, 'pick')
@@ -267,8 +269,8 @@ define.class(function(require, baseclass){
 				mat4.ortho(0, layout.width, 0, layout.height, -100, 100, this.color_noscrollmatrix)
 			}
 			else{
-				mat4.ortho(scrollx, layout.width+scrollx, layout.height+scrolly, scrolly,100, -100, this.color_viewmatrix)
-				mat4.ortho(0, layout.width, layout.height, 0, 100, -100, this.color_noscrollmatrix)
+				mat4.ortho(scrollx, layout.width+scrollx, layout.height+scrolly, scrolly, -100, 100, this.color_viewmatrix)
+				mat4.ortho(0, layout.width, layout.height, 0, -100, 100, this.color_noscrollmatrix)
 			}
 		}
 		else if(view._mode === '3D'){

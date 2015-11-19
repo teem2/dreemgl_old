@@ -163,9 +163,6 @@ define.class( function(node, require){
 				this.shader_list.push(shobj)
 			}
 		}
-		this.shader_list = this.shader_list.sort(function(a, b){
-			return this.shader_order[a.shadername] > this.shader_order[b.shadername]
-		}.bind(this))
 
 		if(this.debug !== undefined && this.debug.indexOf('shaderlist') !== -1){
 			console.log(this.shader_order)
@@ -175,6 +172,7 @@ define.class( function(node, require){
 			// give it a blendshader
 			this.blendshader = new this.blend(this)
 		}
+		this.sortShaders()
 	}
 
 	this.emitUpward = function(key, msg){
@@ -186,9 +184,21 @@ define.class( function(node, require){
 		if(this.debug !== undefined && this.debug.indexOf('atdraw')!== -1) console.log(this)
 	}
 
+	this.sortShaders = function(){
+		this.shader_list = this.shader_list.sort(function(a, b){
+			return this.shader_order[a.shadername] > this.shader_order[b.shadername]
+		}.bind(this))
+		// re-denormalize the order property
+		for(var i = 0; i < this.shader_list.length;i++){
+			var shader = this.shader_list[i]
+			shader.order = this.shader_order[shader.shadername]
+		}
+	}
+
 	this.shaderOrder = function(key, value){
-		if(!this.hasOwnProperty('shaders')) this.shader_order = Object.create(this.shader_order || {})
+		if(!this.hasOwnProperty('shader_order')) this.shader_order = Object.create(this.shader_order || {})
 		// the first time is always false
+
 		if(this.shader_order[key] === undefined){
 			this.shader_order[key] = false
 			return
@@ -202,7 +212,10 @@ define.class( function(node, require){
 		// set the shader order
 
 		if(!value || typeof value === 'number' || typeof value === 'boolean'){
-			return this.shaderOrder(key, value)
+			// if we are at runtime, something else must happen
+			this.shaderOrder(key, value)
+			if(this.shader_list) this.sortShaders()
+			return 
 		}
 
 		// its a shader redirect
@@ -327,7 +340,7 @@ define.class( function(node, require){
 		}
 	}
 
-
+	// decide to inject scrollbars into our childarray
 	this.atRender = function(){
 		if(this._mode === '2D' && (this._overflow === 'SCROLL'|| this._overflow === 'AUTO')){
 			this.children.push(
@@ -349,7 +362,11 @@ define.class( function(node, require){
 				}),
 				this.hscrollbar = this.scrollbar({
 					position:'absolute',
+					vertical:false,
 					noscroll:true,
+					offset:function(value){
+						this.parent._scrolloffset = vec2(this._offset,this.parent._scrolloffset[1])
+					},
 					postLayout:function(){
 						var parent_layout = this.parent.layout
 						var this_layout = this.layout
@@ -360,13 +377,53 @@ define.class( function(node, require){
 					}
 				})
 			)
-			this.mousewheely = function(pos){
-				if(this.vscrollbar._visible)
-					this.vscrollbar.offset += pos
+			this.mousewheelx = function(pos){
+				if(this.hscrollbar._visible) this.hscrollbar.offset += pos
 			}
+
+			this.mousewheely = function(pos){
+				if(this.vscrollbar._visible) this.vscrollbar.offset += pos
+			}
+			this.bg = -1
 		}
 	}
 	
+	// show/hide scrollbars
+	this.showScrollbars = function(){
+		if(this.vscrollbar){
+			var scroll = this.vscrollbar
+			var totalsize = this.computedsize.height, viewsize = this.layout.height
+
+			if(totalsize > viewsize){
+				scroll._visible = true
+				scroll._total = totalsize
+				scroll._page = viewsize
+				var off = clamp(scroll._offset,0, scroll._total - scroll._page)
+				if(off !== scroll._offset) scroll.offset = off
+			}
+			else{
+				if(0 !== scroll._offset) scroll.offset = 0
+				scroll._visible = false
+			}
+		}
+		if(this.hscrollbar){
+			var scroll = this.hscrollbar
+			var totalsize = this.computedsize.width, viewsize = this.layout.width
+
+			if(totalsize > viewsize){
+				scroll._visible = true
+				scroll._total = totalsize
+				scroll._page = viewsize
+				var off = clamp(scroll._offset,0, scroll._total - scroll._page)
+				if(off !== scroll._offset) scroll.offset = off
+			}
+			else{
+				if(0 !== scroll._offset) scroll.offset = 0
+				scroll._visible = false
+			}
+		}
+	}
+
 	this.doLayout = function(width, height){
 		if(!isNaN(this._flex)){ // means our layout has been externally defined
 			var layout = this.layout
@@ -384,29 +441,7 @@ define.class( function(node, require){
 			this.layout = layout
 	
 			emitPostLayout(copynodes)
-
-			// hide/show scrollbars depending on computed inner size
-			if(this.vscrollbar){
-				var scroll = this.vscrollbar
-				// hide/show the vscrollbar and or set its range
-				var compheight = this.computedsize.height, height = this.layout.height
-				if(compheight > height){
-					scroll._visible = true
-					scroll._total = compheight
-					scroll._page = height
-					var off = clamp(scroll._offset,0, scroll._total - scroll._page)
-					// trigger listeners
-					if(off !== scroll._offset) scroll.offset = off
-					//this.vscrollbar._offset = 0.
-					// set scrollbar props
-				}
-				else{
-					this.vscrollbar._visible = false
-				}
-				// 
-
-				// hide show the hscrollbar and or set its range
-			}
+			this.showScrollbars()
 		}
 		else{
 			var copynodes = FlexLayout.fillNodes(this)
