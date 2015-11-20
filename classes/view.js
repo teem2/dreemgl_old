@@ -251,14 +251,21 @@ define.class( function(node, require){
 		}
 	}
 
-	this.relayout = function(deep){
+	this.relayout = function(shallow){
+		// so we need to have a list of child layers.
 		if(!this.layer || this.layer.layout_dirty) return
+		var layer_list = this.layer.layer_list
+		for(var i = 0; i < layer_list.length;i++){
+			var child = layer_list[i]
+			child.relayout(true)
+		}
 		var parent = this
 		while(parent){
 			var layer = parent.layer
 			if(!layer || layer.layout_dirty) break
 			layer.layout_dirty = true
 			parent = layer.parent 
+			if(shallow) break
 		}
 		// layout happens in the drawloop
 		this.redraw()
