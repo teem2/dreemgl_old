@@ -362,7 +362,6 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 
 	// for type information
 	this.mesh = this.textgeom.array()
-	this.mesh.typeface = this.typeface
 
 	// this thing makes a new text array buffer
 	this.newText = function(){
@@ -900,19 +899,24 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 	}
 
 	this.decideFontType = function(){
+		this.mesh.typeface = this.typeface
 		if(this.typeface && this.typeface.baked){
-			this.glyphy_mesh = this.glyphy_mesh_sdf
-			this.glyphy_pixel = this.glyphy_sdf_draw
+			if(this.glyphy_mesh !== this.glyphy_mesh_sdf){
+				this.glyphy_mesh = this.glyphy_mesh_sdf
+				this.glyphy_pixel = this.glyphy_sdf_draw
+			}
 		}
 		else{
-			this.glyphy_pixel = this.glyphy_atlas_draw
-			this.glyphy_mesh = this.glyphy_mesh_atlas
+			if(this.glyphy_pixel !== this.glyphy_atlas_draw){
+				this.glyphy_pixel = this.glyphy_atlas_draw
+				this.glyphy_mesh = this.glyphy_mesh_atlas
+			}
 		}
 	}
 
 	this.atExtend = function(){
-		baseclass.prototype.atExtend.call(this)
 		this.decideFontType()
+		baseclass.prototype.atExtend.call(this)
 	}
 
 	this.decideFontType()

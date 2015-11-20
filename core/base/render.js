@@ -86,7 +86,12 @@ define.class(function(exports){
 		if(new_version.atRender) new_version.atRender()
 
 		if(new_version._mode){
+			// set up a new layer
 			new_version.layer = new_version
+			new_version.child_layer_list = []
+			if(!rerender && new_version.parent && new_version.parent.layer){
+				new_version.parent.layer.child_layer_list.push(new_version)
+			}
 		}
  		// what we need to do, is 
 
@@ -110,6 +115,7 @@ define.class(function(exports){
 			}
 			new_child.parent = new_version
 			new_child.layer = new_version.layer
+
 			new_child =  new_children[i] = render(new_child, old_child, globals, state)
 	
 			// set the childs name

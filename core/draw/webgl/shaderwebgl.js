@@ -25,6 +25,7 @@ define.class('../shader', function(require, exports, self){
 
 		var gl = gldevice.gl
 		var cache_id = vtx_code + pix_color + this.has_pick
+
 		var shader = gldevice.shadercache[cache_id]
 
 		if(shader) return shader

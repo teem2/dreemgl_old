@@ -251,14 +251,21 @@ define.class( function(node, require){
 		}
 	}
 
-	this.relayout = function(deep){
+	this.relayout = function(shallow){
+		// so we need to have a list of child layers.
 		if(!this.layer || this.layer.layout_dirty) return
+		var child_layer_list = this.layer.child_layer_list
+		for(var i = 0; i < child_layer_list.length;i++){
+			var child = child_layer_list[i]
+			child.relayout(true)
+		}
 		var parent = this
 		while(parent){
 			var layer = parent.layer
 			if(!layer || layer.layout_dirty) break
 			layer.layout_dirty = true
 			parent = layer.parent 
+			if(shallow) break
 		}
 		// layout happens in the drawloop
 		this.redraw()
@@ -270,7 +277,8 @@ define.class( function(node, require){
 		var parent = this
 		while(parent){
 			var layer = parent.layer
-			if(!layer || layer.draw_dirty === 3) break
+			if(!layer) break
+			if(layer.draw_dirty === 3) return
 			layer.draw_dirty = 3
 			parent = layer.parent 
 		}
@@ -429,7 +437,9 @@ define.class( function(node, require){
 			}
 
 			this.mousewheely = function(pos){
-				this.vscrollbar.offset = clamp(this.vscrollbar._offset + pos, 0, this.vscrollbar._total - this.vscrollbar._page)
+				if(this.vscrollbar._visible){
+					this.vscrollbar.offset = clamp(this.vscrollbar._offset + pos, 0, this.vscrollbar._total - this.vscrollbar._page)
+				}
 			}
 			this.bg = -1
 		}

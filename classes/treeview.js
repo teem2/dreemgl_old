@@ -90,13 +90,10 @@ define.class(function(view,  label, button, icon){
 
 		this.padding = vec4(3)
 		this.fgcolor = vec4("black")
-
 		this.bg = 0
-
 		this.flexdirection = "row"
 		
 		//this.attribute("fontsize", {type:float, value:12});
-		
 		this.attributes = {
 			item: {type:Object}
 		}
@@ -107,7 +104,9 @@ define.class(function(view,  label, button, icon){
 				if (!this.item.collapsed) this.item.collapsed = true
 				else this.item.collapsed = false
 				//this.collapsed = this.item.collapsed;
-				this.reRender()
+				// a bottom level assign re-renders the item
+				this.item = this.item
+				//this.reRender()
 			}
 			//this.reLayout();
 			//this.setDirty(true)
@@ -152,7 +151,7 @@ define.class(function(view,  label, button, icon){
 								this.item.children?
 								this.item.children.map(function(m, i, array){return [
 									view({bgcolor:"transparent",flexdirection:"row" , alignitems:"stretch", padding: 0},
-										this.outer.treeline({width:20,last:i === array.length - 1?1:0, bgcolor: "#c0c0c0" }), 
+										this.outer.treeline({width:20,last:i === array.length - 1?1:0}), 
 										this.outer.treeitem({item: m})										
 									)
 									]}.bind(this))
@@ -172,6 +171,7 @@ define.class(function(view,  label, button, icon){
 		this.last = 0
 		this.alignself = "stretch"
 		this.fgcolor = vec4(0.5, 0.5, 0.5, 1.)
+		this.bgcolor = "#c0c0c0" 
 		this.bg = {
 			last: 0,
 			color: function(){
@@ -182,11 +182,11 @@ define.class(function(view,  label, button, icon){
 					shape.box(pos, left, 0., 1., view.layout.height * (1. - view.last) + center * view.last),
 					shape.box(pos, left, center, view.layout.width, 1.)
 				)
-				var edge = 1.
+				var edge = .4
 
-				if(mod(floor(gl_FragCoord.x) + floor(gl_FragCoord.y), 2.) > 0.){
+				//if(mod(floor(gl_FragCoord.x) + floor(gl_FragCoord.y), 2.) > 0.){
 					return vec4(view.fgcolor.rgb, smoothstep(edge, -edge, field))
-				}
+				//}
 				return vec4(view.fgcolor.rgb, 0)
 			}
 		}

@@ -149,7 +149,7 @@ define.class(function(require, baseclass){
 		layout.height = Math.floor(layout.height)
 
 		if(isroot){
-			if(!debug) this.allocDrawTarget(4, 4, this.view._mode, 'pick_buffer', passid)
+			if(!debug) this.allocDrawTarget(1, 1, this.view._mode, 'pick_buffer', passid)
 		}
 		else{
 			var ratio = view._pixelratio
@@ -167,7 +167,7 @@ define.class(function(require, baseclass){
 		 // 2d/3d switch
 		if(view._mode === '2D'){
 			if(isroot && !debug){
-				mat4.ortho(mousex-3, 2 + mousex, 2 + mousey,  mousey-3, -100, 100, this.pick_viewmatrix)
+				mat4.ortho(mousex, 1 + mousex, 1 + mousey,  mousey, -100, 100, this.pick_viewmatrix)
 			}
 			else{
 				if (isroot){
