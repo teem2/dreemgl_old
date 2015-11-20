@@ -83,7 +83,6 @@ define.class(function(view, label){
 			}
 
 			this.mousemove = function(pos){
-				console.log(pos)
 				var dragnow = this.parent.localMouse()
 				var dx = dragnow[0] - dragstart[0]
 				var dy = dragnow[1] - dragstart[1]

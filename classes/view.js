@@ -437,7 +437,9 @@ define.class( function(node, require){
 			}
 
 			this.mousewheely = function(pos){
-				this.vscrollbar.offset = clamp(this.vscrollbar._offset + pos, 0, this.vscrollbar._total - this.vscrollbar._page)
+				if(this.vscrollbar._visible){
+					this.vscrollbar.offset = clamp(this.vscrollbar._offset + pos, 0, this.vscrollbar._total - this.vscrollbar._page)
+				}
 			}
 			this.bg = -1
 		}
