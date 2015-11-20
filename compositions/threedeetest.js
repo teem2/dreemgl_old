@@ -110,7 +110,7 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 								cam.fov = 30;
 								}
 							})
-							,button({text:"I RULE ", click:function(){
+							,button({text:"Live", click:function(){
 								console.log("meh?");
 								var cam = this.find("theview");
 								cam.camera = vec3(4,0.2,-10);

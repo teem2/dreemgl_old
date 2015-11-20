@@ -30,9 +30,6 @@ define.class(function(composition, docviewer, fileio, screens, screen, dataset, 
 								,view({alignitems:"center", bgcolor:"#e0e0e0", flexdirection:"row" ,padding: 14},
 									label({text:"DreemGL", fgcolor:"black", bgcolor:"transparent", fontsize: 30 })
 								)
-								//,scrollcontainer({hscrollvisible:false,flex:1}
-								//,view({flex:1}
-									//,view({flex:1, flexdirection:"column"}
 								,treeview({
 									postLayout:function(){
 									},
@@ -41,6 +38,11 @@ define.class(function(composition, docviewer, fileio, screens, screen, dataset, 
 										var dataset = this.find('screen').model
 										if(dataset) this.dataset = dataset
 									},
+									//blend:{
+									//	color:function(){
+									//		return texture.sample(mesh.xy + 0.1*noise.noise3d(mesh.xyy))
+									//	}
+									//},
 									name:'filetree', 
 									flex:1, 
 									selectclick:function(sel){
@@ -52,13 +54,9 @@ define.class(function(composition, docviewer, fileio, screens, screen, dataset, 
 										this.find('screen').locationhash = {path : '$root/'+path};
 									}
 								})
-									//)
-								//)
 							)
-							,view({flex:1,bgcolor:'red'}
-								//,scrollcontainer({hscrollvisible:false, move_view_bgcolor: "#f0f0f0"}
-							//		,docviewer({model: ""})
-						//		)
+							,view({flex:1,bgcolor:'white'}
+								,docviewer({model: ""})
 							)
 						)
 					]
