@@ -88,9 +88,9 @@ define.class(function(exports){
 		if(new_version._mode){
 			// set up a new layer
 			new_version.layer = new_version
-			new_version.layer_list = []
+			new_version.child_layer_list = []
 			if(!rerender && new_version.parent && new_version.parent.layer){
-				new_version.parent.layer.layer_list.push(new_version)
+				new_version.parent.layer.child_layer_list.push(new_version)
 			}
 		}
  		// what we need to do, is 

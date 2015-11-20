@@ -222,6 +222,7 @@ define.class('$parse/onejsgen', function(require, exports, self, baseclass){
 			// lets switch context and expand id
 			var ret =  this.resolveContext(node, infer.object, key, obj, state)
 			if(ret === undefined){
+				console.log(infer.object, state)
 				throw new Error('Cannot resolve ' + obj + '.' + key + ' in ' + state.callname + '(...)\n' + state.source)
 			}
 			return ret		

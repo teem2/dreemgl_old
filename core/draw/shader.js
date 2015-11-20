@@ -416,6 +416,8 @@ define.class('$base/node', function(require, exports, self){
 			set:function(value){
 				if(this[get] === value) return
 				this.dirty = true
+				if(!this.hasOwnProperty('dirty_props')) this.dirty_props = []
+				this.dirty_props.push(name)
 				// trigger a recompile
 				if(this.hasOwnProperty('shader')) this.shader = undefined
 				this[get] = value
@@ -448,8 +450,9 @@ define.class('$base/node', function(require, exports, self){
 	// compile the shader
 	this.compile = function(gldevice){
 
-		if(gldevice && this.dirty === false && !this.hasOwnProperty('shader')){
+		if(gldevice && this.dirty === false){
 			// lets walk up the prototype chain till we hit dirty === false
+
 			var proto = this
 			while(!proto.hasOwnProperty('dirty')){
 				proto = Object.getPrototypeOf(proto)
