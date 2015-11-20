@@ -274,9 +274,9 @@ define.class(function(require, baseclass){
 			}
 		}
 		else if(view._mode === '3D'){
-			var p = mat4.perspective(view._fov * PI * 2/360.0 , layout.width/layout.height, view._nearplane, view._farplane)			
-			var lookat = mat4.lookAt(view._camera, view._lookat, view._up)
-			this.color_viewmatrix = mat4.mat4_mul_mat4(lookat,p);
+			view.perspectivematrix  = mat4.perspective(view._fov * PI * 2/360.0 , layout.width/layout.height, view._nearplane, view._farplane)			
+			view.viewmatrix = mat4.lookAt(view._camera, view._lookat, view._up)
+			this.color_viewmatrix = mat4.mat4_mul_mat4(view.viewmatrix,view.perspectivematrix);
 		}
 
 		view.colorviewmatrix = this.color_viewmatrix

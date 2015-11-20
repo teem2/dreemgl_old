@@ -73,36 +73,54 @@ define.class(function(view, require) {
 		
 		var raystart = vec3(mx,my,-100);
 		var rayend   = vec3(mx,my,100);
-		
+		var lastrayafteradjust = vec3(mx,my,-100);
+		var lastprojection = mat4.identity();
+		var lastviewmatrix = mat4.identity();
 		
 		var scaletemp = mat4.scalematrix([1,1,1])
 		var transtemp2 = mat4.translatematrix([-1,-1,0])
 		
-		if (logging)  console.log(parentlist.length, raystart, "mousecoords in GL space");
+		if (logging)  console.log(parentlist.length-1, raystart, "mousecoords in GL space");
 		var lastmode = "2D";
 		
 		for(var i =parentlist.length-1;i>=0;i--) {
 			var P = parentlist[i];
-			
+			console.log(i, P.constructor.name)
 			var newmode = P.parent? P._mode:"2D";
 			
 			if (P.parent) {
 
-				// console.log("all bets are off - 3d mode detected");
-				mat4.invert(P.layermatrix, this.remapmatrix)
-				raystart = vec3.mul_mat4(raystart, this.remapmatrix)
-				rayend = vec3.mul_mat4(rayend, this.remapmatrix)
-
-				
+			
+			
 				if (lastmode == "3D" && newmode == "2D") { // 3d to 2d transition -> do a raypick.
-					if (logging) console.log(i, raystart, "going from 3d in to 2d" );
+					if (logging) console.log(i, lastrayafteradjust, "going from 3d in to 2d" );
+					
+					var rayclip = vec4(lastrayafteradjust.x, lastrayafteradjust.y, -1,1);
+					
+					mat4.invert(lastprojection, this.remapmatrix);
+					rayclip = vec4.vec4_mul_mat4(rayclip, this.remapmatrix);
+					console.log(rayclip);
+					rayclip.z = -1;
+					rayclip.w = 0;
+					
+					mat4.invert(lastviewmatrix, this.remapmatrix);
+					
+					var rayworld = vec4.vec4_mul_mat4(rayclip, this.remapmatrix);
+					
+					console.log(rayworld);
+					
 					if (logging) mat4.debug(P.layermatrix);	
 					
 					var R =intersectrayplane(raystart, vec3.sub(rayend, raystart), [0,0,-1], 0);
 					if (logging) console.log(i, R, "intersectpoint");
 					
 				}
-			
+
+				mat4.invert(P.layermatrix, this.remapmatrix)
+				raystart = vec3.mul_mat4(raystart, this.remapmatrix)
+				rayend = vec3.mul_mat4(rayend, this.remapmatrix)
+
+				
 			
 				// console.log(i, ressofar, "layermatrix");
 
@@ -117,7 +135,12 @@ define.class(function(view, require) {
 				rayend = vec3.mul_mat4(rayend, transtemp2)
 				
 			
-				if (logging)  console.log(i, raystart, "transmatrix");
+				if (logging)  console.log(i, raystart, "coordinates after adjusting for layoutwidth/height", P._mode);
+				
+				lastrayafteradjust = vec3(raystart.x, raystart.y,-1);
+				lastprojection = P.perspectivematrix;
+				lastviewmatrix = P.viewmatrix;
+			
 			}
 			if(i == 0 && node.noscroll){
 				mat4.invert(P.colornoscrollmatrix, this.remapmatrix)
