@@ -845,7 +845,7 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 		// screenspace length
 		mesh.scaling = 500. * m 
 		
-		var sub_delta = vec2((pixelscale / mesh.subpixel_distance)*0.1,0)
+		var sub_delta = vec2((pixelscale / mesh.subpixel_distance)*0.15,0)
 
 		var v1 = glyphy_sdf_decode(mesh.typeface.texture.sample(pos - sub_delta*2.))
 		var v2 = glyphy_sdf_decode(mesh.typeface.texture.sample(pos - sub_delta))
