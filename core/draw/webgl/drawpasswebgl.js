@@ -210,7 +210,7 @@ define.class(function(require, baseclass){
 				blendshader.drawArrays(this.device)
 			}
 			else{
-				draw.update()
+				draw.updateShaders()
 				// alright lets iterate the shaders and call em
 				var shaders =  draw.shader_list
 				for(var j = 0; j < shaders.length; j++){
@@ -331,7 +331,7 @@ define.class(function(require, baseclass){
 				blendshader.drawArrays(this.device)
 			}
 			else{
-				draw.update()
+				draw.updateShaders()
 				// alright lets iterate the shaders and call em
 				var shaders =  draw.shader_list
 				for(var j = 0; j < shaders.length; j++){

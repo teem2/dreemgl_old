@@ -402,6 +402,17 @@ define.class('$base/node', function(require, exports, self){
 	}
 
 	this.has_pick = true
+	this.update_dirty = true
+
+	this.reupdate = function(){
+		if(!this.update_dirty){
+			this.update_dirty = true
+			if(this.view && !this.view.update_dirty){
+				this.view.update_dirty = true
+				this.view.redraw()
+			}
+		}
+	}
 
 	this.monitorCompiledProperty = function(name){
 		if(this.__lookupSetter__(name)) return

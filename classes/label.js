@@ -59,16 +59,15 @@ define.class(function(view, require){
 
 	this.bgcolor = vec4("transparent")
 
-	this.text = function(){
-		this.dirty = true
-	}
-
 	this.init = function(){
 		if(this.typeface) this.typeface = glfontParser(this.typeface)
 	}
 
 	this.measure = function(width){
-		this.fontshader.update()
+		if(this.fontshader.update_dirty){
+			this.fontshader.update()
+			this.fontshader.update_dirty = false
+		}
 		return {width: this.fontshader.mesh.bound_w, height: this.fontshader.mesh.bound_h};
 	}
 

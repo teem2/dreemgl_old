@@ -145,7 +145,7 @@ define.class( function(node, require){
 
 	this.draw_dirty = 3
 	this.layout_dirty = true
-	this.shaders_dirty = true
+	this.update_dirty = true
 
 	this.init = function(){
 		this.anims = {}
@@ -286,7 +286,14 @@ define.class( function(node, require){
 		}
 		if(this.device && this.device.redraw) this.device.redraw()
 	}
-
+	
+	// updates all the shaders
+	this.reupdate = function(){
+		var shaders = this.shader_list
+		if(shaders) for(var i = 0; i < shaders.length; i++){
+			shaders[i].reupdate()
+		}
+	}
 	
 	// things that trigger a relayout
 	this.pos = 
@@ -306,36 +313,28 @@ define.class( function(node, require){
 	this.position =
 	this.relayout
 
-
-	this.shaderDirty = function(){
-		this.shaders_dirty = true
-		// repaint?
-		this.redraw()
-	}
-
 	// when do we call this?..
 	this.updateShaders = function(){
-		if(!this.shaders_dirty) return
-		this.shaders_dirty = false
-		// so what if we depend on layout?.. 
-		// how do we update shaders when we are dependent on layout?
+		if(!this.update_dirty) return
+		this.update_dirty = false
 
-
-		// lets call update on our shaders
-		var shadername
 		// we can wire up the shader 
 		if(!this._shaderswired){
 			this.atAttributeGet = function(attrname){
 				// monitor attribute wires for geometry
 				// lets add a listener 
-				this.addListener(attrname, this.shaderDirty)
+				this.addListener(attrname,shader.reupdate.bind(shader))
 			}.bind(this)
 		}
+
 		var shaders = this.shader_list
 		for(var i = 0; i < shaders.length; i ++){
 			var shader = shaders[i]
 			// lets check our deps
-			if(shader.update) shader.update()
+			if(shader.update && shader.update_dirty){
+				shader.update_dirty = false
+				shader.update()
+			}
 		}
 	
 		if(!this._shaderswired) {
@@ -538,8 +537,6 @@ define.class( function(node, require){
 		this.updateMatrices(this.parent?this.parent.totalmatrix:undefined, this._mode)
 	}
 
-	this.update = this.updateShaders
-
 	this.startAnimation = function(key, value, track, resolve){
 		if(this.screen) this.screen.startAnimationRoot(this, key, value, track, resolve)
 		else{
@@ -598,7 +595,6 @@ define.class( function(node, require){
 		this.color_blend = 'src_alpha * src_color + (1 - src_alpha) * dst_color'
   
 		this.update = function(){
-			console.log("here")
 			var view = this.view
 			var width = view.layout?view.layout.width:view.width
 			var height = view.layout?view.layout.height:view.height
