@@ -99,8 +99,7 @@ define.class( function(node, require){
 		"mouserightdown","mouserightup",
 		"mousewheelx","mousewheely",
 		"keyup","keydown","keypress","keypaste",
-		"focusget","focuslost",
-		"postLayout"
+		"focusget","focuslost"
 	]
 
 	this.modelmatrix = mat4.identity()
@@ -313,7 +312,7 @@ define.class( function(node, require){
 	this.position =
 	this.relayout
 
-	// when do we call this?..
+	// this gets called by the render engine
 	this.updateShaders = function(){
 		if(!this.update_dirty) return
 		this.update_dirty = false
@@ -343,6 +342,7 @@ define.class( function(node, require){
 		}
 	}
 
+	// called by doLayout
 	this.updateMatrices = function(parentmatrix, parentmode){
 		
 		if (this._mode && this._mode != parentmode ){
@@ -411,7 +411,7 @@ define.class( function(node, require){
 					offset:function(value){
 						this.parent._scrolloffset = vec2(this.parent._scrolloffset[0],this._offset)
 					},
-					postLayout:function(){
+					layout:function(){
 						var parent_layout = this.parent.layout
 						var this_layout = this.layout
 						this_layout.top = 0
@@ -427,7 +427,7 @@ define.class( function(node, require){
 					offset:function(value){
 						this.parent._scrolloffset = vec2(this._offset,this.parent._scrolloffset[1])
 					},
-					postLayout:function(){
+					layout:function(){
 						var parent_layout = this.parent.layout
 						var this_layout = this.layout
 						this_layout.left = 0
@@ -490,7 +490,6 @@ define.class( function(node, require){
 
 	function emitPostLayout(node){
 		var ref = node.ref
-		if(ref._listen_postLayout || ref.onpostLayout) ref.emit('postLayout')
 		// lets also emit the layout 
 
 		var children = node.children
@@ -509,6 +508,7 @@ define.class( function(node, require){
 
 	}
 
+	// called by the render engine
 	this.doLayout = function(width, height){
 		if(!isNaN(this._flex)){ // means our layout has been externally defined
 			var layout = this.layout

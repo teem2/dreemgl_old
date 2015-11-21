@@ -70,7 +70,7 @@ define.class(function(exports){
 			}
 		}
 
-		new_version.reRender = __atAttributeGet
+		new_version.rerender = __atAttributeGet
 
 		// lets check if object.constructor  a module, ifso 
 		if(new_version.classroot === undefined){

@@ -1,5 +1,5 @@
 //Pure JS based composition
-define.class(function(composition, docviewer, fileio, screens, screen, dataset, splitcontainer, treeview, view, label, require, scrollcontainer){
+define.class(function(composition, docviewer, fileio, screens, screen, dataset, splitcontainer, treeview, view, label, require){
 
 	this.render = function(){
 		return [
