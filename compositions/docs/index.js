@@ -28,7 +28,7 @@ define.class(function(composition, docviewer, fileio, screens, screen, dataset, 
 						splitcontainer({ vertical: false,  bgcolor: "black", flex:1}
 							,view({flexdirection:"column", padding: 0,flex: 0.2}
 								,view({alignitems:"center", bgcolor:"#e0e0e0", flexdirection:"row" ,padding: 14},
-									label({text:"DreemGL", fgcolor:"black", bgcolor:"transparent", fontsize: 30 })
+									label({text:"DreemGL", fgcolor:"black", bgcolor:"#e0e0e0", fontsize: 35 })
 								)
 								,treeview({
 									postLayout:function(){
@@ -38,6 +38,7 @@ define.class(function(composition, docviewer, fileio, screens, screen, dataset, 
 										var dataset = this.find('screen').model
 										if(dataset) this.dataset = dataset
 									},
+									
 									//blend:{
 									//	color:function(){
 									//		return texture.sample(mesh.xy + 0.1*noise.noise3d(mesh.xyy))
