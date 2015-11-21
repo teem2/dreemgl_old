@@ -112,7 +112,7 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 						,cube({translate:vec3(0,0,1), dimension:vec3(0.5)})
 						,plane({translate:vec3(0,-2,0), dimension:vec3(500), rotate:vec3(PI/2,0,0)})
 						,sphere({translate:vec3(0,0,2), radius:0.5})
-						,view({mode:'2D', bgcolor:"red", pixelratio:10, scale: vec3(0.01, -0.01, 0.01), rotate:vec3(0,PI, 0)}
+						,view({mode:'2D', bgcolor:"red", pixelratio:2, scale: vec3(0.01, -0.01, 0.01), rotate:vec3(0,0, 0)}
 							,button({text:"Near", click:function(){
 								
 								var cam = this.find("theview");
@@ -131,13 +131,13 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 							,mousedebug({width:100, height:100})
 							,button({text:"Left", click:function(){
 								var cam = this.find("theview");
-								cam.camera = vec3(-5,0.2,0);
+								cam.camera = vec3(-4,0.2,-0.5);
 								cam.fov = 90;
 								}
 								
 							})		
 
-												)
+							)
 						
 					)
 				)

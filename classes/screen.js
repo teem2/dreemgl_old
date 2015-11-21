@@ -38,6 +38,35 @@ define.class(function(view, require) {
 	this.remapmatrix = mat4();
 	this.invertedmousecoords = vec2();
 	
+	
+	
+  function UnProject(glx, gly, glz, modelview, projection)
+  {
+      var inv = vec4();
+      
+	  var A = mat4.mat4_mul_mat4(modelview, projection);
+      var m = mat4.invert(A);
+
+	  
+	  
+      inv[0]=glx;
+      inv[1]=gly;
+      inv[2]=2.0*glz-1.0;
+      inv[3]=1.0;
+      
+	  out = vec4.vec4_mul_mat4(inv, m);
+	  
+	  
+	  // divide by W to perform perspective!
+	  out[0] /= out[3];
+	  out[1] /= out[3];
+	  out[2] /= out[3];
+	  
+	  
+      return vec3(out);
+  }
+ 
+	
 	this.remapMouse = function(node, flags){
 
 	
@@ -76,7 +105,7 @@ define.class(function(view, require) {
 		var lastrayafteradjust = vec3(mx,my,-100);
 		var lastprojection = mat4.identity();
 		var lastviewmatrix = mat4.identity();
-		
+		var camerapos = vec3(0);
 		var scaletemp = mat4.scalematrix([1,1,1])
 		var transtemp2 = mat4.translatematrix([-1,-1,0])
 		
@@ -92,34 +121,25 @@ define.class(function(view, require) {
 
 			
 			
-				if (lastmode == "3D" && newmode == "2D") { // 3d to 2d transition -> do a raypick.
-					if (logging) console.log(i, lastrayafteradjust, "going from 3d in to 2d" );
+				if (lastmode == "3D") { // 3d to layer transition -> do a raypick.
+
+				if (logging) console.log(i, lastrayafteradjust, "performing raypick on previous clipspace coordinates" );
 					
-					var rayclip = vec4(lastrayafteradjust.x, lastrayafteradjust.y, -1,1);
+					var startv = UnProject(lastrayafteradjust.x, lastrayafteradjust.y, 0, lastviewmatrix, lastprojection);
+					var endv = UnProject(lastrayafteradjust.x, lastrayafteradjust.y, 1, lastviewmatrix, lastprojection);
+//					console.log(i, startv, endv, "unprojected?");
+										
+					var R =vec3.intersectplane(camerapos, endv, vec3(0,0,-1), 0);
 					
-					mat4.invert(lastprojection, this.remapmatrix);
-					rayclip = vec4.vec4_mul_mat4(rayclip, this.remapmatrix);
-					console.log(rayclip);
-					rayclip.z = -1;
-					rayclip.w = 0;
-					
-					mat4.invert(lastviewmatrix, this.remapmatrix);
-					
-					var rayworld = vec4.vec4_mul_mat4(rayclip, this.remapmatrix);
-					
-					console.log(rayworld);
-					
-					if (logging) mat4.debug(P.layermatrix);	
-					
-					var R =intersectrayplane(raystart, vec3.sub(rayend, raystart), [0,0,-1], 0);
 					if (logging) console.log(i, R, "intersectpoint");
+					
+					raystart = R;
 					
 				}
 
 				mat4.invert(P.layermatrix, this.remapmatrix)
 				raystart = vec3.mul_mat4(raystart, this.remapmatrix)
-				rayend = vec3.mul_mat4(rayend, this.remapmatrix)
-
+				
 				
 			
 				// console.log(i, ressofar, "layermatrix");
@@ -128,18 +148,17 @@ define.class(function(view, require) {
 				mat4.invert(scaletemp, this.remapmatrix)
 
 				raystart = vec3.mul_mat4(raystart, this.remapmatrix)				
-				rayend = vec3.mul_mat4(rayend, this.remapmatrix)				
 				// console.log(i, ressofar, "scalematrix");	
 
 				raystart = vec3.mul_mat4(raystart, transtemp2)
-				rayend = vec3.mul_mat4(rayend, transtemp2)
 				
 			
 				if (logging)  console.log(i, raystart, "coordinates after adjusting for layoutwidth/height", P._mode);
 				
 				lastrayafteradjust = vec3(raystart.x, raystart.y,-1);
 				lastprojection = P.perspectivematrix;
-				lastviewmatrix = P.viewmatrix;
+				lastviewmatrix = P.lookatmatrix;
+				camerapos = P._camera;
 			
 			}
 			if(i == 0 && node.noscroll){
@@ -149,7 +168,6 @@ define.class(function(view, require) {
 				mat4.invert(P.colorviewmatrix, this.remapmatrix)
 			}
 			raystart = vec3.mul_mat4(raystart, this.remapmatrix)
-			rayend = vec3.mul_mat4(rayend, this.remapmatrix)
 			
 			lastmode = newmode;
 	//		console.log(i, raystart, "last");	

@@ -93,24 +93,6 @@ define(function(require, exports){
 	exports.random = Math.random
 
 	
-	exports.intersectrayplane = function(origin, direction, normal, dist) {
-		var denom = vec3.dot(direction, normal)
-		if (denom !== 0) {
-			var t = -(vec3.dot(origin, normal) + dist) / denom
-			if (t < 0) {
-				return null
-			}			
-			return vec3.add(origin, vec3.vec3_mul_float(direction, t));
-		} 
-		else {
-			if (vec3.dot(normal, origin) + dist === 0) {
-				return origin
-			} 
-			else {
-				return null
-			}
-		}
-	}
 	
 	exports.sign = typeFn(function(v){
 		if(v === 0) return 0
@@ -461,11 +443,35 @@ define(function(require, exports){
 	}, 'vec3')
 	vecApi(exports.vec3)	
 	
+	exports.vec3.intersectplane = function(origin, direction, normal, dist) {
+		var denom = vec3.dot(direction, normal)
+		if (denom !== 0) {
+			var t = -(vec3.dot(origin, normal) + dist) / denom
+			if (t < 0) {
+				console.log("t = 0?")
+				return null
+			}			
+			var diradd = vec3.vec3_mul_float(direction, t);
+			var res = vec3.add(origin, diradd);
+//			console.log(origin, direction, t,diradd, res);
+			return res;
+		} 
+		else {
+			if (vec3.dot(normal, origin) + dist === 0) {
+				return origin
+			} 
+			else {
+				return null
+			}
+		}
+	}
+
 	exports.vec2.dot = function(a,b){
-		return a.x * b.x + a.y * b.y ;
+		return a[0] * b[0] + a[1] * b[1] ;
 	}
 	exports.vec3.dot = function(a,b){
-		return a.x * b.x + a.y * b.y + a.z * b.z;
+	//	console.log(a,b);
+		return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 	}
 	
 	exports.vec3.fromString = function(color){
@@ -723,7 +729,7 @@ define(function(require, exports){
 	exports.vec4.mul_mat4 = 
 	exports.vec4.vec4_mul_mat4 = function(v, m, o){
 		if(!o) o = exports.vec4()
-		var vx = v[0], vy = v[0], vz = v[0], vw = v[0]
+		var vx = v[0], vy = v[1], vz = v[2], vw = v[3]
 		o[0] = m[0] * vx + m[1] * vy + m[2] * vz + m[3] * vw
 		o[1] = m[4] * vx + m[5] * vy + m[6] * vz + m[7] * vw
 		o[2] = m[8] * vx + m[9] * vy + m[10] * vz + m[11] * vw
@@ -731,6 +737,7 @@ define(function(require, exports){
 		return o
 	}
 
+	
 	exports.vec4.mul_quat = 
 	exports.vec4.vec4_mul_quat = function(v, q, o){
 		if(!o) o = exports.vec4()
