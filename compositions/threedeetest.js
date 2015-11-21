@@ -37,7 +37,7 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 		}
 		
 		this.mousemove = function(a){
-			console.log("mousecoord coming in:", a);
+		//	console.log("mousecoord coming in:", a);
 			this.bgshader.mousepos = vec2(a[0],a[1])
 			this.redraw()
 			//this.screen.addDirtyNode(this);

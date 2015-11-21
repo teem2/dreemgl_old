@@ -87,7 +87,7 @@ define.class(function(view, require) {
 			
 			ip = ip.parent;
 		}
-		var logging = true;
+		var logging = false;
 		if (logging) console.clear();
 		if (logging){
 			var	parentdesc = "Parentchain: " ;
@@ -114,7 +114,7 @@ define.class(function(view, require) {
 		
 		for(var i =parentlist.length-1;i>=0;i--) {
 			var P = parentlist[i];
-			console.log(i, P.constructor.name)
+		//	console.log(i, P.constructor.name)
 			var newmode = P.parent? P._mode:"2D";
 			
 			if (P.parent) {
