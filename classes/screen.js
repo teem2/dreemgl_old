@@ -119,7 +119,9 @@ define.class(function(view, require) {
 			
 			if (P.parent) {
 
-			
+				var MM = P._mode?P.layermatrix: P.totalmatrix;
+				
+				if (!P.layermatrix) console.log("whaaa" );
 				mat4.invert(P.layermatrix, this.remapmatrix)
 
 				
@@ -137,11 +139,14 @@ define.class(function(view, require) {
 
 					
 					var R =vec3.intersectplane(camlocal, endlocal, vec3(0,0,-1), 0);
-					
-					R = vec3.mul_mat4(R, P.layermatrix);
-					if (logging) console.log(i, R, "intersectpoint");
-					
-					raystart = R;
+					if (!R)	{
+						raystart = vec3(0.5,0.5,0);
+					}
+					else{
+						R = vec3.mul_mat4(R, P.layermatrix);
+						if (logging) console.log(i, R, "intersectpoint");							
+						raystart = R;
+					}
 					
 				}
 
