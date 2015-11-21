@@ -120,7 +120,9 @@ define.class(function(view, require) {
 			if (P.parent) {
 
 			
-			
+				mat4.invert(P.layermatrix, this.remapmatrix)
+
+				
 				if (lastmode == "3D") { // 3d to layer transition -> do a raypick.
 
 				if (logging) console.log(i, lastrayafteradjust, "performing raypick on previous clipspace coordinates" );
@@ -129,15 +131,20 @@ define.class(function(view, require) {
 					var endv = UnProject(lastrayafteradjust.x, lastrayafteradjust.y, 1, lastviewmatrix, lastprojection);
 //					console.log(i, startv, endv, "unprojected?");
 										
-					var R =vec3.intersectplane(camerapos, endv, vec3(0,0,-1), 0);
+										
+					camlocal = vec3.mul_mat4(camerapos, this.remapmatrix)
+					endlocal = vec3.mul_mat4(endv, this.remapmatrix)
+
 					
+					var R =vec3.intersectplane(camlocal, endlocal, vec3(0,0,-1), 0);
+					
+					R = vec3.mul_mat4(R, P.layermatrix);
 					if (logging) console.log(i, R, "intersectpoint");
 					
 					raystart = R;
 					
 				}
 
-				mat4.invert(P.layermatrix, this.remapmatrix)
 				raystart = vec3.mul_mat4(raystart, this.remapmatrix)
 				
 				

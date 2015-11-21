@@ -138,6 +138,31 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 							})		
 
 							)
+						,view({mode:'2D', bgcolor:"green", pixelratio:20, scale: vec3(0.02, -0.02, 0.02), translate: vec3(200,2000,200), rotate:vec3(0,1, 0)}
+							,button({text:"Near", click:function(){								
+								var cam = this.find("theview");
+								cam.camera = vec3(1,2,3);
+								cam.fov = 30;
+								}
+							})
+							,mousedebug({width:100, height:100})
+							,button({text:"Far", click:function(){
+								var cam = this.find("theview");
+								cam.camera = vec3(4,0.2,4);
+								cam.fov = 90;
+								}
+								
+							})		
+							,mousedebug({width:100, height:100})
+							,button({text:"Left", click:function(){
+								var cam = this.find("theview");
+								cam.camera = vec3(-4,0.2,-0.5);
+								cam.fov = 90;
+								}
+								
+							})		
+
+							)
 						
 					)
 				)
