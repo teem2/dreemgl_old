@@ -18,7 +18,7 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 	this.fgcolor = vec4("blue")
 	
 	// forward ref of things we need on view
-	this.view = {_totalmatrix:mat4(), _viewmatrix:mat4(), _fgcolor:vec4(), device:{frame:{size:vec2()}}}
+	this.view = {_totalmatrix:mat4(), _viewmatrix:mat4(), _fgcolor:vec4(), _bgcolor:vec4(), device:{frame:{size:vec2()}}}
 
 	// lets define a custom struct and subclass the array
 	this.textgeom = define.struct({
@@ -813,7 +813,7 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 	this.glyphy_sdf_draw = function(){
 		var pos = mesh.tex
 
-		var m = pixelscale*0.5//0.005
+		var m = pixelscale*0.3//0.005
 		// screenspace length
 		mesh.scaling = 500. * m 
 		
@@ -823,7 +823,6 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 		if(exit.a >= 0.){
 			return exit
 		}
-		//style(pos) // per pixel styling callback
 
 		dist -= mesh.boldness / 300.
 		dist = dist / m * mesh.contrast
@@ -838,6 +837,48 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 		
 		return vec4(view.fgcolor.rgb, pow(glyphy_antialias(-dist), mesh.gamma_adjust.x)) 
 	}
+
+	this.glyphy_sdf_draw_3tap = function(){
+		var pos = mesh.tex
+
+		var m = pixelscale*0.3//0.005
+		// screenspace length
+		mesh.scaling = 500. * m 
+		
+		var sub_delta = vec2((pixelscale / mesh.subpixel_distance)*0.1,0)
+
+		var dist = vec3(
+			glyphy_sdf_decode( mesh.typeface.texture.sample(pos - sub_delta)),
+			glyphy_sdf_decode( mesh.typeface.texture.sample(pos)),
+			glyphy_sdf_decode( mesh.typeface.texture.sample(pos + sub_delta))
+		)*0.003
+
+		//return 'red'
+		
+		var exit = paint(pos,m)
+		if(exit.a >= 0.){
+			return exit
+		}
+
+		dist -= mesh.boldness / 300.
+		dist = dist / m * mesh.contrast
+
+		if(mesh.outline){
+			dist = abs(dist) - mesh.outline_thickness
+		}
+
+		if(dist.g > 1.){
+			discard
+		}
+
+		var alpha = glyphy_antialias(-dist)
+
+		alpha = pow(alpha, mesh.gamma_adjust)
+		var max_alpha = max(max(alpha.r,alpha.g),alpha.b) 
+		if(max_alpha >0.5) max_alpha = 1.
+		return vec4(mix(view.bgcolor.rgb, view.fgcolor.rgb, alpha.rgb), max_alpha)
+	}
+
 
 	this.glyphy_atlas_lookup = function(offset, _atlas_pos){
 		var pos = (vec2(_atlas_pos.xy * mesh.typeface.item_geom +
@@ -864,7 +905,7 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 		//var dpdx = dFdx(pos) // this should mark it pixel and redo the function with a new highmark
 		//var dpdy = dFdy(pos)
 		//var m = length(vec2(length(dpdx), length(dpdy)))*SQRT_1_2//*0.1
-		var m = 0.001
+		var m = pixelscale*100.
 
 		var dist = glyphy_sdf(glyph.xy, nominal_size, atlas_pos) //+ noise.noise3d(vec3(glyph.x, glyph.y, time))*0.6
 
@@ -903,7 +944,7 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 		if(this.typeface && this.typeface.baked){
 			if(this.glyphy_mesh !== this.glyphy_mesh_sdf){
 				this.glyphy_mesh = this.glyphy_mesh_sdf
-				this.glyphy_pixel = this.glyphy_sdf_draw
+				this.glyphy_pixel = this.glyphy_sdf_draw_3tap
 			}
 		}
 		else{

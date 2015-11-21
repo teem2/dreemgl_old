@@ -55,6 +55,9 @@ define.class(function(view, label, icon){
 		]
 	})
 	
+
+	this.bgcolor = 'white'
+	this.fgcolor = 'black'
 	this.buttonres = {};
 	this.padding = 8
 	this.borderradius = 3
@@ -109,7 +112,7 @@ define.class(function(view, label, icon){
 	}
 
 	this.render = function(){
-		this.buttonres =  label({rotation: 0, bgcolor:"transparent",fgcolor:"black", nopick:true, marginleft: 4,fontsize: this.fontsize, position: "relative", text: this.text})
+		this.buttonres =  label({rotation: 0, bgcolor:this.bgcolor, fgcolor:this.fgcolor, nopick:true, marginleft: 4,fontsize: this.fontsize, position: "relative", text: this.text})
 		if (!this.icon || this.icon.length == 0){
 			this.iconres = undefined
 			return [this.buttonres]

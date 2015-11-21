@@ -57,7 +57,7 @@ define.class(function(view, require){
 	// enable it
 	this.font = 5
 
-	this.bgcolor = vec4("transparent")
+	this.bgcolor = vec4("white")
 
 	this.init = function(){
 		if(this.typeface) this.typeface = glfontParser(this.typeface)
