@@ -71,6 +71,8 @@ define.class( function(node, require){
 		alignself: {type: String, value:"stretch"},  // 	'flex-start', 'center', 'flex-end', 'stretch'
 		position: {type: String, value: "relative" },	//'relative', 'absolute'
 
+		layout: {type:Object, value:{}},
+
 		mode: {type:Enum('','2D','3D'), value:''},
 		
 		model: {type: Object},
@@ -143,6 +145,7 @@ define.class( function(node, require){
 
 	this.draw_dirty = 3
 	this.layout_dirty = true
+	this.shaders_dirty = true
 
 	this.init = function(){
 		this.anims = {}
@@ -151,7 +154,6 @@ define.class( function(node, require){
 		this.modelmatrix = mat4()
 		this.totalmatrix = mat4.identity()
 		this.layermatrix = mat4()
-
 		this.atInit()
 	}
 
@@ -305,23 +307,36 @@ define.class( function(node, require){
 	this.relayout
 
 
+	this.shaderDirty = function(){
+		this.shaders_dirty = true
+		// repaint?
+		this.redraw()
+	}
+
 	// when do we call this?..
 	this.updateShaders = function(){
+		if(!this.shaders_dirty) return
+		this.shaders_dirty = false
+		// so what if we depend on layout?.. 
+		// how do we update shaders when we are dependent on layout?
+
+
 		// lets call update on our shaders
 		var shadername
 		// we can wire up the shader 
 		if(!this._shaderswired){
 			this.atAttributeGet = function(attrname){
 				// monitor attribute wires for geometry
+				// lets add a listener 
+				this.addListener(attrname, this.shaderDirty)
 			}.bind(this)
 		}
 		var shaders = this.shader_list
-		if(!shaders) debugger
-	
 		for(var i = 0; i < shaders.length; i ++){
-			var shader = shaders[i]			
+			var shader = shaders[i]
+			// lets check our deps
 			if(shader.update) shader.update()
-		}		
+		}
 	
 		if(!this._shaderswired) {
 			this._shaderswired = true
@@ -385,13 +400,6 @@ define.class( function(node, require){
 		}
 	}
 
-	function emitPostLayout(node){
-		if(node.ref._listen_postLayout || node.ref.onpostLayout) node.ref.emit('postLayout')
-		var children = node.children
-		for(var i = 0; i < children.length;i++){
-			emitPostLayout(children[i])
-		}
-	}
 
 	// decide to inject scrollbars into our childarray
 	this.atRender = function(){
@@ -479,6 +487,27 @@ define.class( function(node, require){
 				scroll._visible = false
 			}
 		}
+	}
+
+	function emitPostLayout(node){
+		var ref = node.ref
+		if(ref._listen_postLayout || ref.onpostLayout) ref.emit('postLayout')
+		// lets also emit the layout 
+
+		var children = node.children
+		for(var i = 0; i < children.length;i++){
+			emitPostLayout(children[i])
+		}
+
+		var oldlayout = ref.oldlayout || {}
+		var layout = ref._layout 
+		if((node.ref._listen_layout || node.ref.onlayout) && 
+			(layout.left !== oldlayout.left || layout.top !== oldlayout.top ||
+			 layout.width !== oldlayout.width || layout.height !== oldlayout.height)) {
+			// call setter
+			ref.emit('layout', layout)
+		}
+
 	}
 
 	this.doLayout = function(width, height){
@@ -569,7 +598,7 @@ define.class( function(node, require){
 		this.color_blend = 'src_alpha * src_color + (1 - src_alpha) * dst_color'
   
 		this.update = function(){
-
+			console.log("here")
 			var view = this.view
 			var width = view.layout?view.layout.width:view.width
 			var height = view.layout?view.layout.height:view.height

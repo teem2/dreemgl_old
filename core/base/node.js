@@ -285,8 +285,12 @@ define.class(function(require, constructor){
 
 	this.addListener = function(key, cb){
 		var listen_key = '_listen_' + key
-		if(!this.hasOwnProperty(listen_key)) this[listen_key] = []
-		this[listen_key].push(cb)
+		var array 
+		if(!this.hasOwnProperty(listen_key)) array = this[listen_key] = []
+		else array = this[listen_key]
+		if(array.indexOf(cb) === -1){
+			array.push(cb)
+		}
 	}
 
 	this.removeListener = function(key, cb){
