@@ -838,7 +838,7 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 		return vec4(view.fgcolor.rgb, pow(glyphy_antialias(-dist), mesh.gamma_adjust.x)) 
 	}
 
-	this.glyphy_sdf_draw_3tap = function(){
+	this.glyphy_sdf_draw_subpixel_aa = function(){
 		var pos = mesh.tex
 
 		var m = pixelscale*0.3//0.005
@@ -847,12 +847,25 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 		
 		var sub_delta = vec2((pixelscale / mesh.subpixel_distance)*0.1,0)
 
+		var v1 = glyphy_sdf_decode(mesh.typeface.texture.sample(pos - sub_delta*2.))
+		var v2 = glyphy_sdf_decode(mesh.typeface.texture.sample(pos - sub_delta))
+		var v3 = glyphy_sdf_decode(mesh.typeface.texture.sample(pos))
+		var v4 = glyphy_sdf_decode(mesh.typeface.texture.sample(pos + sub_delta))
+		var v5 = glyphy_sdf_decode(mesh.typeface.texture.sample(pos + sub_delta*2.))
+
 		var dist = vec3(
+			v1+v2+v3,
+			v2+v3+v4,
+			v3+v4+v5
+		) * 0.001
+
+		/*
+		dist = vec3(
 			glyphy_sdf_decode( mesh.typeface.texture.sample(pos - sub_delta)),
 			glyphy_sdf_decode( mesh.typeface.texture.sample(pos)),
 			glyphy_sdf_decode( mesh.typeface.texture.sample(pos + sub_delta))
 		)*0.003
-
+		*/
 		//return 'red'
 		
 		var exit = paint(pos,m)
@@ -944,7 +957,7 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 		if(this.typeface && this.typeface.baked){
 			if(this.glyphy_mesh !== this.glyphy_mesh_sdf){
 				this.glyphy_mesh = this.glyphy_mesh_sdf
-				this.glyphy_pixel = this.glyphy_sdf_draw_3tap
+				this.glyphy_pixel = this.glyphy_sdf_draw_subpixel_aa
 			}
 		}
 		else{
