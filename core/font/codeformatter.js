@@ -574,9 +574,9 @@ define.class(function(require, exports){
 		var paren_l = Parser.needsParens(n, n.left, true)
 		var paren_r = Parser.needsParens(n, n.right)
 		var mygroup = this.group++
-		if(paren_l) this.ParenL(exports._Logic, mygroup)
+		if(paren_l) this.parenL(exports._Logic, mygroup)
 		this.expand(n.left)
-		if(paren_l) this.ParenR(exports._Logic, mygroup)
+		if(paren_l) this.parenR(exports._Logic, mygroup)
 		var old_indent = this.indent
 		this.indent++
 		if(n.cm1 && this.comments(n.cm1,' ')){
@@ -634,7 +634,7 @@ define.class(function(require, exports){
 	}
 
 	this.New = function(n){//: { fn:1, args:2 },
-		this.keyword('new', _New)
+		this.keyword('new', exports._New)
 		this.space()
 		this.expand(n.fn)
 		this.parenL(exports._New)

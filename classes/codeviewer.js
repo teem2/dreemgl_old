@@ -15,7 +15,7 @@ define.class(function(require, label){
 		model: {type:String, value:""},
 		wrap: {type:Boolean, value:false}
 	}
-	this.bgcolor = 'white'
+	this.bgcolor = vec4(12/255,33/255,65/255,1)
 	this.bg = 1
 	this.fontsize = 14
 
@@ -52,8 +52,8 @@ define.class(function(require, label){
 				//dump = edge
 				//if(pixelsize < 0.5){//edge > 0.1){ // pixel drawing
 					//if(mod(gl_FragCoord.x, 24*6.) < 1.) return '#445'
-					var s = pixelsize * 100.
-					if(p.x > s && p.x < 3 * s && mod(p.y, 2.*s) > s) return '#667'
+					var s = pixelsize * 130.
+					if(p.x > s && p.x < 3 * s && mod(p.y, 3.*s) > s) return '#443'
 					//if(p.x > dpdx.x && p.x <= 3*dpdx.x && mod(p.y, 2.*dpdy.y) > dpdy.y) return '#445'
 				//}
 				//else { // switch to vector drawing
@@ -126,6 +126,7 @@ define.class(function(require, label){
 		}
 
 		this.update = function(){
+			console.log("update")
 			var view = this.view
 			var maxwidth = view.layout.width
 			var textbuf = this.mesh = this.newText()
@@ -135,7 +136,7 @@ define.class(function(require, label){
 			textbuf.add_y = textbuf.line_height
 			textbuf.align = 'left'
 			textbuf.start_y = textbuf.line_height
-			textbuf.boldness = 0.5
+			textbuf.boldness = 0.6
 
 			textbuf.clear()
 
