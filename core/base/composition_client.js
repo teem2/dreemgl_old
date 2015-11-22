@@ -31,6 +31,8 @@ define.class('$base/composition_base', function(require, baseclass){
 		}
 		else this.createBus()
 
+		this.bindBusEvents()
+
 		this.renderComposition()
 
 		this.screen = this.names.screens[this.screenname]
@@ -80,13 +82,7 @@ define.class('$base/composition_base', function(require, baseclass){
 		this.bus.send(msg)
 	}
 
-	this.createBus = function(){
-		
-		this.bus = new BusClient(location.pathname)
-
-		// create the rpc object
-		this.rpc = new RpcHub(this)
-
+	this.bindBusEvents = function(){
 		this.bus.atMessage = function(msg, socket){
 			if(msg.type == 'sessionCheck'){
 				if(this.session) location.href = location.href
@@ -210,6 +206,13 @@ define.class('$base/composition_base', function(require, baseclass){
 				this.rpc.resolveReturn(msg)
 			}
 		}.bind(this)
+	}
+
+	this.createBus = function(){
+		
+		this.bus = new BusClient(location.pathname)
+		// create the rpc object
+		this.rpc = new RpcHub(this)
 	}
 
 	this.log = function(){

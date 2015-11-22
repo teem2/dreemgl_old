@@ -4,7 +4,7 @@
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
 
-define.class( function(view, label){
+define.class(function(view, label){
 	// Markdown display class - this element can display a small subset of the "markdown" syntax. See the SUPPORTED_MARKDOWN.md file in the docviewer for supported elements.
 	
 	this.attributes = {
@@ -36,7 +36,7 @@ define.class( function(view, label){
 
 	
 	// Create a set of visual elements for an array of textlines.
-	this.BuildMarkdown= function(lines){
+	this.buildMarkdown= function(lines){
 		var res = [];
 		
 		for(var a in lines)
@@ -87,7 +87,7 @@ define.class( function(view, label){
 				for(var j in splitted) lines.push(splitted[j]);
 			}
 				
-			return this.BuildMarkdown(lines);;
+			return this.buildMarkdown(lines);;
 		}
 		else{				
 			if (typeof(this.body) === "string"){
@@ -96,7 +96,7 @@ define.class( function(view, label){
 				var splitted = this.body.split('\n');
 				for(var j in splitted) lines.push(splitted[j]);
 
-				return this.BuildMarkdown(lines);
+				return this.buildMarkdown(lines);
 			}
 			else{
 				return [label({fgcolor:"#303030", text:"unknown format for body!\n\n" + this.body.toString(), multiline: true, fontsize:12})];

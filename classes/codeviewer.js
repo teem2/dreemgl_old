@@ -4,36 +4,28 @@
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
 
-define.class(function codeviewerbody(require, label){
+define.class(function(require, label){
+
+	var CodeFormatter = require('$font/codeformatter')	
+	var Parser = require('$parse/onejsparser')
 
 	// Display a function as syntax highlighted code.
-	return
 	// The code to display
 	this.attributes = {
-		code: {type:String, value:""},
-		wrap: {type:Boolean, value:true}
+		model: {type:String, value:""},
+		wrap: {type:Boolean, value:false}
 	}
-
-	var codeviewer = this.constructor
-	
-	// Basic usage
-	define.example(this, function Usage(){
-		return [codeviewer({bgcolor:"#000040", padding:vec4(14), code: "console.log(\"Hello world!\");"})]
-	})
-	
-	//var GLTextCode = require('$gl/gltextcode')	
-
-	var Parser = require('$parse/onejsparser')
-//	this.font = require('$fonts/code_font1_ascii.glf')
-	//this.bg = {color:undefined}
+	this.bgcolor = 'white'
+	this.bg = 1
 	this.fontsize = 14
-	// syntax highlighting shader
-	this.fg = function(){
-		for(var key in GLTextCode.types){
-			this[key] = String(GLTextCode.types[key])
+
+	// extend the font shader
+	this.font = function(){
+		for(var key in CodeFormatter.types){
+			this[key] = String(CodeFormatter.types[key])
 		}
 
-		this.paint = function(p,  dpdx, dpdy, edge){
+		this.paint = function(p, edge, pixelsize){
 			//var edge = min(length(dpx))
 			//dump = edge
 			var unicode = int(mesh.tag.x)
@@ -54,19 +46,23 @@ define.class(function codeviewerbody(require, label){
 			}
 
 			if(unicode == 9){ // the screen aligned tab dots
+				//return 'darkblue'
 				// make a nice tab line
 				//var out = vec4(0)
 				//dump = edge
-				if(edge > 0.5){ // pixel drawing
-					if(p.x > dpdx.x && p.x <= 3*dpdx.x && mod(p.y, 2.*dpdy.y) > dpdy.y) return '#445'
-				}
-				else { // switch to vector drawing
-					var w = 1
-					var h = 1
-					var field = shape.box(mod(p, vec2(24*3, 3.)), .5 * w, 0, w, h)
-					var col = vec4("#667".rgb, smoothstep(edge, -edge, field))
-					if(col.a > 0.01) return col
-				}
+				//if(pixelsize < 0.5){//edge > 0.1){ // pixel drawing
+					//if(mod(gl_FragCoord.x, 24*6.) < 1.) return '#445'
+					var s = pixelsize * 100.
+					if(p.x > s && p.x < 3 * s && mod(p.y, 2.*s) > s) return '#667'
+					//if(p.x > dpdx.x && p.x <= 3*dpdx.x && mod(p.y, 2.*dpdy.y) > dpdy.y) return '#445'
+				//}
+				//else { // switch to vector drawing
+				//	var w = 1
+				//	var h = 1
+				//	var field = shape.box(mod(p, vec2(24*6, 3.)), .5 * w, 0, w, h)
+				//	var col = vec4("#667".rgb, smoothstep(edge, -edge, field))
+				//	if(col.a > 0.01) return col
+				//}
 
 				if(selected < 0.){
 					//if(edge > 0.02){
@@ -84,6 +80,7 @@ define.class(function codeviewerbody(require, label){
 		}
 
 		this.style = function(pos){
+
 			var group = mesh.tag.y
 			var type = int(mesh.tag.z / 65536.)
 			var sub = int(mod(mesh.tag.z / 256., 256.))
@@ -93,77 +90,73 @@ define.class(function codeviewerbody(require, label){
 			if(unicode == 10 || unicode == 32 || unicode == 9) discard
 			if(sub == _Paren || sub == _Brace || sub == _Bracket){
 				if(sub == _Paren){
-					fgcolor = "white"
+					view.fgcolor = "white"
 				}
 				else if(sub == _Bracket){
-					fgcolor = "#ccc"
+					view.fgcolor = "#ccc"
 				}
 				else{
-					fgcolor = "white"
+					view.fgcolor = "white"
 				}
 			}
 			else if(sub == _Operator){
-				fgcolor = "#ff9d00"
+				view.fgcolor = "#ff9d00"
 			}
 			else if(type == _Id){
-				fgcolor = "white"
+				view.fgcolor = "white"
 				if(sub == _Color){
-					fgcolor = "pink"
+					view.fgcolor = "pink"
 				}
 			}
 			else if(type == _Value){
 				if(sub == _String)
-					fgcolor = "#0f0"
+					view.fgcolor = "#0f0"
 				else
-					fgcolor = "aero"
+					view.fgcolor = "aero"
 			}
 			else if(type == _Comment){
-				fgcolor = "#777"
+				view.fgcolor = "#777"
 			}
 			else if(type == _This){
-				fgcolor = "#ff7fe1"
+				view.fgcolor = "#ff7fe1"
 			}else{
-				fgcolor = "#ff9d00"
+				view.fgcolor = "#ff9d00"
 			}
 			//if(type>7)mesh.outline = true
 		}
-	}
 
-	this.code = codeviewerbody.toString()
+		this.update = function(){
+			var view = this.view
+			var maxwidth = view.layout.width
+			var textbuf = this.mesh = this.newText()
+			var ast = Parser.parse(view.model)
 
-	this.lazyInit = function(maxwidth){
-		if(this.code !== this.printedcode || this.lastmaxwidth !== maxwidth || this.align != this.lastalign){
-			this.printedcode = this.code
-			this.lastmaxwidth = maxwidth
-			this.lastalign = this.align
-			
-			var textbuf = this.fg_shader.newText()
-			var ast = Parser.parse(this.code)
-
-			if(this.font) textbuf.font = this.font
-
-			textbuf.fontsize = this.fontsize
+			textbuf.fontsize = view.fontsize
 			textbuf.add_y = textbuf.line_height
 			textbuf.align = 'left'
 			textbuf.start_y = textbuf.line_height
 			textbuf.boldness = 0.5
+
 			textbuf.clear()
-			if(this.wrap){
-				var width = this.layout.width
-				GLTextCode.walk(ast, textbuf, function(text, group, l1, l2, l3, m3){
-					var indent = textbuf.font.glyphs[9].advance * textbuf.font_size * (this.indent)
-					textbuf.addWithinWidth(text, maxwidth? maxwidth: width, indent, group, 65536 * (l1||0) + 256 * (l2||0) + (l3||0), m3)
+
+			if(view.wrap){
+				CodeFormatter.walk(ast, textbuf, function(text, group, l1, l2, l3, m3){
+					var indent = textbuf.typeface.glyphs[9].advance * textbuf.fontsize * (this.indent)
+					textbuf.addWithinWidth(text, maxwidth, indent, group, 65536 * (l1||0) + 256 * (l2||0) + (l3||0), m3)
 				})
 			}
 			else{
-				GLTextCode.walk(ast, textbuf, function(text, group, l1, l2, l3, m3){
+				CodeFormatter.walk(ast, textbuf, function(text, group, l1, l2, l3, m3){
 					textbuf.add(text, group, 65536 * (l1||0) + 256 * (l2||0) + (l3||0), m3)
 				})
 			}
-
-			//this.fg.textcolor = this.color;
-			this.fg_shader.mesh = textbuf
 		}
 	}
 
+	// Basic usage
+	var codeviewer = this.constructor
+
+	define.example(this, function Usage(){
+		return [codeviewer({bgcolor:"#000040", padding:vec4(14), code: "console.log(\"Hello world!\");"})]
+	})
 })

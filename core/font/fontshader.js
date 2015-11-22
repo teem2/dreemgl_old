@@ -199,6 +199,7 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 				)
 			}
 			this.add_x += info.advance * fontsize
+
 			if(this.add_x > this.text_w) this.text_w = this.add_x
 		}
 
@@ -236,8 +237,8 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 			}			
 			var info = this.typeface.glyphs[this.charCodeAt(off)]
 			var coords = {
-				x: this.array[off*6*8 + 0] - this.fontsize * info.min_x,
-				y: this.array[off*6*8 + 1] + this.fontsize * info.min_y,
+				x: this.array[off * 6 * 9 + 0] - this.fontsize * info.min_x,
+				y: this.array[off * 6 * 9 + 1] + this.fontsize * info.min_y,
 				w: info.advance * this.fontsize,
 				h: this.line_height
 			}
@@ -245,11 +246,11 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 		}
 
 		this.char_tl_x = function(off){
-			return this.array[off * 6 * 8 + 0]
+			return this.array[off * 6 * 9 + 0]
 		}
 
 		this.char_tr_x = function(off){
-			return this.array[off * 6 * 8 + 0 + 8]
+			return this.array[off * 6 * 9 + 0 + 9]
 		}
 
 		this.offsetFromPos = function(x, y){
@@ -262,13 +263,13 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 				var char_code = this.charCodeAt(o)
 				var info = this.typeface.glyphs[char_code]
 
-				var y2 = this.array[o*6*8 + 1] + this.fontsize * info.min_y + this.fontsize * this.cursor_sink
+				var y2 = this.array[o * 6 * 9 + 1] + this.fontsize * info.min_y + this.fontsize * this.cursor_sink
 				var y1 = y2 - this.line_height
 				
 
 				if(y>=y1 && y<=y2){
-					var tl_x = this.array[o*6*8 + 0]
-					var tr_x = this.array[o*6*8 + 0 + 8]
+					var tl_x = this.array[o * 6 * 9 + 0]
+					var tr_x = this.array[o * 6 * 9 + 0 + 9]
 					var hx = (tl_x+tr_x)/2
 
 					// lets debug paint these 2
@@ -312,7 +313,7 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 		}
 
 		this.charCodeAt = function(off){
-			return this.array[off*6*8 + 4]
+			return this.array[off * 6 * 9 + 5]
 		}
 
 		this.serializeText = function(start, end){
@@ -328,10 +329,10 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 			var out = vec4.array(end - start)
 			for(var i = start; i < end; i++){
 				out.push(
-					this.array[i*6*8 + 4],
-					this.array[i*6*8 + 5],
-					this.array[i*6*8 + 6],
-					this.array[i*6*8 + 7])
+					this.array[i * 6 * 9 + 5],
+					this.array[i * 6 * 9 + 6],
+					this.array[i * 6 * 9 + 7],
+					this.array[i * 6 * 9 + 8])
 			}
 			return out
 		}
@@ -405,7 +406,7 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 	this.GLYPHY_EPSILON = '1e-5'
 	this.GLYPHY_MAX_NUM_ENDPOINTS = '32'
 	
-	this.paint = function(p, m){
+	this.paint = function(p, m, pixelscale){
 		if(mesh.tag.x == 32.) discard
 		return vec4(-1.)
 	}
@@ -845,7 +846,7 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 		// screenspace length
 		mesh.scaling = 500. * m 
 		
-		var sub_delta = vec2((pixelscale / mesh.subpixel_distance)*.15,0)
+		var sub_delta = vec2((pixelscale / mesh.subpixel_distance)*0.1,0)
 
 		var v1 = glyphy_sdf_decode(mesh.typeface.texture.sample(pos - sub_delta*2.))
 		var v2 = glyphy_sdf_decode(mesh.typeface.texture.sample(pos - sub_delta))
@@ -868,10 +869,12 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 		*/
 		//return 'red'
 		
-		var exit = paint(pos,m)
+		var exit = paint(pos,m, pixelscale)
 		if(exit.a >= 0.){
 			return exit
 		}
+
+		style(pos)
 
 		dist -= mesh.boldness / 300.
 		dist = dist / m * mesh.contrast
@@ -925,7 +928,7 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 		//	dbg = mesh.distance
 		mesh.scaling = m
 
-		var exit = paint(pos, m)
+		var exit = paint(pos, m, pixelscale)
 		if(exit.a >= 0.){
 			return exit
 		}

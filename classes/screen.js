@@ -14,7 +14,7 @@ define.class(function(view, require) {
 	}
 
 	this.bg = undefined
-
+	this.rpcproxy = false	
 	this.mode = '2D'
 	this.dirty = true
 	this.flex = NaN
@@ -33,39 +33,37 @@ define.class(function(view, require) {
 		this.mouse = this.device.mouse 
 		this.touch = this.device.touch
 		this.bindInputs()
+		this.decodeLocationHash()
 	}
 
 	this.remapmatrix = mat4();
 	this.invertedmousecoords = vec2();
 	
-	
-	
-  function UnProject(glx, gly, glz, modelview, projection)
-  {
-      var inv = vec4();
-      
-	  var A = mat4.mat4_mul_mat4(modelview, projection);
-      var m = mat4.invert(A);
+	function UnProject(glx, gly, glz, modelview, projection){
+		var inv = vec4();
 
-	  
-	  
-      inv[0]=glx;
-      inv[1]=gly;
-      inv[2]=2.0*glz-1.0;
-      inv[3]=1.0;
-      
-	  out = vec4.vec4_mul_mat4(inv, m);
-	  
-	  
-	  // divide by W to perform perspective!
-	  out[0] /= out[3];
-	  out[1] /= out[3];
-	  out[2] /= out[3];
-	  
-	  
-      return vec3(out);
-  }
- 
+		var A = mat4.mat4_mul_mat4(modelview, projection);
+		var m = mat4.invert(A);
+
+
+
+		inv[0]=glx;
+		inv[1]=gly;
+		inv[2]=2.0*glz-1.0;
+		inv[3]=1.0;
+
+		out = vec4.vec4_mul_mat4(inv, m);
+
+
+		// divide by W to perform perspective!
+		out[0] /= out[3];
+		out[1] /= out[3];
+		out[2] /= out[3];
+
+
+		return vec3(out);
+	}
+
 	
 	this.remapMouse = function(node, flags){
 

@@ -1,5 +1,5 @@
 //Pure JS based composition
-define.class(function(composition, docviewer, fileio, screens, screen, dataset, splitcontainer, treeview, view, label, require){
+define.class(function(composition, docviewer, codeviewer, fileio, screens, screen, dataset, splitcontainer, treeview, view, label, require){
 
 	this.render = function(){
 		return [
@@ -19,10 +19,12 @@ define.class(function(composition, docviewer, fileio, screens, screen, dataset, 
 					
 				},
 				render:function(){
+					//console.log('hi!')
+					//if( Error().stack.split(/\n/)[2].match(/index\.js\?b/)) debugger
 					if (this.locationhash && this.locationhash.path){
 						require.async(this.locationhash.path).then(function(module){
-						this.find('docviewer').model = module		
-					}.bind(this))
+							this.find('codeviewer').model = module.body.toString()
+						}.bind(this))
 					}
 					return [
 						splitcontainer({ vertical: false,  bgcolor: "black", flex:1}
@@ -56,9 +58,7 @@ define.class(function(composition, docviewer, fileio, screens, screen, dataset, 
 									}
 								})
 							)
-							,view({flex:1,bgcolor:'white'}
-								,docviewer({model: ""})
-							)
+							,codeviewer({mode:'2D', overflow:'scroll', bgcolor:'black', flex:1})
 						)
 					]
 				}

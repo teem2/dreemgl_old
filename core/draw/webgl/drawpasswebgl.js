@@ -100,6 +100,7 @@ define.class(function(require, baseclass){
 				// first find a drawtarget with the same size
 				for(var i = 0; i < pool.length; i ++){
 					var tgt = pool[i]
+					if(!tgt) continue
 					var size = tgt.size
 					if(size[0] === width && size[1] === height){
 						// lets remove it from the pool
@@ -112,6 +113,7 @@ define.class(function(require, baseclass){
 				if(!dt){
 					for(var i = 0; i < pool.length; i++){
 						var tgt = pool[i]
+						if(!tgt) continue
 						if(passid === tgt.passid){
 							dt = tgt
 							pool.splice(i,1)

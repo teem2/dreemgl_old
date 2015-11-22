@@ -75,8 +75,6 @@ define.class( function(node, require){
 
 		mode: {type:Enum('','2D','3D'), value:''},
 		
-		model: {type: Object},
-		
 		visible: {type:boolean, value: true},
 		fov: {type:float, value: 45},
 		nearplane: {type:float, value: 0.001},

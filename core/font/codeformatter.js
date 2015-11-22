@@ -1,7 +1,7 @@
 
 define.class(function(require, exports){
 	
-	var Parser = require('$parsers/onejsparser')
+	var Parser = require('$parse/onejsparser')
 
 	exports.walk = function(ast, textbuf, add){
 		var glwalker = new this()
@@ -161,6 +161,8 @@ define.class(function(require, exports){
 				this.newline()
 		}
 		if(has_newlines && this.comments(n.cm2)) this.tab(this.indent - 1)
+		
+		if(this.lastIsNewline()) this.tab(old_indent)
 
 		this.indent = old_indent
 		this.bracketR(exports._Array, mygroup)
@@ -174,6 +176,8 @@ define.class(function(require, exports){
 		if(this.comments(n.cm1)) has_newlines = true
 		var old_indent = this.indent
 		this.indent++
+
+		//console.log(this.indent)
 
 		for(var i = 0; i < n.keys.length; i ++){
 			var prop = n.keys[i]
@@ -244,6 +248,8 @@ define.class(function(require, exports){
 			// if we have comments above, insert them
 			this.comments(step.cmu)
 			if(this.lastIsNewline()) this.tab(this.indent)
+			
+
 			this.expand(step)
 			this.comments(step.cmr, ' ')
 			if(!this.lastIsNewline()) this.newline()
@@ -601,7 +607,7 @@ define.class(function(require, exports){
 			this.tab(this.indent)
 		}
 		else this.space()
-		if(n.right.type === 'Function'){
+		if(n.right.type === 'Function' || n.right.type === 'Object'){
 			this.indent--
 		}
 
