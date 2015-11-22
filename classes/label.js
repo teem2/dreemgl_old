@@ -25,13 +25,16 @@ define.class(function(view, require){
 	
 		// Should the text wrap around when its width has been reached?
 		multiline: {type:Boolean, value: false },
+
+		// turn on subpixel aa
+		subpixel: {type:Boolean, value: false},
 	
 		// Alignment of the bodytext. 
 		align: {type: String,  value: "left"}
 	}
-	
-	define.class(this, 'font', Font, function(){
 
+	define.class(this, 'fontnormal', Font, function(){
+		this.subpixel = false
 		this.update = function(){
 			var view = this.view
 			
@@ -54,6 +57,27 @@ define.class(function(view, require){
 			this.mesh = mesh
 		}
 	})
+	this.fontnormal = false
+
+	define.class(this, 'fontsubpixelaa', this.fontnormal, function(){
+		this.subpixel = true
+	})
+	this.fontsubpixelaa = false
+
+	define.class(this, 'font', this.fontnormal, function(){
+
+	})
+
+	this.subpixel = function(value){
+		if(value){
+			this.font = this.fontsubpixelaa
+			console.log(this.font.prototype.glyphy_pixel)
+		}
+		else{
+			this.font = this.fontnormal
+		}
+	}
+
 	// enable it
 	this.font = 5
 

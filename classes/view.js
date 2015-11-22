@@ -221,11 +221,12 @@ define.class( function(node, require){
 			return 
 		}
 
+		var order = this.shader_order && this.shader_order[key] || 1
 		// its a shader redirect
 		if(typeof value === 'string'){
 			this[key] = this[value]
 			var order = this.shader_order[key]
-			if(typeof order !== 'number') this.shaderOrder(key, 1)
+			if(typeof order !== 'number') this.shaderOrder(key, order)
 			return
 		}
 
@@ -233,7 +234,7 @@ define.class( function(node, require){
 		if(typeof value === 'function' && Object.getPrototypeOf(value.prototype) !== Object.prototype){
 			this['_' + key] = value
 			if(value.prototype instanceof Shader){
-				this.shaderOrder(key, 1)
+				this.shaderOrder(key, order)
 			}
 			return
 		}

@@ -820,11 +820,13 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 		
 		var dist = glyphy_sdf_decode( mesh.typeface.texture.sample(pos)) * 0.003
 		
-		var exit = paint(pos,m)
+		var exit = paint(pos,m, pixelscale)
 		if(exit.a >= 0.){
 			return exit
 		}
 
+		style(pos)
+		
 		dist -= mesh.boldness / 300.
 		dist = dist / m * mesh.contrast
 
@@ -958,9 +960,15 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 	this.decideFontType = function(){
 		this.mesh.typeface = this.typeface
 		if(this.typeface && this.typeface.baked){
-			if(this.glyphy_mesh !== this.glyphy_mesh_sdf){
+			if(this.subpixel){
+				if(this.glyphy_pixel !== this.glyphy_sdf_draw_subpixel_aa){
+					this.glyphy_mesh = this.glyphy_mesh_sdf
+					this.glyphy_pixel = this.glyphy_sdf_draw_subpixel_aa
+				}
+			}
+			else if(this.glyphy_pixel !== this.glyphy_sdf_draw){
 				this.glyphy_mesh = this.glyphy_mesh_sdf
-				this.glyphy_pixel = this.glyphy_sdf_draw_subpixel_aa
+				this.glyphy_pixel = this.glyphy_sdf_draw
 			}
 		}
 		else{

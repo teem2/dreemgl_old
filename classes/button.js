@@ -79,6 +79,13 @@ define.class(function(view, label, icon){
 		}
 	})
 
+	// The icon class used for the icon display. Exposed to allow overloading/replacing from the outside.
+	define.class(this, 'labelclass', function(label){
+		this.subpixel = false
+		this.bg = 0
+	})
+
+
 	this.statehover = function(){
 
 		this.col1 = this.hovercolor1
@@ -112,7 +119,7 @@ define.class(function(view, label, icon){
 	}
 
 	this.render = function(){
-		this.buttonres =  label({rotation: 0, bgcolor:this.bgcolor, fgcolor:this.fgcolor, nopick:true, marginleft: 4,fontsize: this.fontsize, position: "relative", text: this.text})
+		this.buttonres =  this.labelclass({bgcolor:this.bgcolor, fgcolor:this.fgcolor, nopick:true, marginleft: 4,fontsize: this.fontsize, position: "relative", text: this.text})
 		if (!this.icon || this.icon.length == 0){
 			this.iconres = undefined
 			return [this.buttonres]

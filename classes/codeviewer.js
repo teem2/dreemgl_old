@@ -18,7 +18,7 @@ define.class(function(require, label){
 	this.bgcolor = vec4(12/255,33/255,65/255,1)
 	this.bg = 1
 	this.fontsize = 14
-
+	this.subpixel = true
 	// extend the font shader
 	this.font = function(){
 		for(var key in CodeFormatter.types){
