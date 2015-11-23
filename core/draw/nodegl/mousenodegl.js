@@ -23,14 +23,14 @@ define.class('../mouse', function(){
 			this.dblclick = 1
 		}.bind(this))
 
-		document.on('wheel', function(e){
+		document.on('mousewheel', function(e){
 			if(e.ctrlKey){
 				this.zoom = e.wheelDelta / 120
 				//console.log(e.wheelDelta)
 			}
 			else{
-				if(e.deltaX !== 0) this.wheelx = e.deltaX
-				if(e.deltaY !== 0) this.wheely = e.deltaY
+				if(e.deltaX !== 0) this.wheelx = e.wheelDeltaX
+				if(e.deltaY !== 0) this.wheely = e.wheelDeltaY
 			}
 			e.preventDefault()
 		}.bind(this))
