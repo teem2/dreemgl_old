@@ -81,7 +81,10 @@ define.class(function(exports){
  		new_version.children = new_version.render()
 		new_version.atAttributeGet = undefined
 
-		if(!Array.isArray(new_version.children) && new_version.children) new_version.children = [new_version.children]
+		if(!Array.isArray(new_version.children)){
+			if(new_version.children) new_version.children = [new_version.children]
+			else new_version.children = []
+		}
 
 		if(new_version.atRender) new_version.atRender()
 

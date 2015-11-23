@@ -7,7 +7,6 @@
 define.class(function(view, label, icon){
 
 	// the foldcontainer shows/hides all its children when the top bar is clicked
-	
 	this.title = "folding thing"
 	this.position ="relative"
 	this.borderwidth = 1
@@ -56,15 +55,19 @@ define.class(function(view, label, icon){
 		this.toggle = function(){console.log("nothing happens")}
 
 		this.attributes = {
-			title: {type:String}
+			title: {type:String},
+			col1: {value:vec4("yellow")},
+			col2: {value:vec4("yellow")}
 		}
 
 		this.position = "relative"
 
 		this.bg = {
-			col2: vec4("yellow"),
-			col1: vec4("yellow"),
-			bgcolorfn: this.bggradient
+			color: function(){	
+				var fill = mix(view.col1, view.col2,  (mesh.y)/0.8)
+				return fill;
+			}
+			
 		}
 
 		this.padding = 6
@@ -72,64 +75,59 @@ define.class(function(view, label, icon){
 		this.render = function(){			
 			return [icon({fontsize:16, icon:this.icon, fgcolor: "#303030" }), label({marginleft:5,fgcolor:"#303030", fontsize: 16, text:this.title, flex:1, bgcolor: "transparent" })];
 		}
-		
-		this.pressed = 0
-		this.hovered = 0
-		
-		this.mouseover  = function(){
-			this.hovered++;
-			this.setDirty(true);
+
+		this.statedefault = function(){
+			this.col1 = vec4.vec4_mul_float32(vec4(this.parent.basecolor), 1.0)
+			this.col2 = vec4.vec4_mul_float32(vec4(this.parent.basecolor), 1.2)
 		}			
 		
-		this.mouseout  = function(){
-			this.hovered--;
-			this.setDirty(true);
-		}			
-		
-		this.mouseleftdown = function(){
-			this.pressed++;
-			this.setDirty(true);
-		}
-		
-		this.mouseleftup = function(){
-			this.pressed--;
-			this.setDirty(true);
+		this.stateover = function(){
+			this.col2 = vec4.vec4_mul_float32_rgb(vec4(this.parent.basecolor), 1.1)
+			this.col1 = this.parent.basecolor
 		}
 
-		this.atDraw = function()
-		{
-			if (this.hovered > 0){
-				if (this.pressed > 0){
-					this.bg_shader.col1 = vec4.vec4_mul_float32(vec4(this.parent.basecolor), 1.3);
-					this.bg_shader.col2 = vec4.vec4_mul_float32(vec4(this.parent.basecolor), 1.0);
-				}
-				else{
-					this.bg_shader.col1 = vec4.vec4_mul_float32(vec4(this.parent.basecolor), 1.0);
-					this.bg_shader.col2 = vec4.vec4_mul_float32(vec4(this.parent.basecolor), 1.2);
-				}
+		this.stateclick = function(){
+			this.col1 = vec4.vec4_mul_float32(vec4(this.parent.basecolor), 1.3)
+			this.col2 = vec4.vec4_mul_float32(vec4(this.parent.basecolor), 1.0)
+		}
+		
+		this.init = this.statedefault
+		this.mouseover = this.stateover
+		this.mouseout = this.statedefault
+		this.mouseleftdown = this.stateclick
+		this.mouseleftup = this.statedefault
+	})
+
+	define.class(this, 'containerview', function(){
+		this.bg = {
+			color:function(){
+				return mix(view.bgcolor*1.7, vec4("white"), (a.y/8))
 			}
-			else{
-					this.bg_shader.col2 = vec4.vec4_mul_float32_rgb(vec4(this.parent.basecolor), 1.1);
-//					this.bg.col1 = this.parent.basecolor;
-					this.bg_shader.col1 = this.parent.basecolor;
-			}
-		}			
-	});
+		},
+		this.padding = vec4(5,5,5,5),
+		this.position = "relative"
+	})
 	
 	// render the foldcontainer - using a clickablebar for the title nad a containerview for the children. 
 	this.render = function(){
 		
-		this.bar = this.clickablebar({borderwidth: this.borderwidth, bordercolor:this.bordercolor,icon:this.icon, title: this.title});
+		this.bar = this.clickablebar({
+			borderwidth: this.borderwidth, 
+			bordercolor: this.bordercolor,
+			icon: this.icon, 
+			title: this.title
+		});
 		
 		this.bar.click = this.toggle.bind(this);
 		var res = [this.bar];
 		if (this.collapsed == false) {
-			this.container = view(
-									{bg:
-										{bgcolorfn:function(a,b){
-												return mix(bgcolor*1.7, vec4("white"), (a.y/8))
-											}
-										} , bgcolor: this.basecolor, borderwidth: this.borderwidth, bordercolor:this.bordercolor,  padding: vec4(5,5,5,5),position:"relative"} ,this.constructor_children) 
+			this.container = this.containerview({
+			bgcolor: this.basecolor, 
+				borderwidth: this.borderwidth, 
+				bordercolor:this.bordercolor,  
+
+			},
+			this.constructor_children) 
 			res.push(this.container)
 		}
 		this.children = [];

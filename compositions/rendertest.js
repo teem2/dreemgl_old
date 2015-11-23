@@ -72,7 +72,9 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 					)
 					,mousedebug({flex:1,mode:'2D',margin:20})
 					,view({
-						flex:1, borderradius:vec4(10,20,30,40), name:'view2',
+						flex:1, 
+						borderradius:0,//borderradius:vec4(10,20,30,40), 
+						name:'view2',
 						margin:20,
 						mode:'2D',
 						blend:{
