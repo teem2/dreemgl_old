@@ -11,7 +11,7 @@ define.class(function(require, exports, self){
 		// allright lets fire up 
 		define.$drawmode = 'nodegl'
 		console.log('Downloading nodegl')
-		require.async(args['-nodegl']).then(function(composition){
+		require.async(args['-nodegl']).then(function(composition){		
 			console.log('Booting nodegl')
 			this.comp = new composition(undefined, undefined, args['-nodegl'])
 

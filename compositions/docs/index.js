@@ -59,9 +59,7 @@ define.class(function(composition, docviewer, codeviewer, fileio, screens, scree
 									}
 								})
 							)
-							,docviewer({mode:'2D'})
-							//,codeviewer({mode:'2D', 
-							//	overflow:'scroll', flex:1})
+							,docviewer({mode:'2D', overflow:'scroll', flex:1})
 						)
 					]
 				}

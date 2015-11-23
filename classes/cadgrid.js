@@ -4,7 +4,7 @@
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
 
-define.class(function(view, text){
+define.class(function(view, label){
 	// The CADGrid class provides a simple way to fill a frame with a classic engineering grid. 
 	// todo:
 	// - support zooming with incremental subdivision lines
@@ -39,7 +39,7 @@ define.class(function(view, text){
 	// Basic usage of the cadgrid
 	define.example(this, function Usage(){
 		return [
-			grid({}, text({fgcolor: "black", bgcolor: "transparent", text:"I'm on a grid!" , margin: vec4(20)}))
+			grid({}, label({fgcolor: "black", bgcolor: "transparent", text:"I'm on a grid!" , margin: vec4(20)}))
 		]		
 	})
 	

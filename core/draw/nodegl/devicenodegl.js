@@ -39,7 +39,7 @@ define.class("../webgl/devicewebgl", function(require, exports, self){
 		var sh = this.canvas.height
 		this.gl.viewport(0, 0, sw, sh)
 		// store our w/h and pixelratio on our frame
-		this.main_frame.ratio = 2
+		this.main_frame.ratio = 1
 		this.main_frame.size = vec2(sw, sh) // actual size
 		this.size = vec2(sw, sh)
 		this.ratio = this.main_frame.ratio
@@ -47,8 +47,11 @@ define.class("../webgl/devicewebgl", function(require, exports, self){
 
 	this.initResize = function(){
 		this.document.on("resize", function (evt) {
-
-			//console.log("resize "+this.canvas.width+" x "+this.canvas.height);
+			console.log(evt);
+			this.canvas.width = evt.width;
+			this.canvas.height = evt.height;
+			
+			console.log("resize "+this.canvas.width+" x "+this.canvas.height);
 			//this.canvas.width
 			//this.canvas.height
 			this.doSize()

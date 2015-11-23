@@ -1067,6 +1067,7 @@
 			define.factory[module.filename] = factory
 
 			function loadModuleAsync(modurl){
+				modurl = modurl.replace(/\\/g , '/' );
 				var parsedmodurl = url.parse(modurl)
 				var base_path = define.filePath(modurl)
 
@@ -1112,7 +1113,7 @@
 								//!TODO, make a neater way to fetch the module dependencies (dont require it twice)
 								require(result.path)
 								// and lets remove it again immediately
-								delete Module._cache[result.path]
+								delete Module._cache[result.path.replace(/\//g, '\\')]
 							}
 							catch(e){
 								console.log(e.stack)
@@ -1231,6 +1232,8 @@
 				modname = define.expandVariables(modname)
 				return new Promise(function(resolve, reject){
 					loadModuleAsync(modname).then(function(path){
+						console.log(path);
+						global.mydebug = 1;
 						resolve(require(path))
 					}).catch(function(e){
 						console.log("ERROR", e.stack)

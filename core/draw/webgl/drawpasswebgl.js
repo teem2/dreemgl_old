@@ -203,6 +203,12 @@ define.class(function(require, baseclass){
 				// ok so the pick pass needs the alpha from the color buffer
 				// and then hard forward the color
 				var blendshader = draw.blendshader
+				if (view._mode === '3D'){
+					blendshader.depth_test = 'src_depth <= dst_depth'
+				}
+				else{
+					blendshader.depth_test = ''
+				}
 				blendshader.texture = draw.drawpass.pick_buffer
 				blendshader._width = draw.layout.width
 				blendshader._height = draw.layout.height
@@ -327,6 +333,12 @@ define.class(function(require, baseclass){
 				// ok so when we are drawing a pick pass, we just need to 1 on 1 forward the color data
 				// lets render the view as a layer
 				var blendshader = draw.blendshader
+				if (view._mode === '3D'){
+					blendshader.depth_test = 'src_depth <= dst_depth'
+				}
+				else{
+					blendshader.depth_test = ''
+				}
 				blendshader.texture = draw.drawpass.color_buffer
 				blendshader.width = draw.layout.width
 				blendshader.height = draw.layout.height
