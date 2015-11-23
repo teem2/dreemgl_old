@@ -1,5 +1,9 @@
 //Pure JS based composition
+
+console.log("loading rendertest");
+
 define.class(function(composition, screens, screen, view, label, button, cube, splitcontainer){
+	console.log("hmm");
 
 	var mousedebug = define.class(function mousedebug(view){
 		

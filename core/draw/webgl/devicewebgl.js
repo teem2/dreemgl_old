@@ -160,7 +160,7 @@ define.class(function(require, exports, self){
 		this.frame = frame
 		this.size = vec2(frame.size[0]/frame.ratio, frame.size[1]/frame.ratio)
 
-		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, frame.glframe_buf)
+		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, frame.glframe_buf || null)
 		this.gl.viewport(0, 0, frame.size[0], frame.size[1])
 	}
 
