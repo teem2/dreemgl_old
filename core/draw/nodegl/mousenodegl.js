@@ -24,7 +24,8 @@ define.class('../mouse', function(){
 		}.bind(this))
 
 		document.on('mousewheel', function(e){
-			if(e.ctrlKey){
+			
+			if(device.keyboard.ctrl || device.keyboard.leftmeta || device.keyboard.rightmeta){
 				this.zoom = e.wheelDelta / 120
 				//console.log(e.wheelDelta)
 			}
