@@ -126,7 +126,7 @@ define.class( function(node, require){
 	this.borderwidth = function(value){
 		if(typeof value === 'number' && value !== 0 || value[0] !== 0 || value[1] !== 0 || value[2] !== 0 || value[3] !== 0){
 			// turn it on by assigning an order number
-			this.border = 8
+			this.border = 2
 		}
 		else this.border = false
 		this.relayout()
