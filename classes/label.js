@@ -71,7 +71,6 @@ define.class(function(view, require){
 	this.subpixel = function(value){
 		if(value){
 			this.font = this.fontsubpixelaa
-			console.log(this.font.prototype.glyphy_pixel)
 		}
 		else{
 			this.font = this.fontnormal

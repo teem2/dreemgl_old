@@ -28,11 +28,7 @@ define.class(function(require, exports, self){
 		var port = this.args['-port'] || 2000
 		var iface = this.args['-iface'] || '0.0.0.0'
 
-		this.cache_dir = path.join(define.expandVariables(define.$root)+'/gzcache')
-
-		if(!fs.existsSync(this.cache_dir)){
-			fs.mkdirSync(this.cache_dir)
-		}
+		this.cache_gzip = define.makeCacheDir('gzip')
 
 		this.server = http.createServer(this.request.bind(this))
 		this.server.listen(port, iface)
@@ -174,12 +170,12 @@ define.class(function(require, exports, self){
 				"Connection":"Close",
 				"Cache-control":"max-age=0",
 				"Content-Type": mimeFromFile(file),
-				"ETag": stat.mtime.getTime() + '_' + stat.ctime.getTime() + '_' + stat.size
+				"etag": stat.mtime.getTime() + '_' + stat.size,
+				"mtime": stat.mtime.getTime()
 			}
 
 			this.watcher.watch(file)
-			
-			if( req.headers['if-none-match'] == header.ETag){
+			if( req.headers['if-none-match'] == header.etag){
 				res.writeHead(304,header)
 				res.end()
 				return 
@@ -187,31 +183,39 @@ define.class(function(require, exports, self){
 			// lets add a gzip cache
 			var type = header["Content-Type"]
 			if(type !== 'image/jpeg' && type !== 'image/png'){
-				//header["Content-Type"]+="; utf8"
-				header["Content-encoding"] = "gzip"
-				header["Transfer-Encoding"] = "gzip"
-				var gzip_file = path.join(this.cache_dir, requrl.replace(/\//g,'_')+header.ETag)
-				fs.stat(gzip_file, function(err, stat){
-					if(err){ // make it
-						fs.readFile(file, function(err, data){
-							zlib.gzip(data, function(err, compr){
-								//header["Content-length"] = compr.length
-								//console.log(compr.length)
-								res.writeHead(200, header)
-								res.write(compr)
-								res.end()
-								fs.writeFile(gzip_file, compr, function(err){
+				// see if we accept gzip
+				if(req.headers['accept-encoding'] && req.headers['accept-encoding'].indexOf('gzip') !== -1){
+					//header["Content-Type"]+="; utf8"
+					header["Content-encoding"] = "gzip"
+					header["Transfer-Encoding"] = "gzip"
+					var gzip_file = path.join(this.cache_gzip, requrl.replace(/\//g,'_')+header.ETag)
+					fs.stat(gzip_file, function(err, stat){
+						if(err){ // make it
+							fs.readFile(file, function(err, data){
+								zlib.gzip(data, function(err, compr){
+									//header["Content-length"] = compr.length
+									//console.log(compr.length)
+									res.writeHead(200, header)
+									res.write(compr)
+									res.end()
+									fs.writeFile(gzip_file, compr, function(err){
 
+									})
 								})
 							})
-						})
-					}
-					else{
-						var stream = fs.createReadStream(gzip_file)
-						res.writeHead(200, header)
-						stream.pipe(res)
-					}
-				})
+						}
+						else{
+							var stream = fs.createReadStream(gzip_file)
+							res.writeHead(200, header)
+							stream.pipe(res)
+						}
+					})
+				}
+				else{
+					var stream = fs.createReadStream(file)
+					res.writeHead(200, header)
+					stream.pipe(res)					
+				}
 			}
 			else{
 				var stream = fs.createReadStream(file)

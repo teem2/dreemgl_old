@@ -204,6 +204,15 @@ define.class(function(require){
 			"Content-Type": "text/html"
 		}
 		//var screen = this.screens[app]
+
+		// nodejs root
+		if(req.headers['client-type'] === 'nodejs'){
+			res.writeHead(200, {"Content-type":"text/json"})	
+			res.write(JSON.stringify({title:this.name, boot:this.index_mapped, system_classes:this.system_classes }))
+			res.end()
+			return
+		}
+
 		var html = this.loadHTML(this.name, this.index_mapped)
 		res.writeHead(200, header)
 		res.write(html)

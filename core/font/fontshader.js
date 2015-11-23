@@ -844,7 +844,7 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 	this.glyphy_sdf_draw_subpixel_aa = function(){
 		var pos = mesh.tex
 
-		var m = pixelscale*0.3//0.005
+		var m = pixelscale*.4//0.005
 		// screenspace length
 		mesh.scaling = 500. * m 
 		

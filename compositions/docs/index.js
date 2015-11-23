@@ -23,6 +23,7 @@ define.class(function(composition, docviewer, codeviewer, fileio, screens, scree
 					//if( Error().stack.split(/\n/)[2].match(/index\.js\?b/)) debugger
 					if (this.locationhash && this.locationhash.path){
 						require.async(this.locationhash.path).then(function(module){
+							if(!module.body) return
 							this.find('codeviewer').model = module.body.toString()
 						}.bind(this))
 					}

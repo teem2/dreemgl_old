@@ -52,10 +52,35 @@
 	define.partial_reload = true
 	define.reload_id = 0
 
+	// turns on debug naming of classes (very useful)
+	define.debug = true
+
 	// copy configuration onto define
 	if(typeof config_define == 'object') for(var key in config_define){
 		define[key] = config_define[key]
 	}
+
+	// storage structures
+	define.module = {}
+	define.factory = {}
+
+
+
+
+
+
+
+
+	// File path handling utilities
+
+
+
+
+
+
+
+
+
 
 	define.fileName = function(file){
 		file = file.replace(/\\/g,'/')
@@ -89,7 +114,7 @@
 		return path.replace(/^\/+/,'/').replace(/([^:])\/+/g,'$1/')
 	}
 
-	define.joinPath = function(base, relative){
+	define.joinPath = function(base, relative, rx){
 		if(relative.charAt(0) != '.'){ // relative is already absolute
 			if(relative.charAt(0) == '/' || relative.indexOf(':') != -1){
 				return relative
@@ -97,12 +122,11 @@
 			var path = base + '/' + relative
 			return define.cleanPath(path)
 		}
-		base = base.split(/\//)
+		base = base.split(rx || /\//)
 		relative = relative.replace(/\.\.\//g,function(){ base.pop(); return ''}).replace(/\.\//g, '')
 		return define.cleanPath(base.join('/') + '/' + relative)
 	}
 
-	// expand define variables
 	define.expandVariables = function(str){
 		return define.cleanPath(str.replace(/(\$[a-zA-Z]+[a-zA-Z0-9]*)/g, function(all, lut){
 			if(!(lut in define)) throw new Error("Cannot find " + lut + " used in require")
@@ -110,17 +134,34 @@
 		}))
 	}
 
-	define.findRequires = function(str){
-		var req = []
-		// bail out if we redefine require
-		if(str.match(/function\s+require/) || str.match(/var\s+require/)){
-			return req
-		}
-		str.replace(/\/\*[\s\S]*?\*\//g,'').replace(/\/\/[^\n]*/g,'').replace(/require\s*\(\s*["']([^"']+)["']\s*\)/g, function(m, path){
-			req.push(path)
-		})
-		return req
+	define.lookupFileType = function(type){
+		type = type.toLowerCase()
+		if(type === 'json')	return 'json'
+		if(type === 'txt' || type === 'obj' || type === 'text' || type === 'md') return 'text'
+		return 'arraybuffer'
 	}
+
+	define.global = function(object){
+		var glob = typeof process !== 'undefined'? global: window
+		for(var key in object){
+			glob[key] = object[key]
+		}
+	}
+
+
+
+
+
+
+	//  require implementation
+
+
+
+
+
+
+
+
 
 	define.localRequire = function(base_path, from_file){
 		function require(dep_path, ext){
@@ -183,76 +224,85 @@
 			})
 		}
 
+		require.reloadAsync = function(path){
+
+			return new Promise(function(resolve, reject){
+
+				define.reload_id++
+
+				// lets wipe the old module
+				define.module[path] = define.factory[path] = undefined
+				// lets require it async
+				define.require.async(path).then(function(new_class){
+					// fetch all modules dependent on this class, and all dependent on those
+					// and cause them to reinitialize
+					function wipe_module(name){
+						//console.log("Reloading "+define.fileName(name))
+						for(var key in define.factory){
+							var deps = define.factory[key].deps
+							if(key !== name && define.module[key] && deps && deps.indexOf(name) !== -1){
+								// remove module
+								define.module[key] = undefined
+								// try to wipe all modules that depend our this one
+								wipe_module(key)
+							}
+						}							
+					}
+					wipe_module(path)
+
+					resolve(define.module[path])
+				})			
+			})
+		}
+
 		return require
 	}
 
 	define.require = define.localRequire('','root')
 
-	define.profile = function(times, cb){
-		var bs = Date.now()
-		for(var i = 0; i < times; i++) cb(i)
-		var delta = (Date.now() - bs)
-		console.log("Profile " + delta + "ms for " + times + '(' + (delta/times)+')')
-	}
+	define.findRequiresInFactory = function(factory){
+		var search = factory.toString()
+		
+		if(factory.body) search += '\n' + factory.body.toString()
+		if(factory.depstring) search += '\n' + factory.depstring.toString()		
 
-	define.binding = function(fn){
-		fn.isBinding = true
-		return fn
-	}
-
-	define.debug = true
-
-
-	// lamo hash. why doesnt js have a really good one built in hmm?
-	define.cheapHash = function(str){
-		if(typeof str !== 'string') return 0
-		var hash = 5381,
-		i = str.length
-		while(i) hash = (hash * 33) ^ str.charCodeAt(--i)
-		return hash >>> 0
-	}
-
-	// unique hash is simply a string hashtable
-	var unique_hash_tab = {}
-	var unique_hash_id = 1
-	define.uniqueHash = function(str){
-		var id = unique_hash_tab[str]
-		if(id) return id
-		return unique_hash_tab[str] = unique_hash_id++
-	}
-
-	// module hash hashes a module and all its dependencies
-	define.moduleHash = function(module){
-		if(typeof module === 'string') module = define.module[module]
-		if(!module.unique_hash){
-			var hash = define.uniqueHash(module.factory.body?module.factory.body.toString():module.factory.toString())
-			var deps = module.factory.deps
-			if(deps) for(var i = 0; i < deps.length; i++){
-				hash += '_'+ this.moduleHash(define.module[deps[i]])
-			}
-			module.unique_hash = hash
+		var req = []
+		// bail out if we redefine require
+		if(search.match(/function\s+require/) || search.match(/var\s+require/)){
+			return req
 		}
-		return module.unique_hash
+
+		search.replace(/\/\*[\s\S]*?\*\//g,'').replace(/([^:]|^)\/\/[^\n]*/g,'$1').replace(/require\s*\(\s*["']([^"']+)["']\s*\)/g, function(m,path){
+			req.push(path)
+		})
+
+		// also scan for define.class
+
+
+		return req
 	}
 
-	// object hash hashes a class and all its module dependencies
-	define.classHash = function(cls){
-		var hash = cls.unique_hash || ''
-		if(hash) return hash
 
-		var proto = cls.prototype
-		while(proto){
-			var mod = proto.constructor.module
-			if(mod){
-				hash += '_'+this.moduleHash(mod)
-			}
-			else if(proto.constructor.body) hash += '_' + define.uniqueHash(proto.constructor.body.toString())
-			//if(proto.constructor.body) hash += '_' + define.uniqueHash(proto.constructor.body.toString())
-			proto = Object.getPrototypeOf(proto)
-		}
-		Object.defineProperty(cls, 'unique_hash', {value:hash})
-		return hash
-	}
+
+
+
+
+
+
+
+
+
+	// Class implementation
+
+
+
+
+
+
+
+
+
+
 
 	define.builtinClassArgs = {
 		exports:1, module:2, require:3, self:4, proto:4, constructor:1, baseclass:5, outer:6
@@ -303,25 +353,6 @@
 	}
 
 	define.EnvironmentStub = function(dep){ this.dep = dep }
-
-	define.example =
-	define.renderExample = function(pthis, example){
-		if(!pthis.constructor.examples) pthis.constructor.examples = []
-		example.type = 'render'
-		pthis.constructor.examples.push(example)
-	}
-
-	define.consoleExample = function(pthis, example){
-		if(!pthis.constructor.examples) pthis.constructor.examples = []
-		example.type = 'console'
-		pthis.constructor.examples.push(example)
-	}
-
-	define.compositionExample = function(pthis, example){
-		if(!pthis.constructor.examples) pthis.constructor.examples = []
-		example.type = 'composition'
-		pthis.constructor.examples.push(example)
-	}
 
 	define.makeClass = function(baseclass, body, require, module, nested_module, outer_this){
 
@@ -475,51 +506,6 @@
 		return './' + cls
 	}
 
-	define.lookupFileType = function(type){
-		type = type.toLowerCase()
-		if(type === 'json')	return 'json'
-		if(type === 'txt' || type === 'obj' || type === 'text' || type === 'md') return 'text'
-		return 'arraybuffer'
-	}
-
-	//define.StubbedClass = define.makeClass(undefined, function StubbedClass(){}, undefined, undefined)
-
-	// a class which just defines the render function
-	define.render = function(render){
-
-		var base_class
-		if(arguments.length > 1){ // class with baseclass
-			base_class = arguments[0]
-			render = arguments[1]
-		}
-		else{
-			render = arguments[0]
-		}
-
-		// we need to define a class where the body is the render function.
-		var body = function(){
-			var args = Array.prototype.slice.call(arguments)
-			args.unshift(0)
-			var parentAtConstructor = this._atConstructor
-			this._atConstructor = function(){
-				args[0] = this
-				this.render = render.bind.apply(render, args)
-				parentAtConstructor.apply(this,arguments)
-			}
-		}
-		body.classname = render.name
-		var argmap = body.argmap = define.buildArgMap(render)
-		// validate args
-		for(var i = 0; i < argmap.length; i++){
-			var arg = argmap[i]
-			if(arg in define.builtinClassArgs) throw new Error('Cannot use builtin arg ' + arg + ' in render class, use a normal class please')
-			if(!base_class) base_class = define.atLookupClass(arg)
-		}
-
-		if(!base_class) throw new Error('Cannot define render class without baseclass')
-		return define.class(base_class, body)
-	}
-
 	define.mixin = function(body, body2){
 		if(typeof body2 === 'function') body = body2
 		body.mixin = true
@@ -635,14 +621,650 @@
 		}
 	}
 
-	define.arraySplat = function(out, outoff, inp, inpoff, depth){
-		for(var i = inpoff, len = inp.length; i < len; i++){
-			var item = inp[i]
-			if(typeof item == 'number') out[outoff++] = item
-			else outoff = define.arraySplat(out, outoff, item, 0, depth++)
-		}
-		return outoff
+
+
+
+
+
+
+
+
+
+	// examples
+
+
+
+
+
+
+
+
+	define.example =
+	define.renderExample = function(pthis, example){
+		if(!pthis.constructor.examples) pthis.constructor.examples = []
+		example.type = 'render'
+		pthis.constructor.examples.push(example)
 	}
+
+	define.consoleExample = function(pthis, example){
+		if(!pthis.constructor.examples) pthis.constructor.examples = []
+		example.type = 'console'
+		pthis.constructor.examples.push(example)
+	}
+
+	define.compositionExample = function(pthis, example){
+		if(!pthis.constructor.examples) pthis.constructor.examples = []
+		example.type = 'composition'
+		pthis.constructor.examples.push(example)
+	}
+
+
+	define.startLoader = function(){
+
+	}
+
+	define.endLoader = function(){
+
+	}
+
+	define.getReloadID = function(){
+		var num = define.reload_id
+		var s = ''
+		while(num%26){
+			s += String.fromCharCode(num%26 +97)
+			num = Math.floor(num/26)
+		}
+		return s
+	}
+
+
+	// the environment we are in
+	if(typeof window !== 'undefined') define.$environment = 'browser'
+	else if(typeof process !== 'undefined') define.$environment = 'nodejs'
+	else define.$environment = 'v8'
+
+
+
+
+
+
+	// Packaged
+
+
+
+
+
+
+
+	if(define.packaged){
+		define.require = define.localRequire('')
+		return define
+
+
+	}
+
+
+
+
+
+
+
+	// Browser
+
+
+
+
+
+
+
+
+	else if(typeof window !== 'undefined')(function(){ // browser implementation
+		
+		// if define was already defined use it as a config store
+		// storage structures
+		define.download_queue = {}
+		// the require function passed into the factory is local
+		var app_root = define.filePath(window.location.href)
+
+		// loadAsync is the resource loader
+		define.loadAsync = function(files, from_file, inext){
+
+			function loadResource(url, from_file, recurblock, module_deps){
+
+				var ext = inext === undefined ? define.fileExt(url): inext;
+				var abs_url, fac_url
+
+				if(url.indexOf('http:') === 0){ // we are fetching a url..
+					fac_url = url
+					abs_url = define.$root + '/proxy?' + encodeURIComponent(url)
+				}
+				else{
+					abs_url = define.expandVariables(url)
+					if(!ext) ext = 'js', abs_url += '.'  + ext
+					fac_url = abs_url
+				}
+
+				if(define.reload_id) abs_url += '?' + define.getReloadID()
+					
+				if(module_deps && module_deps.indexOf(fac_url) === -1) module_deps.push(fac_url)
+
+				if(define.factory[fac_url]) return new Promise(function(resolve){resolve()})
+
+				var prom = define.download_queue[abs_url]
+
+				if(prom){
+					if(recurblock) return new Promise(function(resolve){resolve()})
+					return prom
+				}
+
+				if(ext === 'js'){
+					prom = loadScript(fac_url, abs_url, from_file)
+				}
+				else if(ext === 'jpg' || ext === 'jpeg' || ext === 'gif' || ext === 'png'){		
+					prom = loadImage(fac_url, abs_url, from_file)
+				}
+				else  prom = loadXHR(fac_url, abs_url, from_file, ext)
+				define.download_queue[abs_url] = prom
+				return prom
+			}
+
+			function loadImage(facurl, url, from_file){
+				return new Promise(function(resolve, reject){
+					var img = new Image()
+					img.src = url
+					img.onerror = function(){
+						var err = "Error loading " + url + " from " + from_file
+						reject(err)
+					}
+					img.onload = function(){
+						define.factory[facurl] = img
+						resolve(img)
+					}
+				})
+			}
+
+			function loadXHR(facurl, url, from_file, type){
+				return new Promise(function(resolve, reject){
+					var req = new XMLHttpRequest()
+					// todo, make type do other things
+					req.responseType = define.lookupFileType(type)
+
+					req.open("GET", url, true)
+					req.onerror = function(){
+						var err = "Error loading " + url + " from " + from_file
+						console.error(err)
+						reject(err)
+					}
+					req.onreadystatechange = function(){
+						if(req.readyState == 4){
+							if(req.status != 200){
+								var err = "Error loading " + url + " from " + from_file
+								console.error(err)
+								return reject(err)
+							}
+							define.factory[facurl] = req.response
+							
+							resolve(req.response)
+						}
+					}
+					req.send()
+				})
+			}
+
+			// insert by script tag
+			function loadScript(facurl, url, from_file){
+				return new Promise(function(resolve, reject){
+
+					var script = document.createElement('script')
+					var base_path = define.filePath(url)
+					script.type = 'text/javascript'
+					script.src = url
+					//define.script_tags[url] = script
+						
+					function onLoad(){
+						// pull out the last factor
+						var factory = define.last_factory
+						define.factory[facurl] = factory
+	
+						var module_deps = factory.deps = []
+	
+						define.last_factory = undefined
+						if(!factory) return reject("Factory is null for "+url+" from file "+from_file)
+						// parse the function for other requires
+		
+						Promise.all(define.findRequiresInFactory(factory).map(function(path){
+							// ignore nodejs style module requires
+							if(path.indexOf('$') === -1 && path.charAt(0) !== '.'){
+								return null
+							}
+
+							var dep_path = define.joinPath(base_path, define.expandVariables(path))
+
+							return loadResource(dep_path, url, true, module_deps)
+						})).then(function(){
+							resolve(factory)
+						},
+						function(err){
+							reject(err)
+						})
+					}
+
+					script.onerror = function(){ 
+						var err = "Error loading " + url + " from " + from_file
+						console.error(err)
+						reject(err)
+					}
+					script.onload = onLoad
+					script.onreadystatechange = function(){
+						console.log(s.readyState)
+						if(s.readyState == 'loaded' || s.readyState == 'complete') onLoad()
+					}
+					define.in_body_exec = false
+					document.getElementsByTagName('head')[0].appendChild(script)
+				})
+			}
+
+			if(Array.isArray(files)){
+				return Promise.all(files.map(function(file){
+					return loadResource(file, from_file)
+				}))
+			}
+			else return loadResource(files, from_file)
+		}
+
+		// make it available globally
+		window.define = define
+
+		// boot up using the MAIN property
+		if(define.main){
+			define.loadAsync(define.main, 'main').then(function(){
+				if(define.atMain) define.atMain(define.require, define.main)
+			}, function(err){
+				console.log("Error starting up " + err)
+			})
+		}
+
+		var backoff = 1
+		define.autoreloadConnect = function(){
+
+			if(this.reload_socket){
+				this.reload_socket.onclose = undefined
+				this.reload_socket.onerror = undefined
+				this.reload_socket.onmessage = undefined
+				this.reload_socket.onopen = undefined
+				this.reload_socket.close()
+				this.reload_socket = undefined
+			}
+			this.reload_socket = new WebSocket('ws://' + location.host)
+
+			this.reload_socket.onopen = function(){
+				backoff = 1
+			}
+
+			this.reload_socket.onerror = function(){
+			}
+
+			this.reload_socket.onclose = function(){
+				if((backoff*=2) > 1000) backoff = 1000
+				setTimeout(function(){ define.autoreloadConnect() }, backoff)
+			}
+
+			this.reload_socket.onmessage = function(event){
+				var msg = JSON.parse(event.data)
+				if (msg.type === 'filechange'){
+
+					var old_module = define.module[msg.file]
+
+					if(define.partial_reload && old_module && typeof old_module.exports === 'function'){
+						define.require.reloadAsync(msg.file).then(function(){
+							if(define.atMain) define.atMain(define.require, define.main)
+						})
+					}
+					else{
+						//alert('filechange!' + msg.file)
+						console.clear()
+						location.href = location.href  // reload on filechange
+					}
+				}
+				else if (msg.type === 'close') {
+					window.close() // close the window
+				} 
+				else if (msg.type === 'delay') { // a delay refresh message
+					console.log('Got delay refresh from server!');
+					setTimeout(function() {
+						console.clear()
+						location.href = location.href
+					}, 1500)
+				}
+			}
+		}
+		define.autoreloadConnect()
+	})()
+
+
+
+
+
+
+
+
+
+	// NodeJS
+
+
+
+
+
+
+
+
+
+	else (function(){ // nodeJS implementation
+		module.exports = global.define = define
+
+		define.$root = define.filePath(module.filename.replace(/\\/g,'/'))
+
+		var http = require("http")
+		var url = require("url")
+		var fs = require("fs")
+		var path = require("path")
+
+		var root = define.expandVariables(define.$root)
+
+		define.makeCacheDir = function(name){
+			var cache_dir = path.join(root+'/cache')
+			if(!fs.existsSync(cache_dir)) fs.mkdirSync(cache_dir)
+
+			var cache_node =  path.join(root+'/cache/'+name)
+			if(!fs.existsSync(cache_node)) fs.mkdirSync(cache_node)
+			return cache_node
+		}
+
+		var cache_path_root = define.makeCacheDir('node')
+
+		var Module = require("module")
+		var modules = []
+		var _compile = module.constructor.prototype._compile
+
+		// fetch it async!
+		function httpGetCached(httpurl){
+			return new Promise(function(resolve, reject){
+				var myurl = url.parse(httpurl)
+				// ok turn this url into a cachepath
+
+				// lets make some dirs
+				var path = define.filePath(myurl.path)
+				var dirs = path.split('/')
+				var total = cache_path_root + '/'
+				for(var i = 0; i < dirs.length; i++){
+					total += dirs[i]
+					if(!fs.existsSync(total)) fs.mkdirSync(total)
+					total += '/'
+				}
+
+				var cache_path = cache_path_root + myurl.path
+
+				// then we read our files ETag
+				var headers = {'client-type':'nodejs'}
+				fs.stat(cache_path, function(err, stat){
+					if(!err){ // build etag
+						headers['if-none-match'] = stat.mtime.getTime() + '_' + stat.size
+					}
+					http.get({
+						host: myurl.hostname,
+						port: myurl.port,
+						path: myurl.path,
+						headers:headers
+					}, 
+					function(res){
+						//console.log(res)
+						if(res.statusCode === 200){
+
+						}
+						else if(res.statusCode === 304){ // cached
+							return resolve({path:cache_path, type:res.headers['content-type']})
+						}
+						else reject(res.statusCode)
+
+						// lets write it to disk
+						var str = fs.createWriteStream(cache_path)
+						res.pipe(str)
+
+						str.on('finish', function(){
+							// lets set the exact timestamp on our file
+							if(res.headers.mtime){
+								var time = res.headers.mtime / 1000
+								fs.utimes(cache_path, time, time)
+							}
+							resolve({path:cache_path, type:res.headers['content-type']})
+						})
+					})
+				})
+			})
+		}
+
+		// hook compile to keep track of module objects
+		module.constructor.prototype._compile = function(content, filename){  
+			modules.push(this)
+			try {
+				return _compile.call(this, content, filename)
+			}
+			finally {
+				modules.pop()
+			}
+		}
+
+		define.download_queue = {}
+
+		define.define = function(factory) {
+
+			if(factory instanceof Array) throw new Error("injects-style not supported")
+
+			var module = modules[modules.length - 1] || require.main
+
+			// store module and factory just like in the other envs
+			define.module[module.filename] = module
+			define.factory[module.filename] = factory
+
+
+			function loadModuleAsync(modurl){
+				var parsedmodurl = url.parse(modurl)
+				var base_path = define.filePath(modurl)
+
+				// block reentry
+				if(define.download_queue[modurl]){
+					return new Promise(function(resolve, reject){resolve()})
+					//return define.download_queue[modurl]//
+				}
+
+				// we need to fetch the url, then look at its dependencies, fetch those
+				return define.download_queue[modurl] = new Promise(function(resolve, reject){
+					// lets make sure we dont already have the module in our system
+					httpGetCached(modurl).then(function(result){
+						// the root
+						if(result.type === 'text/json' && define.fileExt(parsedmodurl.path) === ''){
+							var data = JSON.parse(fs.readFileSync(result.path).toString())
+							// alright we get a boot file
+							// set our root properly
+							define.$root = 'http://'+parsedmodurl.hostname+':'+parsedmodurl.port+'/'
+							define.$drawmode = 'webgl'
+							define.system_classes = data.system_classes
+							// lets point all the system classes the right way
+							for(var key in data.system_classes){
+								data.system_classes[key] = define.expandVariables(data.system_classes[key])
+							}
+							// alright now, lets load up the root
+							loadModuleAsync(define.expandVariables(data.boot)).then(function(result){
+								// ok so, 
+								resolve(result)
+							})
+							return
+						}
+						if(result.type.indexOf('javascript') !== -1){
+							// lets load up the module, without initializing it
+							define.process_factory = true
+
+							// open the fucker
+							try{
+								//!TODO, make a neater way to fetch the module dependencies (dont require it twice)
+								require(result.path)
+								// and lets remove it again immediately
+								delete Module._cache[result.path]
+							}
+							catch(e){
+								console.log(e.stack)
+							}
+							var factory = define.process_factory
+							define.process_factory = false
+							// alright we have a define.process_factory call we can now use.
+							if(factory === true){
+								return resolve(result.path)
+							}
+
+							Promise.all(define.findRequiresInFactory(factory).map(function(path){
+
+								// ignore nodejs style module requires
+								var dep_path
+								if(path.indexOf('://') !== -1){
+									dep_path = path
+								}
+								else if(path.indexOf('$') === -1 && path.charAt(0) !== '.'){
+									return null
+								}
+								else dep_path = define.joinPath(base_path, define.expandVariables(path))
+
+								var ext = define.fileExt(dep_path)
+								if(!ext) dep_path += '.js'
+		
+								return loadModuleAsync(dep_path)
+
+							})).then(function(){
+								// lets finish up our factory
+								resolve(result.path)
+							}).catch(function(error){
+								console.log("CAUGHT ERROR ", error)
+							})
+	
+							return
+							// lets initialize the module
+						}
+						return resolve(result.path)
+	
+					}).catch(function(err){
+						console.log("Error"+err,err.stack)
+					})
+				})
+			}
+
+
+			function noderequirewrapper(name) {
+				if(arguments.length != 1) throw new Error("Unsupported require style")
+
+				// we cant require non js files
+				var ext = define.fileExt(name)
+				if(ext !== '' && ext !== 'js') return undefined
+
+				name = define.expandVariables(name)
+
+				if(name.indexOf('://') !== -1){
+					// lets turn it into a cached name
+					name = cache_path_root + url.parse(name).path
+				}
+
+				try{
+					var full_name = Module._resolveFilename(name, module)
+				}
+				catch(e){
+					console.log("Cannot find module " + name + ' in module! ' + module.filename)
+					throw e
+				}
+				if (full_name instanceof Array) full_name = full_name[0]
+
+				if(define.atRequire && full_name.charAt(0) == '/'){
+					define.atRequire(full_name)
+				}
+				var old_stack = define.local_require_stack
+				define.local_require_stack = []
+
+				try{
+					var ret = require(full_name)
+				}
+				catch(e){
+					console.log(e)
+				}
+				finally{
+					define.local_require_stack = old_stack
+				}
+				return ret
+			}
+
+			noderequirewrapper.clearCache = function(name){
+				Module._cache = {}
+			}
+			
+			noderequirewrapper.module = module
+
+			noderequirewrapper.async = function(modname){
+				return new Promise(function(resolve, reject){
+					loadModuleAsync(modname).then(function(path){
+						
+						resolve(require(path))
+					}).catch(function(e){
+						console.log("ERROR", e.stack)
+					})
+				})
+			}
+
+			module.factory = factory
+
+			if (typeof factory !== "function") return module.exports = factory
+
+			if(define.process_factory){
+				define.process_factory = factory
+				return
+			}
+
+			define.local_require_stack.push(noderequirewrapper)
+			try{
+				var ret = factory.call(module.exports, noderequirewrapper, module.exports, module)
+			}
+			finally{
+				define.local_require_stack.pop()
+			}
+
+			if(ret !== undefined) module.exports = ret
+
+			if(define.atModule) define.atModule(module)
+		}
+
+		global.define.require = require
+		global.define.module = {}
+		global.define.factory = {}
+		// fetch a new require for the main module and return that
+		
+		define.define(function(require){
+			module.exports = require
+		})
+	})()
+
+
+
+
+
+
+
+
+
+
+
+	// Struct implementation
+
+
+
+
+
+
+
 
 	define.struct = function(def, id){
 
@@ -914,6 +1536,15 @@
 		return Struct
 	}
 
+	define.arraySplat = function(out, outoff, inp, inpoff, depth){
+		for(var i = inpoff, len = inp.length; i < len; i++){
+			var item = inp[i]
+			if(typeof item == 'number') out[outoff++] = item
+			else outoff = define.arraySplat(out, outoff, item, 0, depth++)
+		}
+		return outoff
+	}
+
 	define.structFromJSON = function(node){
 		if (typeof(node) === "object" && node){
 			if  (node.____struct){
@@ -1118,679 +1749,204 @@
 
 	structChunked(define.struct.chunked_type)
 
-	// make something global
-	define.global = function(object){
-		var glob = typeof process !== 'undefined'? global: window
-		for(var key in object){
-			glob[key] = object[key]
-		}
-	}
 
-	// storage structures
-	define.module = {}
-	define.factory = {}
 
-	// the environment we are in
-	if(typeof window !== 'undefined') define.$environment = 'browser'
-	else if(typeof process !== 'undefined') define.$environment = 'nodejs'
-	else define.$environment = 'v8'
 
-	if(define.packaged){
-		define.require = define.localRequire('')
-		return define
-	}
-	else if(typeof window !== 'undefined')(function(){ // browser implementation
-		
-		// if define was already defined use it as a config store
-		// storage structures
-		define.download_queue = {}
-		// the require function passed into the factory is local
-		var app_root = define.filePath(window.location.href)
 
-		// loadAsync is the resource loader
-		define.loadAsync = function(files, from_file, inext){
 
-			function loadResource(url, from_file, recurblock, module_deps){
-				var ext = inext === undefined ? define.fileExt(url): inext;
 
-				var abs_url, fac_url
 
-				if(url.indexOf('http:') === 0){ // we are fetching a url..
-					fac_url = url
-					abs_url = define.$root + '/proxy?' + encodeURIComponent(url)
-				}
-				else{
-					abs_url = define.expandVariables(url)
-					if(!ext) ext = 'js', abs_url += '.'  + ext
-					fac_url = abs_url
-				}
 
-				function to_az(num){
-					var s = ''
-					while(num%26){
-						s += String.fromCharCode(num%26 +97)
-						num = Math.floor(num/26)
-					}
-					return s
-				}
 
-				if(define.reload_id) abs_url += '?' + to_az(define.reload_id)
 
-				if(module_deps && module_deps.indexOf(fac_url) === -1) module_deps.push(fac_url)
 
-				if(define.factory[fac_url]) return new Promise(function(resolve){resolve()})
+	// Implementation of a promise polyfill
 
-				var prom = define.download_queue[abs_url]
 
-				if(prom){
-					if(recurblock) return new Promise(function(resolve){resolve()})
-					return prom
-				}
 
-				if(ext === 'js'){
-					prom = loadScript(fac_url, abs_url, from_file)
-				}
-				else if(ext === 'jpg' || ext === 'jpeg' || ext === 'gif' || ext === 'png'){		
-					prom = loadImage(fac_url, abs_url, from_file)
-				}
-				else  prom = loadXHR(fac_url, abs_url, from_file, ext)
-				define.download_queue[abs_url] = prom
-				return prom
-			}
 
-			function loadImage(facurl, url, from_file){
-				return new Promise(function(resolve, reject){
-					var img = new Image()
-					img.src = url
-					img.onerror = function(){
-						var err = "Error loading " + url + " from " + from_file
-						reject(err)
-					}
-					img.onload = function(){
-						define.factory[facurl] = img
-						resolve(img)
-					}
-				})
-			}
 
-			function loadXHR(facurl, url, from_file, type){
-				return new Promise(function(resolve, reject){
-					var req = new XMLHttpRequest()
-					// todo, make type do other things
-					req.responseType = define.lookupFileType(type)
 
-					req.open("GET", url, true)
-					req.onerror = function(){
-						var err = "Error loading " + url + " from " + from_file
-						console.error(err)
-						reject(err)
-					}
-					req.onreadystatechange = function(){
-						if(req.readyState == 4){
-							if(req.status != 200){
-								var err = "Error loading " + url + " from " + from_file
-								console.error(err)
-								return reject(err)
-							}
-							define.factory[facurl] = req.response
-							
-							resolve(req.response)
-						}
-					}
-					req.send()
-				})
-			}
 
-			// insert by script tag
-			function loadScript(facurl, url, from_file){
-				return new Promise(function(resolve, reject){
-					var script = document.createElement('script')
-					var base_path = define.filePath(url)
 
-					script.type = 'text/javascript'
-					script.src = url
-					//define.script_tags[url] = script
-						
-					function onLoad(){
-						// pull out the last factor
-						var factory = define.last_factory
-						//factory.fnhash = define.cheapHash(factory.toString())
-						//if(factory.body){
-						//	factory.fnhash = define.cheapHash(factory.body.toString())
-						//}
 
-						define.factory[facurl] = factory
-	
-						var module_deps = factory.deps = []
-	
-						define.last_factory = undefined
-						if(!factory) return reject("Factory is null for "+url+" from file "+from_file)
-						// parse the function for other requires
-						var search = factory.toString()
-						
-						if(factory.body){
-							// only do dependencies if environment matches
-							if(factory.body.environment === undefined || factory.body.environment === define.$environment)
-								search += '\n' + factory.body.toString()
-						}
-						if(factory.depstring) search += '\n' + factory.depstring.toString()
 
-						Promise.all(define.findRequires(search).map(function(path){
-							// ignore nodejs style module requires
-							if(path.indexOf('$') === -1 && path.charAt(0) !== '.'){
-								return null
-							}
 
-							var dep_path = define.joinPath(base_path, define.expandVariables(path))
 
-							return loadResource(dep_path, url, true, module_deps)
-						})).then(function(){
-							resolve(factory)
-						},
-						function(err){
-							reject(err)
-						})
-					}
 
-					script.onerror = function(){ 
-						var err = "Error loading " + url + " from " + from_file
-						console.error(err)
-						reject(err)
-					}
-					script.onload = onLoad
-					script.onreadystatechange = function(){
-						console.log(s.readyState)
-						if(s.readyState == 'loaded' || s.readyState == 'complete') onLoad()
-					}
-					define.in_body_exec = false
-					document.getElementsByTagName('head')[0].appendChild(script)
-				})
-			}
+	define.promiseLib = function(exports){
+		// Use polyfill for setImmediate for performance gains
+		var asap = Promise.immediateFn || (typeof setImmediate === 'function' && setImmediate) ||
+			function(fn) { setTimeout(fn, 1); }
 
-			if(Array.isArray(files)){
-				return Promise.all(files.map(function(file){
-					return loadResource(file, from_file)
-				}))
-			}
-			else return loadResource(files, from_file)
-		}
-
-		// make it available globally
-		window.define = define
-
-		// boot up using the MAIN property
-		if(define.main){
-			define.loadAsync(define.main, 'main').then(function(){
-				if(define.atMain) define.atMain(define.require, define.main)
-			}, function(err){
-				console.log("Error starting up " + err)
-			})
-		}
-		window.out = console.log.bind(console)
-
-		var backoff = 1
-		define.autoreloadConnect = function(){
-
-			if(this.reload_socket){
-				this.reload_socket.onclose = undefined
-				this.reload_socket.onerror = undefined
-				this.reload_socket.onmessage = undefined
-				this.reload_socket.onopen = undefined
-				this.reload_socket.close()
-				this.reload_socket = undefined
-			}
-			this.reload_socket = new WebSocket('ws://' + location.host)
-
-			this.reload_socket.onopen = function(){
-				backoff = 1
-			}
-
-			this.reload_socket.onerror = function(){
-			}
-
-			this.reload_socket.onclose = function(){
-				if((backoff*=2) > 1000) backoff = 1000
-				setTimeout(function(){ define.autoreloadConnect() }, backoff)
-			}
-
-			this.reload_socket.onmessage = function(event){
-				var msg = JSON.parse(event.data)
-				if (msg.type === 'filechange'){
-					// alright so, we have to figure out 
-					// which file has changed.
-					// and either patch up classes or
-					// do a full reload.
-					// so. lets first figure out if its a class.
-					console.clear()
-					var old_module = define.module[msg.file]
-					define.reload_id++
-					if(define.partial_reload && old_module && typeof old_module.exports === 'function'){
-						// lets wipe the old module
-						define.module[msg.file] = define.factory[msg.file] = undefined
-
-						// lets require it async
-						define.require.async(msg.file).then(function(new_class){
-							// fetch all modules dependent on this class, and all dependent on those
-							// and cause them to reinitialize
-							function wipe_module(name){
-								//console.log("Reloading "+define.fileName(name))
-								for(var key in define.factory){
-									var deps = define.factory[key].deps
-									if(key !== name && define.module[key] && deps && deps.indexOf(name) !== -1){
-										// remove module
-										define.module[key] = undefined
-										// try to wipe all modules that depend our this one
-										wipe_module(key)
-									}
-								}							
-							}
-							wipe_module(msg.file)
-
-							// we fire atMain again
-							if(define.atMain) define.atMain(define.require, define.main)
-						})
-						// how shall we go about doing that.
-					}
-					else{
-						//alert('filechange!' + msg.file)
-						console.clear()
-						location.href = location.href  // reload on filechange
-					}
-				}
-				else if (msg.type === 'close') {
-					window.close() // close the window
-				} 
-				else if (msg.type === 'delay') { // a delay refresh message
-					console.log('Got delay refresh from server!');
-					setTimeout(function() {
-						console.clear()
-						location.href = location.href
-					}, 1500)
-				}
-			}
-		}
-		define.autoreloadConnect()
-	})()
-	else (function(){ // nodeJS implementation
-		module.exports = global.define = define
-
-		define.$root = define.filePath(module.filename.replace(/\\/g,'/'))
-
-		var Module = require("module")
-		var modules = []
-		var _compile = module.constructor.prototype._compile
-
-		// hook compile to keep track of module objects
-		module.constructor.prototype._compile = function(content, filename){  
-			modules.push(this)
-			try {
-				return _compile.call(this, content, filename)
-			}
-			finally {
-				modules.pop()
+		// Polyfill for Function.prototype.bind
+		function bind(fn, thisArg) {
+			return function() {
+				fn.apply(thisArg, arguments)
 			}
 		}
 
-		define.define = function(factory) {
+		var isArray = Array.isArray || function(value) { return Object.prototype.toString.call(value) === "[object Array]" }
 
-			if(factory instanceof Array) throw new Error("injects-style not supported")
+		function Promise(fn) {
+			if (typeof this !== 'object') throw new TypeError('Promises must be constructed via new')
+			if (typeof fn !== 'function') throw new TypeError('not a function')
+			this._state = null
+			this._value = null
+			this._deferreds = []
 
-			var module = modules[modules.length - 1] || require.main
-
-			// store module and factory just like in the other envs
-			define.module[module.filename] = module
-			define.factory[module.filename] = factory
-
-			function localRequire(name) {
-				if(arguments.length != 1) throw new Error("Unsupported require style")
-
-				// we cant require non js files
-				var ext = define.fileExt(name)
-				if(ext !== '' && ext !== 'js') return undefined
-
-				name = define.expandVariables(name)
-				try{
-					var full_name = Module._resolveFilename(name, module)
-				}
-				catch(e){
-					console.log("Cannot find module " + name + ' in module ' + module.filename)
-					throw e
-				}
-				if (full_name instanceof Array) full_name = full_name[0]
-
-				if(define.atRequire && full_name.charAt(0) == '/'){
-					define.atRequire(full_name)
-				}
-				var old_stack = define.local_require_stack
-				define.local_require_stack = []
-
-
-				try{
-					var ret = require(full_name)
-				}
-				finally{
-					define.local_require_stack = old_stack
-				}
-				return ret
-			}
-
-			localRequire.clearCache = function(name){
-				Module._cache = {}
-			}
-			localRequire.module = module
-			module.factory = factory
-			if (typeof factory !== "function") return module.exports = factory
-
-			define.local_require_stack.push(localRequire)
-			try{
-				var ret = factory.call(module.exports, localRequire, module.exports, module)
-			}
-			finally{
-				define.local_require_stack.pop()
-			}
-
-			if(ret !== undefined) module.exports = ret
-
-			if(define.atModule) define.atModule(module)
+			doResolve(fn, bind(resolve, this), bind(reject, this))
 		}
 
-		global.define.require = require
-		global.define.module = {}
-		global.define.factory = {}
-		// fetch a new require for the main module and return that
-		
-		define.define(function(require){
-			module.exports = require
-		})
-	})()
-})(typeof define !== 'undefined' && define)
-
-Object.defineProperty(Function.prototype, 'wired', {get:function(){
-	this.is_wired = true
-	return this
-}, set:function(){throw new Error('cant set wired')}})
-
-define.startLoader = function(){
-	return
-	window.onload = function(){
-		var cvs = document.createElement('canvas')
-		var div = document.body
-		define.loaderDiv = cvs
-		define.whileLoader = true
-		div.appendChild(cvs)
-		cvs.width  = div.offsetWidth, cvs.height = div.offsetHeight
-
-		window.onresize = function(){
-			cvs.width  = div.offsetWidth, cvs.height = div.offsetHeight      
-		}
-		var options = {
-			antialias:true, 
-			premultipliedAlpha: false,
-			alpha: true, 
-			preserveDrawingBuffer: true 
-		}
-		var gl = cvs.getContext('experimental-webgl', options) ||  cvs.getContext('webgl', options)
-
-		if(!gl){
-		}
-
-		// make texture
-		var tcvs = document.createElement( "canvas" )
-		var cv2d = tcvs.getContext( "2d" )
-
-		cv2d.width = 512
-		cv2d.height = 512
-
-		cv2d.fillStyle = 'white'
-		cv2d.fillRect(0, 0, 512,512)
-
-		var tex = gl.createTexture()
-		gl.bindTexture(gl.TEXTURE_2D, tex)
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false)
-		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false)
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tcvs)
-		gl.bindTexture(gl.TEXTURE_2D, null)
-
-		// build shaders
-		var vertex = 
-		'attribute vec2 c;'+
-		'varying vec2 c_;'+
-		'void main(void){'+
-		' c_ = c;'+
-		' gl_Position = vec4(c.x, c.y,0.,1.);'+
-		'}'
-
-		var fragment = 
-		'precision mediump float;'+
-		'uniform sampler2D _0;'+
-		'uniform float time;'+
-		'varying vec2 c_;'+
-		'void main(void){'+
-		' gl_FragColor = vec4(1.);'+
-		' gl_FragColor.a = 1.-length(c_)*4.*abs(2.+sin(time))-(sin(4.*atan(c_.x,c_.y)+time)) - sin(length(c_)*32.-time);'+
-		'}'
-
-		var fs = gl.createShader(gl.FRAGMENT_SHADER)
-		gl.shaderSource(fs, fragment)
-		gl.compileShader(fs)
-		if (!gl.getShaderParameter(fs, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(fs))
-
-		var vs = gl.createShader(gl.VERTEX_SHADER)
-		gl.shaderSource(vs, vertex)
-		gl.compileShader(vs)
-		if (!gl.getShaderParameter(vs, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(vs))
-
-		var sp = gl.createProgram()
-		gl.attachShader(sp, vs)
-		gl.attachShader(sp, fs)
-		gl.linkProgram(sp)
-
-		// create a 2 tri quad
-		var b = gl.createBuffer()
-		var a = new Float32Array(12)
-		a[0] = -1,  a[1] = -1, a[2] = -1,  a[3] =  1, a[4] =  1,  a[5] = -1, a[6] =  1,  a[7] = -1, a[8] =  1,  a[9] =  1,a[10] = -1, a[11] = 1
-
-		var cl = gl.getAttribLocation(sp, 'c')
-
-		gl.bindBuffer(gl.ARRAY_BUFFER, b)
-		gl.bufferData(gl.ARRAY_BUFFER, a, gl.STATIC_DRAW)
-		gl.vertexAttribPointer(cl, 2, gl.FLOAT, false, 0, 0);
-
-		gl.useProgram(sp)
-		gl.uniform1i(gl.getUniformLocation(sp, '_0'), 0)
-		//gl.activeTexture(gl.TEXTURE0)
-		//gl.bindTexture(gl.TEXTURE_2D, tex)
-		gl.enableVertexAttribArray(cl)
-
-		var d = Date.now()
-		var i = 0
-		function render(){
-			gl.viewport(0, 0, cvs.width, cvs.height) // however framerate drops 
-			gl.uniform1f(gl.getUniformLocation(sp, 'time'), (Date.now()-d) / 1000)
-			gl.drawArrays(gl.TRIANGLES, 0, 6)
-			if(!define.whileLoader)return
-			window.requestAnimationFrame(render)
-		}
-		window.requestAnimationFrame(render)
-	}
-}
-
-define.endLoader = function(){	
-	return
-	define.whileLoader = 0
-	define.loaderDiv.parentNode.removeChild(define.loaderDiv)
-}
-
-define.promiseLib = function(exports){
-	// Use polyfill for setImmediate for performance gains
-	var asap = Promise.immediateFn || (typeof setImmediate === 'function' && setImmediate) ||
-		function(fn) { setTimeout(fn, 1); }
-
-	// Polyfill for Function.prototype.bind
-	function bind(fn, thisArg) {
-		return function() {
-			fn.apply(thisArg, arguments)
-		}
-	}
-
-	var isArray = Array.isArray || function(value) { return Object.prototype.toString.call(value) === "[object Array]" }
-
-	function Promise(fn) {
-		if (typeof this !== 'object') throw new TypeError('Promises must be constructed via new')
-		if (typeof fn !== 'function') throw new TypeError('not a function')
-		this._state = null
-		this._value = null
-		this._deferreds = []
-
-		doResolve(fn, bind(resolve, this), bind(reject, this))
-	}
-
-	function handle(deferred) {
-		var me = this
-		if (this._state === null) {
-			this._deferreds.push(deferred)
-			return
-		}
-		asap(function() {
-			var cb = me._state ? deferred.onFulfilled : deferred.onRejected
-			if (cb === null) {
-				(me._state ? deferred.resolve : deferred.reject)(me._value)
+		function handle(deferred) {
+			var me = this
+			if (this._state === null) {
+				this._deferreds.push(deferred)
 				return
 			}
-			var ret;
-			try {
-				ret = cb(me._value)
-			}
-			catch (e) {
-				deferred.reject(e)
-				return;
-			}
-			deferred.resolve(ret)
-		})
-	}
-
-	function resolve(newValue) {
-		try { //Promise Resolution Procedure: https://github.com/promises-aplus/promises-spec#the-promise-resolution-procedure
-			if (newValue === this) throw new TypeError('A promise cannot be resolved with itself.')
-			if (newValue && (typeof newValue === 'object' || typeof newValue === 'function')) {
-				var then = newValue.then
-				if (typeof then === 'function') {
-					doResolve(bind(then, newValue), bind(resolve, this), bind(reject, this))
+			asap(function() {
+				var cb = me._state ? deferred.onFulfilled : deferred.onRejected
+				if (cb === null) {
+					(me._state ? deferred.resolve : deferred.reject)(me._value)
+					return
+				}
+				var ret;
+				try {
+					ret = cb(me._value)
+				}
+				catch (e) {
+					deferred.reject(e)
 					return;
 				}
-			}
-			this._state = true
+				deferred.resolve(ret)
+			})
+		}
+
+		function resolve(newValue) {
+			try { //Promise Resolution Procedure: https://github.com/promises-aplus/promises-spec#the-promise-resolution-procedure
+				if (newValue === this) throw new TypeError('A promise cannot be resolved with itself.')
+				if (newValue && (typeof newValue === 'object' || typeof newValue === 'function')) {
+					var then = newValue.then
+					if (typeof then === 'function') {
+						doResolve(bind(then, newValue), bind(resolve, this), bind(reject, this))
+						return;
+					}
+				}
+				this._state = true
+				this._value = newValue
+				finale.call(this)
+			} catch (e) { reject.call(this, e); }
+		}
+
+		function reject(newValue) {
+			this._state = false
 			this._value = newValue
 			finale.call(this)
-		} catch (e) { reject.call(this, e); }
-	}
-
-	function reject(newValue) {
-		this._state = false
-		this._value = newValue
-		finale.call(this)
-	}
-
-	function finale() {
-		for (var i = 0, len = this._deferreds.length; i < len; i++) {
-			handle.call(this, this._deferreds[i])
 		}
-		this._deferreds = null
-	}
 
-	function Handler(onFulfilled, onRejected, resolve, reject){
-		this.onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : null
-		this.onRejected = typeof onRejected === 'function' ? onRejected : null
-		this.resolve = resolve
-		this.reject = reject
-	}
+		function finale() {
+			for (var i = 0, len = this._deferreds.length; i < len; i++) {
+				handle.call(this, this._deferreds[i])
+			}
+			this._deferreds = null
+		}
 
-	function doResolve(fn, onFulfilled, onRejected) {
-		var done = false;
-		try {
-			fn(function (value) {
+		function Handler(onFulfilled, onRejected, resolve, reject){
+			this.onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : null
+			this.onRejected = typeof onRejected === 'function' ? onRejected : null
+			this.resolve = resolve
+			this.reject = reject
+		}
+
+		function doResolve(fn, onFulfilled, onRejected) {
+			var done = false;
+			try {
+				fn(function (value) {
+					if (done) return
+					done = true
+					onFulfilled(value)
+				}, function (reason) {
+					if (done) return
+					done = true
+					onRejected(reason)
+				})
+			} catch (ex) {
 				if (done) return
 				done = true
-				onFulfilled(value)
-			}, function (reason) {
-				if (done) return
-				done = true
-				onRejected(reason)
+				onRejected(ex)
+			}
+		}
+
+		Promise.prototype['catch'] = function (onRejected) {
+			return this.then(null, onRejected);
+		}
+
+		Promise.prototype.then = function(onFulfilled, onRejected) {
+			var me = this;
+			return new Promise(function(resolve, reject) {
+				handle.call(me, new Handler(onFulfilled, onRejected, resolve, reject))
 			})
-		} catch (ex) {
-			if (done) return
-			done = true
-			onRejected(ex)
 		}
-	}
 
-	Promise.prototype['catch'] = function (onRejected) {
-		return this.then(null, onRejected);
-	}
+		Promise.all = function () {
+			var args = Array.prototype.slice.call(arguments.length === 1 && isArray(arguments[0]) ? arguments[0] : arguments)
 
-	Promise.prototype.then = function(onFulfilled, onRejected) {
-		var me = this;
-		return new Promise(function(resolve, reject) {
-			handle.call(me, new Handler(onFulfilled, onRejected, resolve, reject))
-		})
-	}
-
-	Promise.all = function () {
-		var args = Array.prototype.slice.call(arguments.length === 1 && isArray(arguments[0]) ? arguments[0] : arguments)
-
-		return new Promise(function (resolve, reject) {
-			if (args.length === 0) return resolve([])
-			var remaining = args.length
-			function res(i, val) {
-				try {
-					if (val && (typeof val === 'object' || typeof val === 'function')) {
-						var then = val.then
-						if (typeof then === 'function') {
-							then.call(val, function (val) { res(i, val) }, reject)
-							return
+			return new Promise(function (resolve, reject) {
+				if (args.length === 0) return resolve([])
+				var remaining = args.length
+				function res(i, val) {
+					try {
+						if (val && (typeof val === 'object' || typeof val === 'function')) {
+							var then = val.then
+							if (typeof then === 'function') {
+								then.call(val, function (val) { res(i, val) }, reject)
+								return
+							}
 						}
+						args[i] = val
+						if (--remaining === 0) {
+							resolve(args)
+						}
+					} catch (ex) {
+						reject(ex)
 					}
-					args[i] = val
-					if (--remaining === 0) {
-						resolve(args)
-					}
-				} catch (ex) {
-					reject(ex)
 				}
-			}
-			for (var i = 0; i < args.length; i++) {
-				res(i, args[i])
-			}
-		})
-	}
-
-	Promise.resolve = function (value) {
-		if (value && typeof value === 'object' && value.constructor === Promise) {
-			return value
+				for (var i = 0; i < args.length; i++) {
+					res(i, args[i])
+				}
+			})
 		}
 
-		return new Promise(function (resolve) {
-			resolve(value)
-		})
-	}
-
-	Promise.reject = function (value) {
-		return new Promise(function (resolve, reject) {
-			reject(value)
-		})
-	}
-
-	Promise.race = function (values) {
-		return new Promise(function (resolve, reject) {
-			for(var i = 0, len = values.length; i < len; i++) {
-				values[i].then(resolve, reject)
+		Promise.resolve = function (value) {
+			if (value && typeof value === 'object' && value.constructor === Promise) {
+				return value
 			}
-		})
+
+			return new Promise(function (resolve) {
+				resolve(value)
+			})
+		}
+
+		Promise.reject = function (value) {
+			return new Promise(function (resolve, reject) {
+				reject(value)
+			})
+		}
+
+		Promise.race = function (values) {
+			return new Promise(function (resolve, reject) {
+				for(var i = 0, len = values.length; i < len; i++) {
+					values[i].then(resolve, reject)
+				}
+			})
+		}
+
+		exports.Promise = Promise
 	}
 
-	exports.Promise = Promise
-}
+
+})(typeof define !== 'undefined' && define)
+
+
 if(typeof Promise === 'undefined') define.promiseLib(typeof process !== 'undefined'? global: window)
 if(define.atEnd) define.atEnd()

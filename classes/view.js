@@ -7,6 +7,7 @@ define.class( function(node, require){
 	var Animate = require('$base/animate')
 	var FlexLayout = require('$lib/layout')
 	var Shader = this.Shader = require('$draw/$drawmode/shader$drawmode')
+
 	var view = this.constructor
 
 	this.attributes = {

@@ -5,7 +5,6 @@
 
 
 define.class('../shader', function(require, exports, self){
-	if(define.$environment === 'nodejs') return
 
 	var gltypes = require('../gltypes')
 

@@ -88,7 +88,16 @@ function main(){
 
 	//try{fs.mkdirSync(define.expandVariables(define.$build))}catch(e){}
 
-	if(args['-nomoni']){
+	if(args['-ui']){
+		// lets do an async require on our UI
+		require.async(args['-ui']).then(function(result){
+			console.log("I IZ HERE!", result)
+			
+		}).catch(function(error){
+			console.log(error)
+		})
+	}
+	else if(args['-nomoni']){
 		if(args['-sync']){
 			var GitSync = require('$core/server/gitsync')
 			
