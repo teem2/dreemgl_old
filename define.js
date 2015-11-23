@@ -1087,12 +1087,12 @@
 							// alright we get a boot file
 							// set our root properly
 							define.$root = 'http://'+parsedmodurl.hostname+':'+parsedmodurl.port+'/'
-							define.$drawmode = 'webgl'
 							define.system_classes = data.system_classes
 							// lets point all the system classes the right way
 							for(var key in data.system_classes){
 								data.system_classes[key] = define.expandVariables(data.system_classes[key])
 							}
+							
 							// alright now, lets load up the root
 							loadModuleAsync(define.expandVariables(data.boot)).then(function(result){
 								// ok so, 
@@ -1190,7 +1190,7 @@
 					var ret = require(full_name)
 				}
 				catch(e){
-					console.log(e)
+					console.log(e.stack)
 				}
 				finally{
 					define.local_require_stack = old_stack
@@ -1219,6 +1219,7 @@
 
 			if (typeof factory !== "function") return module.exports = factory
 
+			// we are being used for require.async
 			if(define.process_factory){
 				define.process_factory = factory
 				return

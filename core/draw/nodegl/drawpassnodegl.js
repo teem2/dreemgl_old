@@ -4,7 +4,6 @@
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
 
-// composition base class
-define(function(require, node){
-	return require('$base/composition_$drawmode')
+define.class("../webgl/drawpasswebgl", function(require, baseclass){
+
 })

@@ -23,7 +23,8 @@ define.class( function(node, require){
 
 		bgcolor: {type:vec4, value: vec4(0,0,0.1,1)},
 		clearcolor: {type:vec4, value: vec4('transparent')},
-		scrolloffset: {type:vec3, value:vec2(0, 0, 0)},
+		scroll: {type:vec2, value:vec2(0, 0)},
+		zoom:{type:float, value:1},
 		size: {type:vec2, value:vec2(NaN, NaN)},
 
 		overflow: {type: Enum('','hidden','scroll','auto'), value:''},
@@ -96,7 +97,7 @@ define.class( function(node, require){
 		"mouseout","mouseover","mousemove",
 		"mouseleftdown","mouseleftup",
 		"mouserightdown","mouserightup",
-		"mousewheelx","mousewheely",
+		"mousewheelx","mousewheely","mousezoom",
 		"keyup","keydown","keypress","keypaste",
 		"focusget","focuslost"
 	]
@@ -409,7 +410,7 @@ define.class( function(node, require){
 					vertical:true,
 					noscroll:true,
 					offset:function(value){
-						this.parent._scrolloffset = vec2(this.parent._scrolloffset[0],this._offset)
+						this.parent._scroll = vec2(this.parent._scroll[0],this._offset)
 					},
 					layout:function(){
 						var parent_layout = this.parent.layout
@@ -425,7 +426,7 @@ define.class( function(node, require){
 					vertical:false,
 					noscroll:true,
 					offset:function(value){
-						this.parent._scrolloffset = vec2(this._offset,this.parent._scrolloffset[1])
+						this.parent._scroll = vec2(this._offset,this.parent._scroll[1])
 					},
 					layout:function(){
 						var parent_layout = this.parent.layout
@@ -448,15 +449,35 @@ define.class( function(node, require){
 					this.vscrollbar.offset = clamp(this.vscrollbar._offset + pos, 0, this.vscrollbar._total - this.vscrollbar._page)
 				}
 			}
+
+			this.mousezoom = function(zoom){
+				// how about zooming around something? dont we need to auto-scroll too?
+				var lastzoom = this._zoom
+				this.zoom = this.zoom * (1+0.03*zoom)
+				// ok so how do we zoom around ourselves?
+				// well have to scroll 
+				
+				var pos = this.localMouse()
+				// lets get the mouse pos inside this rect
+
+				var shiftx = pos[0] * lastzoom - pos[0] * this._zoom
+				var shifty = pos[1] * lastzoom - pos[1] * this._zoom 
+ 
+				this.hscrollbar.offset = clamp(this.hscrollbar._offset + shiftx, 0, this.hscrollbar._total - this.hscrollbar._page)
+				this.vscrollbar.offset = clamp(this.vscrollbar._offset + shifty, 0, this.vscrollbar._total - this.vscrollbar._page)
+
+				this.updateScrollbars()
+				this.redraw()
+			}
 			this.bg = -1
 		}
 	}
 	
 	// show/hide scrollbars
-	this.showScrollbars = function(){
+	this.updateScrollbars = function(){
 		if(this.vscrollbar){
 			var scroll = this.vscrollbar
-			var totalsize = this.sublayout.height, viewsize = this.layout.height
+			var totalsize = this.sublayout.height , viewsize = this.layout.height * this.zoom
 
 			if(totalsize > viewsize){
 				scroll._visible = true
@@ -472,7 +493,7 @@ define.class( function(node, require){
 		}
 		if(this.hscrollbar){
 			var scroll = this.hscrollbar
-			var totalsize = this.sublayout.width, viewsize = this.layout.width
+			var totalsize = this.sublayout.width, viewsize = this.layout.width* this.zoom
 
 			if(totalsize > viewsize){
 				scroll._visible = true
@@ -526,7 +547,7 @@ define.class( function(node, require){
 			this.layout = layout
 	
 			emitPostLayout(copynodes)
-			this.showScrollbars()
+			this.updateScrollbars()
 		}
 		else{
 			var copynodes = FlexLayout.fillNodes(this)

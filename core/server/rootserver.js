@@ -188,7 +188,7 @@ define.class(function(require, exports, self){
 					//header["Content-Type"]+="; utf8"
 					header["Content-encoding"] = "gzip"
 					header["Transfer-Encoding"] = "gzip"
-					var gzip_file = path.join(this.cache_gzip, requrl.replace(/\//g,'_')+header.ETag)
+					var gzip_file = path.join(this.cache_gzip, requrl.replace(/\//g,'_')+header.etag)
 					fs.stat(gzip_file, function(err, stat){
 						if(err){ // make it
 							fs.readFile(file, function(err, data){

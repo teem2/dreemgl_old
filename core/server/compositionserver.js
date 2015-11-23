@@ -91,7 +91,6 @@ define.class(function(require){
 
 		// ok, we will need to compute the local classes thing
 		define.system_classes = this.system_classes
-		define.$drawmode = 'headless'
 		// lets figure out if we are a direct .js file or a 
 		// directory with an index.js 
 		var scan = [

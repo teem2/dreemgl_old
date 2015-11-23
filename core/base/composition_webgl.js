@@ -2,9 +2,24 @@
    You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, 
    software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, 
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
+// this class
 
+define.class('$base/composition_client', function(require, baseclass){
 
-// composition base class
-define(function(require, node){
-	return require('$base/composition_$drawmode')
+	var Device = require('$draw/$drawmode/device$drawmode')
+
+	this.atConstructor = function(previous, parent){
+		
+		if(previous){
+			this.reload = (previous.reload || 0) + 1
+			this.device = new Device(previous.device) //previous.device
+			console.log("Reload " + this.reload)
+		}
+		else{
+			// lets spawn up a webGL device
+			this.device = new Device()
+		}
+
+		baseclass.prototype.atConstructor.call(this)
+	}
 })

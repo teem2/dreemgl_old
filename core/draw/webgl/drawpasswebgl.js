@@ -7,9 +7,6 @@
 define.class(function(require, baseclass){
 	// drawing
 
-	var Texture = require("./texturewebgl")
-	var FlexLayout = require('$lib/layout')
-	var Shader = require("./shaderwebgl")
 	this.atConstructor = function(gldevice, view){
 		this.device = gldevice
 		this.view = view
@@ -164,7 +161,7 @@ define.class(function(require, baseclass){
 
 		device.clear(0,0,0,0)
 		
-		var scrollx = view._scrolloffset[0], scrolly = view._scrolloffset[1]
+		var scroll = view._scroll
 
 		 // 2d/3d switch
 		if(view._mode === '2D'){
@@ -173,11 +170,11 @@ define.class(function(require, baseclass){
 			}
 			else{
 				if (isroot){
-					mat4.ortho(scrollx, layout.width+scrollx, scrolly, layout.height+scrolly, -100, 100, this.pick_viewmatrix)
+					mat4.ortho(scroll[0], layout.width+scroll[0], scroll[1], layout.height+scroll[1], -100, 100, this.pick_viewmatrix)
 					mat4.ortho(0, layout.width, 0, layout.height, -100, 100, this.pick_noscrollmatrix)
 				}
 				else{
-					mat4.ortho(scrollx, layout.width+scrollx, layout.height+scrolly, scrolly, -100, 100, this.pick_viewmatrix)
+					mat4.ortho(scroll[0], layout.width+scroll[0], layout.height+scroll[1], scroll[1], -100, 100, this.pick_viewmatrix)
 					mat4.ortho(0, layout.width, layout.height, 0, -100, 100, this.pick_noscrollmatrix)
 				}
 			}
@@ -229,7 +226,7 @@ define.class(function(require, baseclass){
 		}
 	}
 
-	var MyShader = define.class(Shader, function(){
+	var MyShader = define.class(this.Shader, function(){
 		this.mesh = vec2.array()
 		this.mesh.pushQuad(-1,-1,1,-1,-1,1,1,1)
 		this.position = function(){
@@ -263,15 +260,16 @@ define.class(function(require, baseclass){
 
 		device.clear(view._clearcolor)
 		// 2d/3d switch
-		var scrollx = view._scrolloffset[0], scrolly = view._scrolloffset[1]
+		var scroll = view._scroll
 
 		if(view._mode === '2D'){
+			var zoom = view._zoom
 			if (isroot){
-				mat4.ortho(scrollx, layout.width+scrollx, scrolly, layout.height+scrolly, -100, 100, this.color_viewmatrix)
+				mat4.ortho(scroll[0], layout.width*zoom+scroll[0], scroll[1], layout.height*zoom+scroll[1], -100, 100, this.color_viewmatrix)
 				mat4.ortho(0, layout.width, 0, layout.height, -100, 100, this.color_noscrollmatrix)
 			}
 			else{
-				mat4.ortho(scrollx, layout.width+scrollx, layout.height+scrolly, scrolly, -100, 100, this.color_viewmatrix)
+				mat4.ortho(scroll[0], layout.width*zoom+scroll[0], layout.height*zoom+scroll[1], scroll[1], -100, 100, this.color_viewmatrix)
 				mat4.ortho(0, layout.width, layout.height, 0, -100, 100, this.color_noscrollmatrix)
 			}
 		}
@@ -307,10 +305,10 @@ define.class(function(require, baseclass){
 				}
 				// early out check
 				if(draw !== view && !draw.noscroll){
-					if( subview.absy - scrolly > height || subview.absy + subview.height - scrolly < 0){
+					if( subview.absy - scroll[1] > height * zoom || subview.absy + subview.height - scroll[1] < 0){
 						continue
 					} 
-					if(subview.absx - scrollx > width || subview.absx + subview.width - scrollx < 0){
+					if(subview.absx - scroll[0] > width * zoom || subview.absx + subview.width - scroll[0] < 0){
 						continue
 					}
 				}

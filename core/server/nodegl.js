@@ -3,8 +3,23 @@
    software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, 
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
+define.class(function(require, exports, self){
 
-// composition base class
-define(function(require, node){
-	return require('$base/composition_$drawmode')
+	var NodeWebSocket = require('$core/server/nodewebsocket')
+
+	this.atConstructor = function(args){
+		// allright lets fire up 
+		define.$drawmode = 'nodegl'
+
+		require.async(args['-nodegl']).then(function(result){
+			// alright we got our main UI module
+			// lets initialize it.
+			setInterval(function(){
+				console.log('blockin')
+			},1000)
+		}).catch(function(error){
+			console.log(error)
+		})
+	}
+
 })

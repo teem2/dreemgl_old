@@ -6,23 +6,21 @@
 
 define.class(function(require, exports, self){
 
-	var Keyboard = require('./keyboardwebgl')
-	var Mouse = require('./mousewebgl')
-	var Touch = require('./touchwebgl')
+	this.Keyboard = require('./keyboardwebgl')
+	this.Mouse = require('./mousewebgl')
+	this.Touch = require('./touchwebgl')
 
 	// require embedded classes	
-	var Shader = this.Shader = require('./shaderwebgl')
-	var Texture = this.Texture = require('./texturewebgl')
-	var DrawPass =this.Layer = require('./drawpasswebgl')
+	this.Shader = require('./shaderwebgl')
+	this.Texture = require('./texturewebgl')
+	this.DrawPass = require('./drawpasswebgl')
 
-	this.frame = 
-	this.main_frame = this.Texture.fromType('rgb_depth_stencil')
-	
 	this.preserveDrawingBuffer = true
 	this.antialias = false
 	this.debug_pick = false
 
 	this.atConstructor = function(previous){
+
 		this.extensions = previous && previous.extensions || {}
 		this.shadercache = previous &&  previous.shadercache || {}
 		this.drawpass_list = previous && previous.drawpass_list || []
@@ -47,51 +45,69 @@ define.class(function(require, exports, self){
 			this.touch = previous.touch
 			this.parent = previous.parent
 			this.drawtarget_pools = previous.drawtarget_pools
+			this.frame = this.main_frame = previous.main_frame
 		}
 		else{
-			this.mouse = new Mouse()
-			this.keyboard = new Keyboard()
-			this.touch = new Touch()
+			this.frame = 
+			this.main_frame = this.Texture.fromType('rgb_depth_stencil')
+
+			this.mouse = new this.Mouse()
+			this.keyboard = new this.Keyboard()
+			this.touch = new this.Touch()
 			this.drawtarget_pools = {}
 
-			if(!this.parent) this.parent = document.body
-
-			this.canvas = document.createElement("canvas")
-			this.canvas.className = 'unselectable'
-			this.parent.appendChild(this.canvas)
-			
-			var options = {
-				alpha: this.frame.type.indexOf('rgba') != -1,
-				depth: this.frame.type.indexOf('depth') != -1,
-				stencil: this.frame.type.indexOf('stencil') != -1,
-				antialias: this.antialias,
-				premultipliedAlpha: this.premultipliedAlpha,
-				preserveDrawingBuffer: this.preserveDrawingBuffer,
-				preferLowPowerToHighPerformance: this.preferLowPowerToHighPerformance
-			}
-
-			this.gl = this.canvas.getContext('webgl', options) || 
-				this.canvas.getContext('webgl-experimental', options) || 
-				this.canvas.getContext('experimental-webgl', options)
-
-			if(!this.gl){
-				console.log(this.canvas)
-				console.log("Could not get webGL context!")
-			}
-			// require derivatives
-			this.getExtension('OES_standard_derivatives')
+			this.createContext()
 		}
 
+		this.initResize()
+	}
+
+	this.createContext = function(){
+		if(!this.parent) this.parent = document.body
+
+		this.canvas = document.createElement("canvas")
+		this.canvas.className = 'unselectable'
+		this.parent.appendChild(this.canvas)
+		
+		var options = {
+			alpha: this.frame.type.indexOf('rgba') != -1,
+			depth: this.frame.type.indexOf('depth') != -1,
+			stencil: this.frame.type.indexOf('stencil') != -1,
+			antialias: this.antialias,
+			premultipliedAlpha: this.premultipliedAlpha,
+			preserveDrawingBuffer: this.preserveDrawingBuffer,
+			preferLowPowerToHighPerformance: this.preferLowPowerToHighPerformance
+		}
+
+		this.gl = this.canvas.getContext('webgl', options) || 
+			this.canvas.getContext('webgl-experimental', options) || 
+			this.canvas.getContext('experimental-webgl', options)
+
+		if(!this.gl){
+			console.log(this.canvas)
+			console.log("Could not get webGL context!")
+		}
+
+		window.onhashchange = function(){
+			console.log('here')
+			if(this.screen) this.screen.decodeLocationHash()
+		}.bind(this)
+
+		// require derivatives
+		this.getExtension('OES_standard_derivatives')		
+	}
+
+	this.initResize = function(){
 		//canvas.webkitRequestFullscreen()
 		var resize = function(){
 			var pixelRatio = window.devicePixelRatio
-	
+
 			var w = this.parent.offsetWidth
 			var h = this.parent.offsetHeight
 
 			var sw = w * pixelRatio
 			var sh = h * pixelRatio
-	
+
 			this.canvas.width = sw
 			this.canvas.height = sh
 			this.canvas.style.width = w + 'px'
@@ -112,7 +128,7 @@ define.class(function(require, exports, self){
 			this.redraw()
 		}.bind(this)
 
-		resize()
+		resize()		
 	}
 
 	this.clear = function(r, g, b, a){
@@ -319,7 +335,7 @@ define.class(function(require, exports, self){
 		}
 		// lets create a drawpass 
 		if(view._mode){
-			var pass = new DrawPass(this, view)
+			var pass = new this.DrawPass(this, view)
 			this.drawpass_list.splice(this.drawpass_idx,0,view)
 			this.drawpass_idx++
 			// lets also add a layout pass

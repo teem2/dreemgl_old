@@ -4,7 +4,21 @@
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
 
-// composition base class
-define(function(require, node){
-	return require('$base/composition_$drawmode')
+define.class("../wegbl/devicewebgl", function(require, exports, self){
+
+	this.Keyboard = require('./keyboardnodegl')
+	this.Mouse = require('./mousenodegl')
+	this.Touch = require('./touchnodegl')
+
+	// require embedded classes	
+	this.Shader = require('./shadernodegl')
+	this.Texture = require('./texturenodegl')
+	this.DrawPass = require('./drawpassnodegl')
+
+	// create nodegl context
+	this.createContext = function(){
+		
+
+
+	}
 })

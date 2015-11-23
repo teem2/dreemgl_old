@@ -21,7 +21,8 @@ define.class(function(node){
 		rightdown: {type:int},
 		rightup: {type:int},
 		wheelx: {type:int},
-		wheely: {type:int}
+		wheely: {type:int},
+		zoom: {type:int}
 	}
 
 })

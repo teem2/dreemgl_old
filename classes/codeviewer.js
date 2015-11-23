@@ -126,7 +126,6 @@ define.class(function(require, label){
 		}
 
 		this.update = function(){
-			console.log("update")
 			var view = this.view
 			var maxwidth = view.layout.width
 			var textbuf = this.mesh = this.newText()

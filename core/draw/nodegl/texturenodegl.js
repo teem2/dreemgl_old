@@ -4,7 +4,10 @@
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
 
-// composition base class
-define(function(require, node){
-	return require('$base/composition_$drawmode')
+define.class('../webgl/texturewebgl', function(require){
+	
+	// copy base class static methods
+	var parent = Object.getPrototypeOf(this)
+	for(var key in parent.constructor) this.constructor[key] = parent.constructor[key]
+	
 })

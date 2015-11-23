@@ -84,18 +84,14 @@ function main(){
 		return process.exit(0)
 	}
 	define.$external = define.joinPath(define.$root, args['-external'] || '../compositions')
-	define.$rendermode = 'headless'
-
+	define.$drawmode = 'headless'
 	//try{fs.mkdirSync(define.expandVariables(define.$build))}catch(e){}
 
-	if(args['-ui']){
+	if(args['-nodegl']){
 		// lets do an async require on our UI
-		require.async(args['-ui']).then(function(result){
-			console.log("I IZ HERE!", result)
-			
-		}).catch(function(error){
-			console.log(error)
-		})
+		define.$drawmode = 'nodegl'
+		var NodeGL = require('$core/server/nodegl')
+		new NodeGL(args)
 	}
 	else if(args['-nomoni']){
 		if(args['-sync']){
@@ -123,6 +119,7 @@ function main(){
 
 		}
 		else{
+			define.$drawmode = 'nodejs'
 			var RootServer = require('$core/server/rootserver')
 			new RootServer(args)
 		}

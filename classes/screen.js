@@ -386,6 +386,14 @@ define.class(function(view, require) {
 			}
 		}.bind(this)
 
+		this.mouse.zoom = function(){
+			if (this.mouse_capture) this.mouse_capture.emitUpward('mousezoom', this.mouse.zoom)
+			else if(this.mouse_view && this.inModalChain(this.mouse_view)){
+				this.mouse_view.emitUpward('mousezoom', this.mouse.zoom)
+			}
+		}.bind(this)
+
+
 		/*
 		this.mouse.click = function () {
 			if(this.modal_miss){

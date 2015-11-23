@@ -35,8 +35,14 @@ define.class('../mouse', function (require, exports, self){
 		}.bind(this))
 
 		window.addEventListener('wheel', function(e){
-			if(e.deltaX !== 0) this.wheelx = e.deltaX
-			if(e.deltaY !== 0) this.wheely = e.deltaY
+			if(e.ctrlKey){
+				this.zoom = e.wheelDelta / 120
+				//console.log(e.wheelDelta)
+			}
+			else{
+				if(e.deltaX !== 0) this.wheelx = e.deltaX
+				if(e.deltaY !== 0) this.wheely = e.deltaY
+			}
 			e.preventDefault()
 		}.bind(this))
 

@@ -8,9 +8,7 @@ define.class('../shader', function(require, exports, self){
 
 	var gltypes = require('../gltypes')
 
-	var Texture = require('./texturewebgl')
-
-	this.Texture = Texture
+	this.Texture =  require('./texturewebgl')
 
 	this.compileShader = function(gldevice){
 		var vtx_state = this.vtx_state
