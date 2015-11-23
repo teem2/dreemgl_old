@@ -171,6 +171,8 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 	
 	// Build a documentation structure for a given constructor function
 	function BuildDoc(constructor) {
+		console.log(constructor);
+		if (!constructor) return;
 		var proto = constructor.prototype;
 		var class_doc = BlankDoc();
 		var p = constructor;
@@ -356,6 +358,7 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 			var body = [];
 			var res =[];
 			var class_doc = this.class_doc;
+			if (!this.class_doc) return [];
 			
 			if (!this.collapsible ){
 				body.push(view({},[icon({fontsize: 38, icon:"cube", fgcolor: "black" }),label({width: 500, text:class_doc.class_name,fontsize: 30,margin: vec4(10,10,0,20), fgcolor: "black" })]));
