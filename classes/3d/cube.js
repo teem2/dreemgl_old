@@ -5,7 +5,6 @@
 
 
 define.class(function(require, shape3d, view, icon){
-	if(define.$environment === 'nodejs') return
 
 	this.attributes = {dimension:{type:vec3, value:vec3(1)}}
 	

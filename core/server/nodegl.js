@@ -10,15 +10,13 @@ define.class(function(require, exports, self){
 	this.atConstructor = function(args){
 		// allright lets fire up 
 		define.$drawmode = 'nodegl'
+		console.log('Downloading nodegl')
+		require.async(args['-nodegl']).then(function(composition){
+			console.log('Booting nodegl')
+			this.comp = new composition(undefined, undefined, args['-nodegl'])
 
-		require.async(args['-nodegl']).then(function(result){
-			// alright we got our main UI module
-			// lets initialize it.
-			setInterval(function(){
-				console.log('blockin')
-			},1000)
 		}).catch(function(error){
-			console.log(error)
+			console.log(error.stack)
 		})
 	}
 

@@ -5,8 +5,6 @@
 
 
 define.class(function(require, shape3d){
-	if(define.$environment === 'nodejs') return
-
 
 	this.attributes = {
 		radius: {type:float, value:0.5},

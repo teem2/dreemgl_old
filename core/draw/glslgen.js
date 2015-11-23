@@ -101,7 +101,7 @@ define.class('$parse/onejsgen', function(require, exports, self, baseclass){
 			return outname
 		}
 		else if (typeof obj === 'object'){
-			if(obj instanceof Image){
+			if(obj instanceof Texture.Image){
 				obj = context[name] = Texture.fromImage(obj)
 			}
 			node.infer = {fn_t:'object', object:obj}

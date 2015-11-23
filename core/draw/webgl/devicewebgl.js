@@ -13,11 +13,14 @@ define.class(function(require, exports, self){
 	// require embedded classes	
 	this.Shader = require('./shaderwebgl')
 	this.Texture = require('./texturewebgl')
+	this.Texture.Image = typeof Image !== 'undefined' && Image
 	this.DrawPass = require('./drawpasswebgl')
 
 	this.preserveDrawingBuffer = true
 	this.antialias = false
 	this.debug_pick = false
+
+	this.document = typeof window !== 'undefined'?window : null
 
 	this.atConstructor = function(previous){
 
@@ -31,7 +34,7 @@ define.class(function(require, exports, self){
 
 		this.animFrame = function(time){
 			if(this.doDraw(time)){
-				window.requestAnimationFrame(this.animFrame)
+				this.document.requestAnimationFrame(this.animFrame)
 			}
 			else this.anim_req = false
 			//if(this.pick_resolve.length) this.doPick()
@@ -88,11 +91,6 @@ define.class(function(require, exports, self){
 			console.log("Could not get webGL context!")
 		}
 
-		window.onhashchange = function(){
-			console.log('here')
-			if(this.screen) this.screen.decodeLocationHash()
-		}.bind(this)
-
 		// require derivatives
 		this.getExtension('OES_standard_derivatives')		
 	}
@@ -128,6 +126,10 @@ define.class(function(require, exports, self){
 			this.redraw()
 		}.bind(this)
 
+		window.onhashchange = function(){
+			if(this.screen) this.screen.decodeLocationHash()
+		}.bind(this)
+
 		resize()		
 	}
 
@@ -149,7 +151,7 @@ define.class(function(require, exports, self){
 	this.redraw = function(){
 		if(this.anim_req) return
 		this.anim_req = true
-		window.requestAnimationFrame(this.animFrame)
+		this.document.requestAnimationFrame(this.animFrame)
 	}
 
 	this.bindFramebuffer = function(frame){
@@ -232,10 +234,10 @@ define.class(function(require, exports, self){
 		this.screen.doAnimation(stime, anim_redraw)
 
 		// set the size externally of the main view
-
 		//var screen = this.layout_list[this.layout_list.length - 1]
 		this.screen._max =
 		this.screen._size = vec2(this.main_frame.size[0] / this.ratio, this.main_frame.size[1] / this.ratio)
+
 		// do the dirty layouts
 		for(var i = 0; i < this.layout_list.length; i++){
 			// lets do a layout?
@@ -249,7 +251,7 @@ define.class(function(require, exports, self){
 		// lets draw draw all dirty passes.
 		for(var i = 0, len = this.drawpass_list.length; i < len; i++){
 			var view = this.drawpass_list[i]	
-			if(view.draw_dirty & 1){
+			if(view.draw_dirty & 1 || i === len - 1){
 				view.drawpass.drawColor(i === len - 1)
 				view.draw_dirty &= 2
 			}
@@ -262,6 +264,7 @@ define.class(function(require, exports, self){
 			}
 			return true
 		}
+		return true
 	}
 
 	this.atNewlyRendered = function(view){

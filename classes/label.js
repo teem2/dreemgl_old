@@ -7,6 +7,7 @@
 define.class(function(view, require){	
 
 	var Font = require('$font/fontshader')
+
 	var glfontParser = require('$font/fontparser')
 
 	this.bgcolor = vec4("transparent")

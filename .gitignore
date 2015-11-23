@@ -3,5 +3,6 @@
 build/
 cache/
 gzcache/
+node_modules/
 .DS_Store
 *.marks

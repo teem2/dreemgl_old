@@ -7,9 +7,11 @@
 define.class('$base/composition_client', function(require, baseclass){
 
 	var Device = require('$draw/$drawmode/device$drawmode')
+	var BusClient = require('$rpc/busclient')
+	var NodeWebSocket = require('$server/nodewebsocket')
 
-	this.atConstructor = function(previous, parent){
-		
+	this.atConstructor = function(previous, parent, baseurl){
+		this.baseurl = baseurl
 		if(previous){
 			this.reload = (previous.reload || 0) + 1
 			this.device = new Device(previous.device) //previous.device
@@ -22,4 +24,9 @@ define.class('$base/composition_client', function(require, baseclass){
 
 		baseclass.prototype.atConstructor.call(this)
 	}
+
+	this.createBus = function(){
+		this.bus = new BusClient(this.baseurl, NodeWebSocket)
+	}
+
 })

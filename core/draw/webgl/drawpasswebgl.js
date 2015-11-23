@@ -240,12 +240,13 @@ define.class(function(require, baseclass){
 	})
 
 	this.drawColor = function(isroot){
+
 		var view = this.view
 		var device = this.device
 		var layout = view.layout
 
 		if(!layout || layout.width === 0 || isNaN(layout.width) || layout.height === 0 || isNaN(layout.height)) return
-
+	
 		// lets see if we need to allocate our framebuffer..
 		if(!isroot){
 			var ratio = view._pixelratio
@@ -257,8 +258,9 @@ define.class(function(require, baseclass){
 		this.device.bindFramebuffer(this.color_buffer)
 
 		if(layout.width === 0 || layout.height === 0) return
-
+	
 		device.clear(view._clearcolor)
+
 		// 2d/3d switch
 		var scroll = view._scroll
 
@@ -341,7 +343,6 @@ define.class(function(require, baseclass){
 					// we have to set our guid.
 					if(shader.order < 0) draw.viewmatrix = this.color_noscrollmatrix
 					else draw.viewmatrix = this.color_viewmatrix
-
 					shader.drawArrays(this.device)
 				}
 			}

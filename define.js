@@ -1024,7 +1024,7 @@
 						else if(res.statusCode === 304){ // cached
 							return resolve({path:cache_path, type:res.headers['content-type']})
 						}
-						else reject(res.statusCode)
+						else reject({path:myurl.path,code:res.statusCode})
 
 						// lets write it to disk
 						var str = fs.createWriteStream(cache_path)
@@ -1151,18 +1151,16 @@
 						return resolve(result.path)
 	
 					}).catch(function(err){
-						console.log("Error"+err,err.stack)
+						console.log("Error",err,err.stack)
 					})
 				})
 			}
 
 
-			function noderequirewrapper(name) {
+			function noderequirewrapper(iname) {
+				
+				var name = iname
 				if(arguments.length != 1) throw new Error("Unsupported require style")
-
-				// we cant require non js files
-				var ext = define.fileExt(name)
-				if(ext !== '' && ext !== 'js') return undefined
 
 				name = define.expandVariables(name)
 
@@ -1183,6 +1181,27 @@
 				if(define.atRequire && full_name.charAt(0) == '/'){
 					define.atRequire(full_name)
 				}
+
+				// we cant require non js files
+				var ext = define.fileExt(full_name)
+				if(ext !== '' && ext !== 'js'){
+					if(ext === 'png' || ext === 'jpg' || ext === 'jpeg'){
+						return undefined
+					}
+					else{
+						// read it as an arraybuffer
+						var buffer = fs.readFileSync(full_name)
+						var ab = new ArrayBuffer(buffer.length)
+						var view = new Uint8Array(ab)
+						for (var i = 0; i < buffer.length; ++i) {
+						    view[i] = buffer[i]
+						}
+						return ab
+						//console.log(full_name)
+					}
+					return undefined
+				}
+
 				var old_stack = define.local_require_stack
 				define.local_require_stack = []
 
@@ -1190,6 +1209,7 @@
 					var ret = require(full_name)
 				}
 				catch(e){
+
 					console.log(e.stack)
 				}
 				finally{

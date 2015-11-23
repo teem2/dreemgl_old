@@ -37,7 +37,6 @@ define.class(function(composition, docviewer, codeviewer, fileio, screens, scree
 									postLayout:function(){
 									},
 									init:function(){
-										window.test = this
 										var dataset = this.find('screen').model
 										if(dataset) this.dataset = dataset
 									},

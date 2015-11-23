@@ -24,7 +24,6 @@ define.class(function(require){
 	}
 
 	this.initClient = function(server_url){
-
 		this.url = url.parse(server_url)
 		// ok lets connect to a server
 		var host = this.url.hostname + ':' + this.url.port
@@ -66,7 +65,7 @@ define.class(function(require){
 			}
 			this.socket = socket
 			this.initState()
-			if(this.onConnect) this.onConnect()
+			if(this.atConnect) this.atConnect()
 		}.bind(this))
 
 		req.end()

@@ -50,7 +50,7 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 	
 	this.render = function(){ return [
 		screens(
-			screen({clearcolor:'#484230', flexdirection:'row'}
+			screen({clearcolor:vec4('red')}
 				,view({// size:[100,100],
 					name:'viewbg',
 					flexdirection:'column',

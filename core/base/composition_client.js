@@ -10,8 +10,6 @@ define.class('$base/composition_base', function(require, baseclass){
 	var RpcProxy = require('$rpc/rpcproxy')
 	var RpcHub = require('$rpc/rpchub')
 
-	var WebRTC = require('$rpc/webrtc')
-	var BusClient = require('$rpc/busclient')
 	var Render = require('$base/render')
 
 	this.atConstructor = function(previous, parent){
@@ -20,7 +18,7 @@ define.class('$base/composition_base', function(require, baseclass){
 		// how come this one doesnt get patched up?
 		baseclass.prototype.atConstructor.call(this)
 
-		this.screenname = location.search && location.search.slice(1)
+		this.screenname = typeof location !== 'undefined' && location.search && location.search.slice(1)
 
 		// web environment
 		if(previous){
@@ -29,8 +27,11 @@ define.class('$base/composition_base', function(require, baseclass){
 			this.rpc.host = this
 			this.rendered = true
 		}
-		else this.createBus()
-
+		else{
+			this.createBus()
+			// create the rpc object
+			this.rpc = new RpcHub(this)
+		} 
 		this.bindBusEvents()
 
 		this.renderComposition()
@@ -53,7 +54,6 @@ define.class('$base/composition_base', function(require, baseclass){
 			device:this.device
 		}
 		globals.globals = globals
-		window.comp = this
 
 		// copy keyboard and mouse objects from previous
 
@@ -64,7 +64,7 @@ define.class('$base/composition_base', function(require, baseclass){
 		//this.screen.teem = this
 		Render.process(this.screen, previous && previous.screen, globals)
 		
-		if(this.screen.title !== undefined) document.title = this.screen.title 
+		if(typeof document !== 'undefined' && this.screen.title !== undefined) document.title = this.screen.title 
 			
 		globals.device.redraw()
 
@@ -206,13 +206,6 @@ define.class('$base/composition_base', function(require, baseclass){
 				this.rpc.resolveReturn(msg)
 			}
 		}.bind(this)
-	}
-
-	this.createBus = function(){
-		
-		this.bus = new BusClient(location.pathname)
-		// create the rpc object
-		this.rpc = new RpcHub(this)
 	}
 
 	this.log = function(){

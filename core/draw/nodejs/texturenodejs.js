@@ -5,5 +5,7 @@
 
 
 define.class('../texture', function(exports){
-	exports.fromType = function(){}
+	exports.fromType = function(){ return new exports() }
+	exports.fromArray = function(){ return new exports() }
+	exports.Image = function(){}
 })

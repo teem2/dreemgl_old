@@ -5,7 +5,6 @@
 
 
 define.class('$base/node', function(require, exports, self){
-	if(define.$environment === 'nodejs') return
 
 	var OneJSParser =  require('$parse/onejsparser')
 	var GLSLGen = require('./glslgen')
@@ -42,6 +41,7 @@ define.class('$base/node', function(require, exports, self){
 	this._atConstructor = function(){
 		this.view = this.outer
 	}
+	this.set_precision = true
 
 	this.extensions = ''
 	// put extensions as setters to not have to scan for them
@@ -67,7 +67,7 @@ define.class('$base/node', function(require, exports, self){
 
 	this.compileHeader = function(){
 		// ehm how do we find extensions to enable?
-		var ret = 'precision ' + this.precision + ' float;\n'
+		var ret = this.set_precision?'precision ' + this.precision + ' float;\n':''
 		//	'precision ' + this.precision + ' int;'
 
 		//var ret = ''
@@ -636,6 +636,7 @@ define.class('$base/node', function(require, exports, self){
 	}		
 
 	this.atExtend = function(){
+		if(define.$drawmode === 'nodejs') return
 		// forward the view reference
 		if(this.constructor.outer){
 			this.view = this.constructor.outer

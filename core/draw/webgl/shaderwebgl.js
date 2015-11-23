@@ -271,7 +271,7 @@ define.class('../shader', function(require, exports, self){
 			if(buf.length > len) len = buf.length
 			gl.bindBuffer(gl.ARRAY_BUFFER, buf.glvb)
 			if(!buf.clean){
-				gl.bufferData(gl.ARRAY_BUFFER, buf.array.buffer, gl.STATIC_DRAW)
+				gl.bufferData(gl.ARRAY_BUFFER, buf.array, gl.STATIC_DRAW)
 				buf.clean = true
 			}
 		}

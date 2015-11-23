@@ -5,7 +5,6 @@
 
 
 define.class(function(require, view, text, view, icon){
-	if(define.$environment === 'nodejs') return
 
 	// The perspective3d object to rotate.
 	this.attributes = {target:{}}

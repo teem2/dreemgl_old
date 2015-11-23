@@ -4,7 +4,7 @@
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
 
-define.class("../wegbl/devicewebgl", function(require, exports, self){
+define.class("../webgl/devicewebgl", function(require, exports, self){
 
 	this.Keyboard = require('./keyboardnodegl')
 	this.Mouse = require('./mousenodegl')
@@ -12,13 +12,47 @@ define.class("../wegbl/devicewebgl", function(require, exports, self){
 
 	// require embedded classes	
 	this.Shader = require('./shadernodegl')
+
+	this.Shader.prototype.set_precision = false
+	
 	this.Texture = require('./texturenodegl')
 	this.DrawPass = require('./drawpassnodegl')
 
+	var WebGL = require('node-webgl')
+  	var Image = WebGL.Image
+	this.document = WebGL.document()
+	this.Texture.Image = Image
+
 	// create nodegl context
 	this.createContext = function(){
-		
-
-
+		// lets create a nodegl context
+		this.canvas = this.document.createElement("canvas",800,600);
+	    this.gl = this.canvas.getContext("experimental-webgl");
+    	this.gl.viewportWidth = this.canvas.width;
+  		this.gl.viewportHeight = this.canvas.height;
+  		this.doSize()
 	}
+
+	this.doSize = function(){
+		var sw = this.canvas.width
+		var sh = this.canvas.height
+		this.gl.viewport(0, 0, sw, sh)
+		// store our w/h and pixelratio on our frame
+		this.main_frame.ratio = 2
+		this.main_frame.size = vec2(sw, sh) // actual size
+		this.size = vec2(sw, sh)
+		this.ratio = this.main_frame.ratio
+	}
+
+	this.initResize = function(){
+		this.document.on("resize", function (evt) {
+
+			//console.log("resize "+this.canvas.width+" x "+this.canvas.height);
+			//this.canvas.width
+			//this.canvas.height
+			this.doSize()
+			this.relayout()
+		}.bind(this))
+	}
+
 })

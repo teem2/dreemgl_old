@@ -7,6 +7,8 @@
 define.class('$base/composition_client', function(require, baseclass){
 
 	var Device = require('$draw/$drawmode/device$drawmode')
+	var WebRTC = require('$rpc/webrtc')
+	var BusClient = require('$rpc/busclient')
 
 	this.atConstructor = function(previous, parent){
 		
@@ -22,4 +24,9 @@ define.class('$base/composition_client', function(require, baseclass){
 
 		baseclass.prototype.atConstructor.call(this)
 	}
+
+	this.createBus = function(){
+		this.bus = new BusClient('ws://'+location.host+location.pathname)
+	}
+
 })

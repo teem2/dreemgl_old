@@ -5,8 +5,6 @@
 
 
 define.class(function(require, shape3d, text, view, icon){
-	if(define.$environment === 'nodejs') return
-
 	
 	this.attributes = {model:{type:undefined}}
 	

@@ -546,6 +546,7 @@ define.class(function(view, require) {
 
 
 	this.decodeLocationHash = function(){
+		if(typeof location === 'undefined') return
 		// lets split it on & into a=b pairs, 
 		var obj = {}
 		var parts = location.hash.slice(1).split(/\&/)

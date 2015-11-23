@@ -4,7 +4,6 @@
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 // Parts copyright 2012 Google, Inc. All Rights Reserved. (APACHE 2.0 license)
 define.class('$draw/$drawmode/shader$drawmode', function(require, exports, baseclass){
-	if(define.$environment === 'nodejs') return
 
 	var glfontParser = require('$font/fontparser')
 

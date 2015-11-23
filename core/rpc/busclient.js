@@ -6,7 +6,8 @@
 
 define.class(function(require, exports, self){
 
-	this.atConstructor = function(url){
+	this.atConstructor = function(url, websocketclass){
+		this.websocketclass = websocketclass || WebSocket
 		this.url = url || ''
 		this.backoff = 1
 		this.reconnect()
@@ -28,8 +29,9 @@ define.class(function(require, exports, self){
 		this.disconnect()
 		if(!this.queue) this.queue = []
 
-		this.socket = new WebSocket('ws://'+location.host+this.url)
+		this.socket = new this.websocketclass(this.url)
 
+		this.socket.atConnect =
 		this.socket.onopen = function(){
 			this.backoff = 1
 			for(var i = 0;i<this.queue.length;i++){
@@ -38,16 +40,24 @@ define.class(function(require, exports, self){
 			this.queue = undefined
 		}.bind(this)
 
+		this.socket.atError =
 		this.socket.onerror = function(event){
 			this.backoff = 500
 		}.bind(this)
 
+		this.socket.atClose =
 		this.socket.onclose = function(){
 			this.backoff *= 2
 			if(this.backoff > 1000) this.backoff = 1000
 			setTimeout(function(){
 				this.reconnect()
 			}.bind(this),this.backoff)
+		}.bind(this)
+
+		this.socket.atMessage = function(imsg){
+			if(typeof imsg === 'object') console.log(new Error().stack)
+			var msg = JSON.parse(imsg)
+			this.atMessage(msg, this)
 		}.bind(this)
 
 		this.socket.onmessage = function(event){
