@@ -25,7 +25,7 @@ define.class(function(composition, docviewer, codeviewer, fileio, screens, scree
 					if (this.locationhash && this.locationhash.path){
 						require.async(this.locationhash.path).then(function(module){
 							if(!module.body) return
-							this.find('codeviewer').model = module.body.toString()
+							this.find('docviewer').model = module//.body.toString()
 						}.bind(this))
 					}
 					return [
@@ -59,9 +59,9 @@ define.class(function(composition, docviewer, codeviewer, fileio, screens, scree
 									}
 								})
 							)
-							,codeviewer({mode:'2D', 
-							
-								overflow:'scroll', flex:1})
+							,docviewer({mode:'2D'})
+							//,codeviewer({mode:'2D', 
+							//	overflow:'scroll', flex:1})
 						)
 					]
 				}

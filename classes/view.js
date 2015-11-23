@@ -129,6 +129,7 @@ define.class( function(node, require){
 			this.border = 2
 		}
 		else this.border = false
+		this.relayout()
 	}
 
 	this.mode = function(value){
@@ -303,7 +304,6 @@ define.class( function(node, require){
 	this.maxsize = 
 	this.margin =
 	this.padding =
-	this.borderwidth =
 	this.flex =
 	this.flexwrap =
 	this.flexdirection =
