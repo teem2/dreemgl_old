@@ -12,7 +12,6 @@ define.class(function(require, view, icon){
 	//var GLMat = require('$gl/glmaterial')
 	
 	
-	
 	define.class(this, 'bg', this.Shader, function(){
 		
 		//this.attribute("shape", {type: String, value: "cube"} );

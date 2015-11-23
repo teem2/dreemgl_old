@@ -27,6 +27,7 @@ define.class("../webgl/devicewebgl", function(require, exports, self){
 	this.createContext = function(){
 		// lets create a nodegl context
 		this.canvas = this.document.createElement("canvas",800,600);
+		this.document.setTitle("DreemGL")
 	    this.gl = this.canvas.getContext("experimental-webgl");
     	this.gl.viewportWidth = this.canvas.width;
   		this.gl.viewportHeight = this.canvas.height;

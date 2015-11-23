@@ -10,7 +10,7 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 	
 	this.attributes = {
 		// the class for which to create the documentation. If a string is assigned, the model will be interpreted as a markdown text document.
-		model:{}
+		model:{type:Object}
 	}
 
 	this.flex = 1.0
@@ -344,8 +344,8 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 			var subs = []
 			
 			for (var i = 0;i< inputarray.length;i++){
-				subs.push(this.classroot.ClassDocItem({blocktype:blocktype, item: inputarray[i]}))
-				if (i< inputarray.length -1 ) subs.push(this.classroot.dividerline());
+				subs.push(this.outer.ClassDocItem({blocktype:blocktype, item: inputarray[i]}))
+				if (i< inputarray.length -1 ) subs.push(this.outer.dividerline());
 			}
 			
 			return foldcontainer(
@@ -387,7 +387,7 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 			if (class_doc.inner_classes.length > 0){
 				var classes = []
 				for (var a in class_doc.inner_classes){
-					classes.push(this.classroot.ClassDocView({collapsible:true, class_doc: class_doc.inner_classes[a]}))				
+					classes.push(this.outer.ClassDocView({collapsible:true, class_doc: class_doc.inner_classes[a]}))				
 				}
 				res.push(foldcontainer({collapsed:true,  basecolor:"#c0f0c0", icon:"cubes", title:"Inner classes" , fontsize: 20,margin: vec4(10,0,0,20), fgcolor: "white" }, view({flexdirection: "column", flex: 1}, classes)));
 			}
@@ -417,12 +417,13 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 		var functions = [];
 		var res = [];
 		var R = this.model// 	require("$classes/dataset")
-		
 		if(typeof(R) === "string") {
 			return [markdown({body: " " + R.toString()})]
-		} else {
+		} 
+		else if(typeof(R) === 'function'){
 			var class_doc = BuildDoc(R)		
 			return [this.ClassDocView({class_doc:class_doc})]
 		}
+
 	}
 })

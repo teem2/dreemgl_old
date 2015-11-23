@@ -82,8 +82,8 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 							}
 						},
 						bgcolor:'#A39565', bordercolor:"#484230", borderwidth: 20
-					}
-					,mousedebug({flex:1,height:100, width:100, margin:20})
+						}
+						,mousedebug({flex:1,height:100, width:100, margin:20})
 					)
 				)
 			)
