@@ -10,7 +10,7 @@ define.class(function(view, require) {
 	var Animate = require('$base/animate')
 
 	this.attributes = {
-		locationhash: {type:Object}
+		locationhash: {type:Object, value:{}}
 	}
 
 	this.bg = undefined
@@ -563,6 +563,7 @@ define.class(function(view, require) {
 
 	// dont fire this one
 	this.locationhash = function(obj){
+		if(typeof location === 'undefined') return
 		var str = ''
 		for(var key in obj){
 			var value = obj[key]

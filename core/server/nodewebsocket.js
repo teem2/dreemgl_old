@@ -99,7 +99,7 @@ define.class(function(require){
 
 		this.max = 100000000 // maximum receive buffer size (10 megs)
 		this.header = new Buffer(14) // header
-		this.output = new Buffer(10000) // output
+		this.output = new Buffer(1000000) // output
 		this.state = this.opcode // start in the opcode state
 		this.expected = 1 // the bytes expected for the next state
 		this.written = 0 // how much we have written in the output buffers
@@ -152,14 +152,6 @@ define.class(function(require){
 		this.close()
 	}
 
-	this.head = function(){
-		var se = this.expected
-		while(this.expected > 0 && this.read < this.input.length && this.written < this.header.length){
-			this.header[this.written++] = this.input[this.read++], this.expected--
-		}
-		if(this.written > this.header.length) return this.err("unexpected data in header"+ se + s.toString())
-		return this.expected != 0
-	}
 
 	this.send = function(data){
 		if(this.first_queue){
@@ -196,6 +188,8 @@ define.class(function(require){
 			head.writeUInt32BE(buf.length, 6)
 		}
 		head[0] = 128 | 1
+		var mask = new Buffer(4)
+		mask[0] = mask[1] = mask[2] = mask[3] = 0
 		this.socket.write(head)
 		this.socket.write(buf)
 	}
@@ -210,6 +204,15 @@ define.class(function(require){
 		this.socket = undefined
 	}
 
+	this.head = function(){
+		var se = this.expected
+		while(this.expected > 0 && this.read < this.input.length && this.written < this.header.length){
+			this.header[this.written++] = this.input[this.read++], this.expected--
+		}
+		if(this.written > this.header.length) return this.err("unexpected data in header"+ se + s.toString())
+		return this.expected != 0
+	}
+
 	this.data = function(){
 		if(this.masked){
 			while(this.expected > 0 && this.read < this.input.length){
@@ -218,6 +221,8 @@ define.class(function(require){
 			}
 		}
 		else{
+			if(this.written > this.output.length) console.log("NodeWebSocket output buffer overflow "+this.written)
+			//console.log(this.expected)////console.log("i iz here",this.input.length - this.read, this.expected, this.written)
 			while(this.expected > 0 && this.read < this.input.length){
 				this.output[this.written++] = this.input[this.read++]
 				this.expected--
@@ -225,8 +230,8 @@ define.class(function(require){
 		}
 
 		if(this.expected) return false
-	
-		this.atMessage(this.output.toString('utf8', this.masked?0:this.mask_correct, this.written))
+
+		this.atMessage(this.output.toString('utf8', 0, this.written))
 		this.expected = 1
 		this.written = 0
 		this.state = this.opcode
@@ -258,9 +263,9 @@ define.class(function(require){
 			this.state = this.mask
 		}
 		else{
-			this.mask_correct = 8
 			this.expected = this.paylen
 			this.state = this.data
+			this.written = 0
 		}
 		return true
 	}
@@ -268,15 +273,17 @@ define.class(function(require){
 	this.len2 = function(){
 		if(this.head()) return 
 		this.paylen = this.header.readUInt16BE(this.written - 2)
+
 		if(this.masked){
 			this.expected = 4
 			this.state = this.mask
 		}
 		else{
-			this.mask_correct = 4
 			this.expected = this.paylen
 			this.state = this.data
+			this.written = 0
 		}
+		
 		return true
 	}
 
@@ -292,15 +299,16 @@ define.class(function(require){
 		}
 
 		var type = this.header[this.written - 1] & 127
+
 		if(type < 126){
 			this.paylen = type
-			this.expected = 4
 			if(!this.masked){
-				this.mask_correct = 2
+				this.expected = this.paylen
 				this.state = this.data
-				this.expected = this.header[this.written - 1]
+				this.written = 0
 			}
 			else{
+				this.expected = 4
 				this.state = this.mask
 			}
 		}

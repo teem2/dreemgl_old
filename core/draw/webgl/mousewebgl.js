@@ -13,8 +13,8 @@ define.class('../mouse', function (require, exports, self){
 	this.clickspeed = 350
 
 	this.atConstructor = function(){
-		x = 0
-		y = 0
+		//this.x = 0
+		//this.y = 0
 		if(this.ratio == 0) this.ratio = window.devicePixelRatio
 
 		document.ontouchmove = function(e){
@@ -22,19 +22,19 @@ define.class('../mouse', function (require, exports, self){
 		}
 		// allright we need to figure out how we send back the mouse events to the worker
 		// are we going to send a vec2? or something else
-		window.addEventListener('click', function(e){
+		document.addEventListener('click', function(e){
 			this.click = 1
 		}.bind(this))
 
-		window.addEventListener('blur', function(e){
+		document.addEventListener('blur', function(e){
 			this.blurred =1;
 		}.bind(this))
 
-		window.addEventListener('dblclick', function(e){
+		document.addEventListener('dblclick', function(e){
 			this.dblclick = 1
 		}.bind(this))
 
-		window.addEventListener('wheel', function(e){
+		document.addEventListener('wheel', function(e){
 			if(e.ctrlKey){
 				this.zoom = e.wheelDelta / 120
 				//console.log(e.wheelDelta)

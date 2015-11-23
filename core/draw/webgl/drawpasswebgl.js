@@ -157,7 +157,7 @@ define.class(function(require, baseclass){
 			this.allocDrawTarget(twidth, theight, this.view._mode, 'pick_buffer', passid)
 		}
 
-		device.bindFramebuffer(this.pick_buffer)
+		device.bindFramebuffer(this.pick_buffer || null)
 
 		device.clear(0,0,0,0)
 		
@@ -255,7 +255,7 @@ define.class(function(require, baseclass){
 			this.allocDrawTarget(twidth, theight, this.view._mode, 'color_buffer')
 		}
 
-		this.device.bindFramebuffer(this.color_buffer)
+		this.device.bindFramebuffer(this.color_buffer || null)
 
 		if(layout.width === 0 || layout.height === 0) return
 	

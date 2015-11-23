@@ -54,9 +54,9 @@ define.class(function(require, exports, self){
 			this.frame = 
 			this.main_frame = this.Texture.fromType('rgb_depth_stencil')
 
-			this.mouse = new this.Mouse()
-			this.keyboard = new this.Keyboard()
-			this.touch = new this.Touch()
+			this.mouse = new this.Mouse(this)
+			this.keyboard = new this.Keyboard(this)
+			this.touch = new this.Touch(this)
 			this.drawtarget_pools = {}
 
 			this.createContext()
@@ -264,7 +264,6 @@ define.class(function(require, exports, self){
 			}
 			return true
 		}
-		return true
 	}
 
 	this.atNewlyRendered = function(view){

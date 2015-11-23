@@ -7,8 +7,9 @@ define.class(function(composition, docviewer, codeviewer, fileio, screens, scree
 		screens(
 			screen({
 				init:function(){
+					require.async('$classes/button.js')
 					// lets load the entire directory structure
-					this.rpc.fileio.readalldir('',['fonts','build','lib','server.js','favicon.ico','define.js','textures','gzcache','@/\\.','.git', '.gitignore']).then(function(result){
+					this.rpc.fileio.readalldir('',['fonts','build','lib','server.js','favicon.ico','define.js','textures','cache','@/\\.','.git', '.gitignore']).then(function(result){
 						var filetree = this.find('filetree')
 						var tree = result.value
 						tree.name = 'Documentation'

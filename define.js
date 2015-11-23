@@ -1066,14 +1066,16 @@
 			define.module[module.filename] = module
 			define.factory[module.filename] = factory
 
-
 			function loadModuleAsync(modurl){
 				var parsedmodurl = url.parse(modurl)
 				var base_path = define.filePath(modurl)
 
 				// block reentry
 				if(define.download_queue[modurl]){
-					return new Promise(function(resolve, reject){resolve()})
+					return new Promise(function(resolve, reject){
+
+						resolve( cache_path_root + url.parse(modurl).path )
+					})
 					//return define.download_queue[modurl]//
 				}
 
@@ -1081,6 +1083,7 @@
 				return define.download_queue[modurl] = new Promise(function(resolve, reject){
 					// lets make sure we dont already have the module in our system
 					httpGetCached(modurl).then(function(result){
+
 						// the root
 						if(result.type === 'text/json' && define.fileExt(parsedmodurl.path) === ''){
 							var data = JSON.parse(fs.readFileSync(result.path).toString())
@@ -1225,9 +1228,9 @@
 			noderequirewrapper.module = module
 
 			noderequirewrapper.async = function(modname){
+				modname = define.expandVariables(modname)
 				return new Promise(function(resolve, reject){
 					loadModuleAsync(modname).then(function(path){
-						
 						resolve(require(path))
 					}).catch(function(e){
 						console.log("ERROR", e.stack)
