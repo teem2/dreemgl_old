@@ -519,6 +519,23 @@ define.class(function(require, constructor){
 			this._attributes[key] = this[config_key]
 			return
 		}
+		else{
+			if(!config.type){
+				config = Object.create(config)
+				var value = config.value
+				if(typeof value === 'object'){
+					if(value && value.struct)config.type = value.struct
+					else if(Array.isArray(value)) config.type = Array
+					else config.type = Object
+				}
+				else if(typeof value === 'number'){
+					config.type = float
+				}
+				else if(typeof value === 'boolean'){
+					config.type = boolean
+				}
+			}
+		}
 
 		var init_value = key in this? this[key]:config.value
 		if(init_value !== undefined && init_value !== null){

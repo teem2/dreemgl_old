@@ -21,7 +21,7 @@ define.class( function(node, require){
 		right: {storage:'corner', index:0},
 		bottom: {storage:'corner',index:1},
 
-		bgcolor: {type:vec4, value: vec4(0,0,0.1,1)},
+		bgcolor: {type:vec4, value: vec4('white')},
 		clearcolor: {type:vec4, value: vec4('transparent')},
 		scroll: {type:vec2, value:vec2(0, 0)},
 		zoom:{type:float, value:1},

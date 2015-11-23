@@ -6,7 +6,7 @@
 
 define.class(function(view, require, label,foldcontainer,icon, markdown, codeviewer, button){
 	
-	this.bgcolor = vec4("transparent" );	
+	this.bgcolor = vec4("white")
 	
 	this.attributes = {
 		// the class for which to create the documentation. If a string is assigned, the model will be interpreted as a markdown text document.
@@ -171,7 +171,6 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 	
 	// Build a documentation structure for a given constructor function
 	function BuildDoc(constructor) {
-		console.log(constructor);
 		if (!constructor) return;
 		var proto = constructor.prototype;
 		var class_doc = BlankDoc();
