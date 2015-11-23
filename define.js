@@ -1113,7 +1113,7 @@
 								//!TODO, make a neater way to fetch the module dependencies (dont require it twice)
 								require(result.path)
 								// and lets remove it again immediately
-								delete Module._cache[result.path.replace(/\//g, '\\')]
+								delete Module._cache[result.path.indexOf("\\") !== -1?result.path.replace(/\//g, '\\'):result.path]
 							}
 							catch(e){
 								console.log(e.stack)

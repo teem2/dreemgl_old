@@ -126,7 +126,7 @@ define.class( function(node, require){
 	this.borderwidth = function(value){
 		if(typeof value === 'number' && value !== 0 || value[0] !== 0 || value[1] !== 0 || value[2] !== 0 || value[3] !== 0){
 			// turn it on by assigning an order number
-			this.border = 2
+			this.border = 8
 		}
 		else this.border = false
 		this.relayout()
@@ -711,13 +711,12 @@ define.class( function(node, require){
 			var view = this.view
 			var width = view.layout? view.layout.width: view.width
 			var height = view.layout? view.layout.height: view.height
-			var radius = view.borderradius
 
 			var mesh = this.mesh = this.vertexstruct.array()
 						
 			var borderradius = view.borderradius
 			var borderwidth = view.borderwidth
-			
+
 			var scale0 = ((borderradius[0]-borderwidth[0]))/Math.max(0.01, borderradius[0])
 			var scale1 = ((borderradius[1]-borderwidth[0]))/Math.max(0.01, borderradius[1])
 			var scale2 = ((borderradius[2]-borderwidth[0]))/Math.max(0.01, borderradius[2])
@@ -726,10 +725,10 @@ define.class( function(node, require){
 			var pidiv = 20
 			
 			var divbase = 0.15
-			var pidiv1 = Math.floor(Math.max(2, divbase* PI * radius[0]))
-			var pidiv2 = Math.floor(Math.max(2, divbase* PI * radius[1]))
-			var pidiv3 = Math.floor(Math.max(2, divbase* PI * radius[2]))
-			var pidiv4 = Math.floor(Math.max(2, divbase* PI * radius[3]))
+			var pidiv1 = Math.floor(Math.max(2, divbase* PI * borderradius[0]))
+			var pidiv2 = Math.floor(Math.max(2, divbase* PI * borderradius[1]))
+			var pidiv3 = Math.floor(Math.max(2, divbase* PI * borderradius[2]))
+			var pidiv4 = Math.floor(Math.max(2, divbase* PI * borderradius[3]))
 			
 			var pimul1 = (PI*0.5)/(pidiv1-1)
 			var pimul2 = (PI*0.5)/(pidiv2-1)
