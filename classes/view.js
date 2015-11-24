@@ -117,9 +117,19 @@ define.class( function(node, require){
 	this.borderradius = function(value){
 		if(typeof value === 'number' && value !== 0 || value[0] !== 0 || value[1] !== 0 || value[2] !== 0 || value[3] !== 0){
 			// this switches the bg shader to the rounded one
+			this.border = false;
+			this.border = this.roundedborder;
+			if (this.borderwidth > 0) this.border = 2;
 			this.bg = this.roundedrect
 		}
-		else this.bg = this.hardrect
+		else {
+			this.border = false;
+			this.bg = this.hardrect
+			this.border = this.hardborder;
+			if (this.borderwidth > 0) this.border = 2;
+			
+
+		}
 	}
 
 	// turn on the border shader
@@ -579,6 +589,8 @@ define.class( function(node, require){
 
 	// standard bg is undecided
 	define.class(this, 'bg', this.Shader, function(){})
+	// standard border is undecided too
+	define.class(this, 'border', this.Shader, function(){})
 
 	define.class(this, 'hardrect', this.Shader, function(){
 		this.mesh = vec2.array()
@@ -590,6 +602,42 @@ define.class( function(node, require){
 		}
 		this.color = function(){
 			return view.bgcolor
+		}
+	})
+	
+	define.class(this, 'hardborder', this.Shader, function(){
+		this.mesh = vec2.array();
+		
+		this.update = function(){
+			var view = this.view
+			var width = view.layout?view.layout.width:view.width
+			var height = view.layout?view.layout.height:view.height
+			var bw1 = view.borderwidth[0]/width;
+			var bw2 = view.borderwidth[1]/width;
+			var bw3 = view.borderwidth[2]/height;
+			var bw4 = view.borderwidth[3]/height;
+
+			var mesh = this.mesh = vec2.array();
+//			console.log(bw, height);
+
+			mesh.pushQuad(0,0, bw1,0,0,1,bw1,1);
+			mesh.pushQuad(1-bw2,0, 1,0,1-bw2,1,1,1);
+			mesh.pushQuad(0,0, 1,0,0,bw3,1,bw3);
+			mesh.pushQuad(0,1-bw4, 1,1-bw4,0,1,1,1);
+		}
+		
+		
+		this.mesh.pushQuad(0,0,1,0,0,1,1,1)
+		this.mesh.pushQuad(0,0,1,0,0,1,1,1)
+		this.mesh.pushQuad(0,0,1,0,0,1,1,1)
+		this.mesh.pushQuad(0,0,1,0,0,1,1,1)
+		this.position = function(){
+			uv = mesh.xy
+			pos = vec2(mesh.x * view.layout.width, mesh.y * view.layout.height)
+			return vec4(pos, 0, 1) * view.totalmatrix * view.viewmatrix
+		}
+		this.color = function(){
+			return view.bordercolor;
 		}
 	})
 
@@ -695,7 +743,7 @@ define.class( function(node, require){
 	this.blend = null
 	
 	// rounded corner border shader
-	define.class(this, 'border', this.Shader, function(){
+	define.class(this, 'roundedborder', this.Shader, function(){
 		this.vertexstruct = define.struct({
 			pos: vec2,
 			angle: float,
@@ -764,11 +812,13 @@ define.class( function(node, require){
 		this.position = function(){
 			
 			pos = mesh.pos.xy
+
 			var ca = cos(mesh.angle + PI)
 			var sa = sin(mesh.angle+PI)
 			
-			var rad  = dot(mesh.radmult, view.borderradius)
+
 			
+			var rad  = dot(mesh.radmult, view.borderradius)
 			pos.x += ca * rad
 			pos.y += sa * rad
 			

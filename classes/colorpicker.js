@@ -14,16 +14,19 @@ define.class(function(view, label,button){
 	this.flexdirection = "column";
 	this.padding = vec4(10)
 	this.margin = vec4(10)
+	
+	
+	
 	this.render = function(){
 		
 		return [
 			
 			label({text:"Select Color", bgcolor:"transparent", fgcolor:"black", fontsize: 10})
-			,label({text:"#ff00ff", bgcolor:"black", fgcolor:"white", padding:vec4(20,2,2,2), fontsize: 16})
-			,view({bg:{color:function(){return vec4(mesh.x, mesh.y,0,1);}}, width:200, height:200})
-			,view({bgcolor:"transparent", alignitems:"flex-end", flex:1, borderwidth:10, bordercolor:vec4("black"), padding: 4}
-				,button({text:"Cancel"})
-				,button({text:"OK"})
+			,label({margin:5, text:"#ff00ff", bgcolor:"#303030", fgcolor:"white", padding:vec4(20,2,2,2), fontsize: 16})
+			,view({margin:5, bg:{color:function(){return vec4(mesh.x, mesh.y,0,1);}}, width:200, height:200})
+			,view({bgcolor:"transparent", flexdirection:"row", aligncontent:"flex-end", flex:1, borderwidth:vec4(5,5,5,5), bordercolor:"black", borderradius:0}
+				,button({text:"Cancel", alignself:"flex-end"})
+				,button({text:"OK", alignself:"flex-end"})
 			)
 		]
 		
