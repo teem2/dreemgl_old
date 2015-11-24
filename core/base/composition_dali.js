@@ -23,7 +23,7 @@ define.class('$base/composition_base', function(require, baseclass){
 		// how come this one doesnt get patched up?
 		baseclass.prototype.atConstructor.call(this)
 
-		this.screenname = location.search && location.search.slice(1)
+		this.screenname = location && location.search && location.search.slice(1)
 
 		// web environment
 		if(previous){
