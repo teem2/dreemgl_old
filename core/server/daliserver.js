@@ -145,10 +145,11 @@ console.trace('Loading daliserver', define.$environment);
 		try{
   		    this.screenname = this.name;
 
-		    // Define global, like a browser. Used by composition_dali
+			// define global location, but can be undefined.
 		    //TODO Where do I get the screen name from; an arg?
-		    location = {} // search: '/'+this.screenname}
+			location = undefined;
 
+			console.log('require', this.index_real);
 		    var Composition = require(this.index_real)
 		    //this.composition = new Composition(this.busserver, this.session)
 		    this.composition = new Composition()
@@ -157,7 +158,7 @@ console.trace('Loading daliserver', define.$environment);
 		    this.compositionclient = new CompositionClient(this.composition);
 		}
 		catch(e){
-		    console.trace("CAUGHT ERROR IN DALISERVER");
+		    console.trace("CAUGHT ERROR IN DALISERVER", e);
 		    console.log(e.stack)
 		}
 	}

@@ -43,8 +43,10 @@ define.class(function(require, exports, self){
 			'view-mode': this.viewMode,
 		}
 
-	    // Dali is defined in daliserver.js
-	    this.dali = Dali(this.options);
+		// Dali/nodejs interface (nodejs package at top-level of dreemgl repository)
+		//TODO Use a fixed location to locate dali code
+
+		this.dali = define.require('./Release/dali')(this.options);
 
 	    // Application
 	    this.daliApp = {};
