@@ -6,6 +6,9 @@
 define.class(function(exports){
 	var Texture = exports
 
+	//PBR Added to resolve issues from 11/23 checkins
+	exports.Image = function(){}
+
 	this.atConstructor = function(type, w, h){
 		this.type = type
 		this.size = vec2(w, h)
