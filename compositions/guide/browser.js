@@ -1,4 +1,4 @@
-define.class(function(screen, view, button, editor, label, this$movie) {
+define.class(function(screen, view, button, label, this$movie) {
 
     this.attributes = {
         term: {type:String},
@@ -21,7 +21,7 @@ define.class(function(screen, view, button, editor, label, this$movie) {
 
         view(
             {flexdirection:'column'},
-            label({ name:'search', width:300, height:30, text:'Aliens'}),
+            label({ name:'search', width:300, height:30, text:'Aliens', fgcolor:'black'}),
             button({text:'Search', width:90, click:function() {
                 // sets the term on our screen, this should fire the server thing
                 this.screen.term = this.parent.search.text;
