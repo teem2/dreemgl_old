@@ -1375,7 +1375,8 @@
 				this.reload_socket.close()
 				this.reload_socket = undefined
 			}
-			this.reload_socket = new WebSocket('ws://' + location.host)
+
+			this.reload_socket = new WebSocket((location.href.indexOf('https') === 0?'wss://':'ws://') + location.host)
 
 			this.reload_socket.onopen = function(){
 				backoff = 1

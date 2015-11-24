@@ -28,7 +28,7 @@ define.class(function(require, exports, self){
 		this.disconnect()
 		if(!this.queue) this.queue = []
 
-		this.socket = new WebSocket('ws://'+location.host+this.url)
+		this.socket = new WebSocket((location.href.indexOf('https') === 0?'wss://':'ws://')+location.host+this.url)
 
 		this.socket.onopen = function(){
 			this.backoff = 1
