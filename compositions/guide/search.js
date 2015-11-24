@@ -9,11 +9,12 @@ define.class(function(server, require) {
     //    console.log('WARNING: please cd to "./compositions/guide/" and run "npm install"')
     //}
 
-    // The string to search for in the OMDB database
-    this.attribute("keyword", {type:String});
-
-    // List of movie objects returned from server
-    this.attribute("results", {type:Array});
+    this.attributes = {
+        // The string to search for in the OMDB database
+        keyword: {type:String},
+        // List of movie objects returned from server
+        results: {type:Array}
+    };
 
     this.onkeyword = function (keyword) {
         if (keyword && this.request) {

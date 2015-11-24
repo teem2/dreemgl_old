@@ -23,14 +23,14 @@ define.class(function(composition, screens, screen, view, text){
   // Server
   var serverobj = define.class(function serverobj(server){
     
-    // server attribute: string
-    this.attribute('server_str', {type:String, value:'test'})
-
-    // server attribute: number
-    this.attribute('server_num', {type:Number, value:123.45})
-
-    // Count of server calls
-    this.attribute('server_calls', {type:Number, value:100})
+    this.attributes = {
+      // server attribute: string
+      server_str: {type:String, value:'test'},
+      // server attribute: number
+      server_num: {type:Number, value:123.45},
+      // Count of server calls
+      server_calls: {type:Number, value:100}
+    }
 
     // Called from client to re-init server state
     this.server_init = function() {

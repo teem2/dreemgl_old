@@ -2,8 +2,10 @@ define.class(function (view, codeviewer, guide$movie, cells) {
 
     this.slidetitle = "Web Service via Server Proxy";
 
-    this.attribute('movies', {type: Array});
-    this.attribute('searchCode', {type: String});
+    this.attributes = {
+        movies: {type: Array},
+        searchCode: {type: String}
+    };
 
     this.render = function render() {
         return [

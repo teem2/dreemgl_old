@@ -60,7 +60,7 @@ define.class(function(view, require, screens){
 	
 	})
 
-	this.attribute("file",{});
+	this.attributes = {file: {}};
 	
 	this.file = function(){
 	}

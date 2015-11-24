@@ -1,7 +1,7 @@
 define.class(function(composition, require, screens, screen, docviewer, button, text, scrollcontainer, codeviewer, view, slideviewer, draggable, perspective3d, teapot,ballrotate, architecture){
 	// Live coding presentation docs!
 
-	this.attribute('HELLO', {type:vec4,value:'red'})
+	this.attributes = {HELLO: {type:vec4,value:'red'}};
 	
 	this.render = function render(){ 
 		return [

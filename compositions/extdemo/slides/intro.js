@@ -1,32 +1,32 @@
-define.class(function (view, text, codeviewer) {
+define.class(function (view, label, codeviewer) {
 
     this.slidetitle = "External Components in DreemGL";
 
     this.flexdirection = 'column';
-    this.attribute('syntaxCode', {type: String});
+    this.attributes = {syntaxCode : {type: String}};
 
     this.render = function render() {
         return [
-            text({
+            label({
                 text:'+ Components are just directories - No special work required!',
                 fgcolor:'#333',
                 fontsize:25,
                 margintop:30
             }),
-            text({
+            label({
                 text:'(note: define.$plugins defaults to $compositions directory for convenience, but can be changed for security)',
                 fgcolor:'#666',
                 fontsize:14,
                 margintop:5,
                 marginleft:25
             }),
-            text({
+            label({
                 text:'+ Compositions can auto load classes in other directories',
                 fgcolor:'#333',
                 fontsize:25,
                 margintop:30
             }),
-            text({
+            label({
                 text:'Use the `compositionname$classname` syntax:',
                 fgcolor:'#444',
                 fontsize:20,
@@ -43,13 +43,13 @@ define.class(function (view, text, codeviewer) {
                 bgcolor: "#000030",
                 multiline: true}
             ),
-            text({
+            label({
                 text:'+ Examples are compositions, no special mounting!',
                 fgcolor:'#333',
                 fontsize:25,
                 margintop:0
             }),
-            text({
+            label({
                 text:'(note: see https://github.com/teem2/dreemgl/tree/dev/compositions/guide for more detail)',
                 fgcolor:'#666',
                 fontsize:14,

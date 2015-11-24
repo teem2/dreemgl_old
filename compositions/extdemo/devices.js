@@ -12,7 +12,7 @@
 
 define.class(function (server) {
 
-    this.attribute('active', {type: Object, value:{}});
+    this.attributes = {active: {type: Object, value:{}}};
 
     this.notify = function(id, type, action) {
         var active = this.active;

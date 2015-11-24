@@ -2,8 +2,10 @@ define.class(function (view, codeviewer, cells, device) {
 
     this.slidetitle = "External Device via POST API";
 
-    this.attribute('deviceList', {type: Array});
-    this.attribute('devices', {type: Object});
+    this.attributes = {
+        deviceList: {type: Array},
+        devices: {type: Object}
+    };
 
     this.ondevices = function (devices) {
         var deviceList = [];
@@ -15,7 +17,7 @@ define.class(function (view, codeviewer, cells, device) {
         this.deviceList = deviceList;
     };
 
-    this.attribute('apiCode', {type: String});
+    this.attributes = {apiCode: {type: String}};
 
     this.render = function render() {
         return [

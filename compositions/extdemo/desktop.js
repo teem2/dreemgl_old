@@ -1,12 +1,12 @@
 define.class(function(screen, slideviewer, this$slides$intro, this$slides$internal, this$slides$external) {
 
-    this.attribute('syntaxCode', {type: String});
-
-    this.attribute('movies', {type: Array});
-    this.attribute('searchCode', {type: String});
-
-    this.attribute('devices', {type: Object});
-    this.attribute('apiCode', {type: String});
+    this.attributes = {
+        syntaxCode: {type: String},
+        movies: {type: Array},
+        searchCode: {type: String},
+        devices: {type: Object},
+        apiCode: {type: String}
+    };
 
     this.render = function render() {
 

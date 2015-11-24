@@ -1,11 +1,11 @@
 define.class(function (view) {
 
-    this.attribute('celltype', {type: Object});
-    this.attribute('data', {type: Array});
-
-    this.attribute('cellwidth', {type: int, value:130});
-    this.attribute('cellheight', {type: int, value:160});
-
+    this.attributes = {
+        celltype: {type: Object},
+        data: {type: Array},
+        cellwidth: {type: int, value:130},
+        cellheight: {type: int, value:160}
+    };
 
     this.render = function render() {
 
