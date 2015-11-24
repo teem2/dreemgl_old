@@ -4,27 +4,57 @@
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
 
-define.class(function(view, label,button){
+define.class(function(view, label,button, scrollbar){
 	
 	this.attributes =  {
 		color: {type: vec4, value: "white"}
 	}
 	
-	this.bgcolor = vec4("#d0d0d0")
+	this.bgcolor = vec4("#383838")
 	this.flexdirection = "column";
 	this.padding = vec4(10)
 	this.margin = vec4(10)
-	
+	this.borderradius = 8
 	
 	
 	this.render = function(){
 		
 		return [
+			label({text:"Select Color", bgcolor:"transparent", fgcolor:"white", fontsize: 15, margin:5})
 			
-			label({text:"Select Color", bgcolor:"transparent", fgcolor:"black", fontsize: 10})
-			,label({margin:5, text:"#ff00ff", bgcolor:"#303030", fgcolor:"white", padding:vec4(20,2,2,2), fontsize: 16})
-			,view({margin:5, bg:{color:function(){return vec4(mesh.x, mesh.y,0,1);}}, width:200, height:200})
-			,view({bgcolor:"transparent", flexdirection:"row", aligncontent:"flex-end", flex:1, borderwidth:vec4(5,5,5,5), bordercolor:"black", borderradius:0}
+
+			
+			,view({flexdirection:"row", flex:1, bgcolor:"transparent"}
+				,view({margin:5, bg:{color:function(){return vec4(mesh.x, mesh.y,0,1);}}, width:100, height:100})
+				,view({flexdirection:"column", flex:1,bgcolor:"transparent"}
+					,view({bgcolor:"transparent", flexdirection:"row" }
+						,label({fgcolor:"black", bgcolor:"transparent" , text:"R", fontsize:14, margin:4})			
+						,view({bgcolor:"transparent", flexdirection:"column", flex:1 }
+							,scrollbar({height:18,margin:8, total:255, page:20, vertical:false})
+						)
+						,label({fgcolor:"black", bgcolor:"transparent" , text:"255", fontsize:14, margin:4})							
+					)
+					,view({bgcolor:"transparent", flexdirection:"row" }
+						,label({fgcolor:"black", bgcolor:"transparent" , text:"G", fontsize:14, margin:4})			
+						,view({bgcolor:"transparent", flexdirection:"column", flex:1 }
+							,scrollbar({height:18,margin:8, total:255, page:20, vertical:false})
+						)
+						,label({fgcolor:"black", bgcolor:"transparent" , text:"255", fontsize:14, margin:4})			
+					)
+					,view({bgcolor:"transparent", flexdirection:"row" }
+						,label({fgcolor:"black", bgcolor:"transparent" , text:"B", fontsize:14, margin:4})			
+						,view({bgcolor:"transparent", flexdirection:"column", flex:1 }
+							,scrollbar({height:18,margin:8, total:255, page:20, vertical:false})
+						)
+						,label({fgcolor:"black", bgcolor:"transparent" , text:"255", fontsize:14, margin:4})			
+					)			
+				)
+			)
+			,view({margin:7,borderwidth:1, borderradius:8, bordercolor:"white", bgcolor:"transparent", flex:1, padding:5}
+				,label({ margin:5, text:"#ff00ff", bgcolor:"transparent", fgcolor:"white", padding:vec4(20,2,2,2), fontsize: 16})
+			)
+			
+			,view({bgcolor:"transparent", justifycontent:"flex-end", flexdirection:"row", alignitems:"flex-end", flex:1}
 				,button({text:"Cancel", alignself:"flex-end"})
 				,button({text:"OK", alignself:"flex-end"})
 			)
