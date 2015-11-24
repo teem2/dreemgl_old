@@ -381,7 +381,7 @@ define.class(function(view, require) {
 
 		this.mouse.wheely = function(){
 			if (this.mouse_capture) this.mouse_capture.emitUpward('mousewheely', this.mouse.wheely)
-			else if(this.inModalChain(this.mouse_view)){
+			else if(this.mouse_view && this.inModalChain(this.mouse_view) ){
 				this.mouse_view.emitUpward('mousewheely', this.mouse.wheely)
 			}
 		}.bind(this)
