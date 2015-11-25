@@ -106,12 +106,12 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 						}
 						},
 
-						cube({translate:vec3(0,1,0), dimension:vec3(0.5)}),
-						cube({translate:vec3(1,0,0), dimension:vec3(0.5)}),
-						cube({translate:vec3(0,0,0), dimension:vec3(0.5)}),
-						cube({translate:vec3(0,0,1), dimension:vec3(0.5)}),
-						plane({translate:vec3(0,-2,0), dimension:vec3(500), rotate:vec3(PI/2,0,0)}),
-						sphere({translate:vec3(0,0,2), radius:0.5}),
+						cube({pos:vec3(0,1,0), size:vec3(0.5)}),
+						cube({pos:vec3(1,0,0), size:vec3(0.5)}),
+						cube({pos:vec3(0,0,0), size:vec3(0.5)}),
+						cube({pos:vec3(0,0,1), size:vec3(0.5)}),
+						plane({pos:vec3(0,-2,0), size:vec3(500), rotate:vec3(PI/2,0,0)}),
+						sphere({pos:vec3(0,0,2), radius:0.5}),
 						view({mode:'2D', bgcolor:"red", pixelratio:2, scale: vec3(0.01, -0.01, 0.01), rotate:vec3(0,0, 0)},
 							button({
 								text:"Near", 
@@ -142,10 +142,11 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 						0),
 						view({
 							mode:'2D', 
+							flex:1,
 							bgcolor:"green", 
 							pixelratio:20, 
 							scale: vec3(0.02, -0.02, 0.02), 
-							translate: vec3(200,2000,200), 
+							pos: vec3(200,2000,200), 
 							rotate:vec3(0,1, 0)
 							},
 							button({

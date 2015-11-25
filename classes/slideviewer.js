@@ -46,7 +46,7 @@ define.class(function(view, label){
 	// lets put an animation on x
 
 	this.attributes = {
-		scroll: {motion:'inoutsine',duration:0.2},
+		scroll: {motion:'inoutsine',duration:0.5},
 		pos: {persist:true},
 		page: {type:int, persist:true}
 	}
@@ -56,13 +56,12 @@ define.class(function(view, label){
 	}
 
 	this.constructor.slide = this.slide
-	
+	this.boundscheck = true
 	this.slidewidth = 1024
 	this.slidemargin = 10
 	this.slideheight = 1024
 	this.page = 0
 	this.keydown = function(key){
-		console.log('keydown!')
 		// alright we have a keydown!
 		if(key.name == 'leftarrow'){
 			// we need to animate to the left
@@ -88,7 +87,13 @@ define.class(function(view, label){
 		var count = 0
 		return this.constructor_children.map(function(item){
 			count++
-			return this.slide({flexdirection:'column',width:this.slidewidth,margin:this.slidemargin,height:this.slideheight,title:item.slidetitle}, item)
+			return this.slide({
+				flexdirection:'column',
+				width:this.slidewidth,
+				margin:this.slidemargin,
+				height:this.slideheight,
+				title:item.slidetitle
+			}, item)
 		}.bind(this))
 	}
 })

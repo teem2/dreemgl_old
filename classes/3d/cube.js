@@ -15,7 +15,7 @@ define.class(function(require, shape3d, view, icon){
 			var view = this.view
 			this.mesh = this.vertexstruct.array();
 
-			GLGeom.createCube(view.width,view.height,view.depth,function(triidx,v1,v2,v3,n1,n2,n3,t1,t2,t3,faceidx){
+			GLGeom.createCube(view.size[0],view.size[1],view.size[2],function(triidx,v1,v2,v3,n1,n2,n3,t1,t2,t3,faceidx){
 					this.mesh.push(v1,n1,t1);
 					this.mesh.push(v2,n2,t2);
 					this.mesh.push(v3,n3,t3);

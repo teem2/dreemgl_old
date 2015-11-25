@@ -11,7 +11,7 @@ define.class( function(node, require){
 	var view = this.constructor
 
 	this.attributes = {
-		pos: {type:vec2, value:vec2(NaN,NaN)},
+		pos: {type:vec3, value:vec3(NaN)},
 		x: {storage:'pos', index:0},
 		y: {storage:'pos', index:1},
 		z: {storage:'pos', index:2},
@@ -20,7 +20,7 @@ define.class( function(node, require){
 		top: {storage:'pos', index:1},
 		front: {storage:'pos', index:2},
 
-		corner: {type:vec3, value:vec3(NaN, NaN, NaN)},
+		corner: {type:vec3, value:vec3(NaN)},
 		right: {storage:'corner', index:0},
 		bottom: {storage:'corner',index:1},
 		rear: {storage:'corner', index:2},
@@ -30,7 +30,7 @@ define.class( function(node, require){
 		clearcolor: {type:vec4, value: vec4('transparent')},
 		scroll: {type:vec2, value:vec2(0, 0)},
 		zoom:{type:float, value:1},
-		size: {type:vec3, value:vec3(NaN, NaN, NaN)},
+		size: {type:vec3, value:vec3(NaN)},
 
 		overflow: {type: Enum('','hidden','scroll','auto'), value:''},
 		pixelratio: {type: float, value:NaN},
@@ -43,8 +43,8 @@ define.class( function(node, require){
 		height: {storage:'size', index:1},
 		depth: {storage:'size', index:2},
 
-		minsize: {type: vec3, value:vec3(NaN, NaN, NaN)},
-		maxsize: {type: vec3, value:vec3(NaN, NaN, NaN)},
+		minsize: {type: vec3, value:vec3(NaN)},
+		maxsize: {type: vec3, value:vec3(NaN)},
 
 		minwidth: {storage:'minsize', index:0},
 		minheight: {storage:'minsize', index:1},
@@ -385,7 +385,7 @@ define.class( function(node, require){
 			parentmode = this._mode;
 		}
 		if (parentmode== '3D' && !this._mode ){	
-			mat4.TSRT2(this.anchor, this.scale, this.rotate, this.translate, this.modelmatrix);
+			mat4.TSRT2(this.anchor, this.scale, this.rotate, this.pos, this.modelmatrix);
 			//mat4.debug(this.modelmatrix);
 		}
 		else {
@@ -417,6 +417,7 @@ define.class( function(node, require){
 		if(this._mode){
 			//mat4.identity(this.totalmatrix)
 			//this.layermatrix = mat4.identity()
+
 			if(parentmatrix) mat4.mat4_mul_mat4(parentmatrix, this.modelmatrix, this.layermatrix)
 			else this.layermatrix = this.modelmatrix
 		}
@@ -474,13 +475,13 @@ define.class( function(node, require){
 			)
 			this.mousewheelx = function(pos){
 				if(this.hscrollbar._visible){
-					this.hscrollbar.offset = clamp(this.hscrollbar._offset + pos, 0, this.hscrollbar._total - this.hscrollbar._page)
+					this.hscrollbar.offset = clamp(this.hscrollbar._offset - pos, 0, this.hscrollbar._total - this.hscrollbar._page)
 				}
 			}
 
 			this.mousewheely = function(pos){
 				if(this.vscrollbar._visible){
-					this.vscrollbar.offset = clamp(this.vscrollbar._offset + pos, 0, this.vscrollbar._total - this.vscrollbar._page)
+					this.vscrollbar.offset = clamp(this.vscrollbar._offset - pos, 0, this.vscrollbar._total - this.vscrollbar._page)
 				}
 			}
 
