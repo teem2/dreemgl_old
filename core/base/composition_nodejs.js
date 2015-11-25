@@ -150,12 +150,12 @@ define.class('$base/composition_base', function(require, exports, self, baseclas
 		}
 	}
 
-	this.atConstructor = function(bus){
+	this.atConstructor = function(bus, session){
 		
 		baseclass.prototype.atConstructor.call(this)
 
 		this.bus = bus
-		this.session = Math.random() * 100000
+		this.session = session
 		this.rpc = new RpcHub(this)
 		this.connected_screens = {}
 		this.server_attributes = {}

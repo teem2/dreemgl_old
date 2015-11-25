@@ -86,10 +86,12 @@ define.class('$base/composition_base', function(require, baseclass){
 	this.bindBusEvents = function(){
 		this.bus.atMessage = function(msg, socket){
 			if(msg.type == 'sessionCheck'){
-				if(this.session) location.href = location.href
 				if(this.session != msg.session){
-					this.session = msg.session
-					this.bus.send({type:'connectScreen', name:this.screenname})
+					if(this.session) location.href = location.href
+					else{
+						this.session = msg.session
+						this.bus.send({type:'connectScreen', name:this.screenname})
+					}
 				}
 			}  
 			/*

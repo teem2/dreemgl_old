@@ -110,7 +110,6 @@ define.class(function(require, constructor){
 		if(this.children) for(var i = 0; i < this.children.length; i ++){
 			var child = this.children[i]
 			if(child === ignore) continue
-			console.log(this.constructor.name)
 			var ret = child.findChild(name)
 			if(ret !== undefined) return ret
 		}

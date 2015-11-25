@@ -28,7 +28,7 @@ define.class(function(require){
 		this.busserver = new BusServer()
 
 		this.watcher = new FileWatcher()
-
+		console.log("SETTING SESSION")
 		// lets give it a session
 		this.session = Math.random() * 1000000
 
