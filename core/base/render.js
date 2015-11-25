@@ -32,6 +32,7 @@ define.class(function(exports){
 		}
 		
 		// call connect wires before
+		if(!new_version.connectWires) debugger
 		if(!rerender) new_version.connectWires(state.wires)
 
 		var old_children = old_version? old_version.children: undefined

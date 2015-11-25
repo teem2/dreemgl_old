@@ -38,6 +38,11 @@ define.class( function(node, require){
 		minsize: {type: vec2, value:vec2(NaN, NaN)},
 		maxsize: {type: vec2, value:vec2(NaN, NaN)},
 
+		minwidth: {storage:'minsize', index:0},
+		minheight: {storage:'minsize', index:1},
+		maxwidth: {storage:'maxsize', index:0},
+		maxheight: {storage:'maxsize', index:1},
+
 		margin: {type: vec4, value: vec4(0,0,0,0)},
 		marginleft: {storage:'margin', index:0},
 		margintop: {storage:'margin', index:1},
@@ -84,24 +89,30 @@ define.class( function(node, require){
 		
 		camera: {type: vec3, value: vec3(-2,2,-2)},
 		lookat: {type: vec3, value: vec3(0)},
-		up: {type: vec3, value: vec3(0,-1,0)}	
-	}
+		up: {type: vec3, value: vec3(0,-1,0)},
 
+		mousedblclick: Event,
+		mouseout: Event,
+		mouseover: Event,
+		mousemove: Event,
+		mouseleftdown: Event,
+		mouseleftup: Event,
+		mouserightdown: Event,
+		mouserightup: Event,
+		mousewheelx: Event,
+		mousewheely: Event,
+		mousezoom: Event,
+		keyup: Event,
+		keydown: Event,
+		keypress: Event,
+		keypaste: Event,
+
+		focusget: Event,
+		focuslost: Event	
+	}
 
 	this.camera = this.lookat = this.up = function(){this.redraw();};
 	
-	this.persists = ['model']
-
-	this.events = [
-		"click","dblclick","miss",
-		"mouseout","mouseover","mousemove",
-		"mouseleftdown","mouseleftup",
-		"mouserightdown","mouserightup",
-		"mousewheelx","mousewheely","mousezoom",
-		"keyup","keydown","keypress","keypaste",
-		"focusget","focuslost"
-	]
-
 	this.modelmatrix = mat4.identity()
 	this.totalmatrix = mat4.identity()
 	this.viewmatrix = mat4.identity()
@@ -414,12 +425,14 @@ define.class( function(node, require){
 	// decide to inject scrollbars into our childarray
 	this.atRender = function(){
 		if(this._mode === '2D' && (this._overflow === 'SCROLL'|| this._overflow === 'AUTO')){
+			if(this.vscrollbar) this.vscrollbar.offset = 0
+			if(this.hscrollbar) this.hscrollbar.offset = 0
 			this.children.push(
 				this.vscrollbar = this.scrollbar({
 					position:'absolute',
 					vertical:true,
 					noscroll:true,
-					offset:function(value){
+					offset:function(){
 						this.parent._scroll = vec2(this.parent._scroll[0],this._offset)
 					},
 					layout:function(){
@@ -435,7 +448,7 @@ define.class( function(node, require){
 					position:'absolute',
 					vertical:false,
 					noscroll:true,
-					offset:function(value){
+					offset:function(){
 						this.parent._scroll = vec2(this._offset,this.parent._scroll[1])
 					},
 					layout:function(){
@@ -485,6 +498,7 @@ define.class( function(node, require){
 	
 	// show/hide scrollbars
 	this.updateScrollbars = function(){
+
 		if(this.vscrollbar){
 			var scroll = this.vscrollbar
 			var totalsize = this.sublayout.height , viewsize = this.layout.height * this.zoom
@@ -497,7 +511,9 @@ define.class( function(node, require){
 				if(off !== scroll._offset) scroll.offset = off
 			}
 			else{
-				if(0 !== scroll._offset) scroll.offset = 0
+				if(0 !== scroll._offset){
+					scroll.offset = 0
+				}
 				scroll._visible = false
 			}
 		}
@@ -534,6 +550,8 @@ define.class( function(node, require){
 			(layout.left !== oldlayout.left || layout.top !== oldlayout.top ||
 			 layout.width !== oldlayout.width || layout.height !== oldlayout.height)) {
 			// call setter
+			// lets reset the scroll position
+
 			ref.emit('layout', layout)
 		}
 

@@ -4,9 +4,9 @@
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
 
-define.class(function(view, require){
+define.class(function(view, label){
 	
-	define.class(this, 'slide', function(view, text){
+	define.class(this, 'slide', function(view, label){
 		this.cornerradius = vec4(10,10,10,10);
 		this.borderwidth = 0;
 		this.bordercolor = vec4("blue");
@@ -15,7 +15,7 @@ define.class(function(view, require){
 		this.padding= vec4(6);
 		this.render = function(){
 			return view({bg:{bgcolorfn:function(a,b){return vec4(1- a.y*0.4, 1- a.y*0.4,1- a.y*0.2,1);}}, cornerradius:vec4(10),flex:1,flexdirection:'column'}
-				,text({margin:[10,10,10,10],fontsize:50,alignself:'center',text:this.title})
+				,label({margin:[10,10,10,10],fontsize:50,alignself:'center',text:this.title})
 				,view({flex:1, bgcolor:"transparent", padding:vec4(10)},this.constructor_children)
 			)
 		}

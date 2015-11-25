@@ -27,6 +27,7 @@ define.class(function(require, exports){
 		else this.track = config
 
 		if(typeof this.motion === 'string') this.motion = ease[this.motion] || ease.linear
+		if(!config) debugger
 		if(config.type) this.type = config.type
 		this.first_value = first_value
 		this.last_value = last_value

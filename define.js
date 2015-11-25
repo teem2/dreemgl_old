@@ -547,6 +547,7 @@
 					this['_' + classname] = cls.extend(value, this)
 				}
 			})
+
 			if(arguments.length>3){
 				base_class = arguments[2]
 				body = arguments[3]
@@ -605,9 +606,12 @@
 			var outer_module = outer_require.module
 			var module = {exports:{}, filename:outer_module.filename, factory:outer_module.factory}
 			moduleFactory(outer_require, module.exports, module)
+			
 			if(outer_this){
 				outer_this['_' + classname] = module.exports
 				if(outer_this.atInnerClassAssign) outer_this.atInnerClassAssign(classname, module.exports)
+				if(!outer_this.hasOwnProperty('_inner_classes')) outer_this._inner_classes = Object.create(outer_this._inner_classes || {})
+				outer_this._inner_classes[classname] = module.exports
 			}
 	
 			return module.exports
@@ -626,37 +630,6 @@
 
 
 
-
-
-
-
-	// examples
-
-
-
-
-
-
-
-
-	define.example =
-	define.renderExample = function(pthis, example){
-		if(!pthis.constructor.examples) pthis.constructor.examples = []
-		example.type = 'render'
-		pthis.constructor.examples.push(example)
-	}
-
-	define.consoleExample = function(pthis, example){
-		if(!pthis.constructor.examples) pthis.constructor.examples = []
-		example.type = 'console'
-		pthis.constructor.examples.push(example)
-	}
-
-	define.compositionExample = function(pthis, example){
-		if(!pthis.constructor.examples) pthis.constructor.examples = []
-		example.type = 'composition'
-		pthis.constructor.examples.push(example)
-	}
 
 
 	define.startLoader = function(){
@@ -895,7 +868,7 @@
 				this.reload_socket.close()
 				this.reload_socket = undefined
 			}
-			this.reload_socket = new WebSocket('ws://' + location.host)
+			this.reload_socket = new WebSocket((location.href.indexOf('https') === 0?'wss://':'ws://') + location.host)
 
 			this.reload_socket.onopen = function(){
 				backoff = 1

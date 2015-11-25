@@ -169,12 +169,13 @@ define.class(function(require, baseclass){
 				mat4.ortho(mousex, 1 + mousex, 1 + mousey,  mousey, -100, 100, this.pick_viewmatrix)
 			}
 			else{
+				var zoom = view._zoom
 				if (isroot){
-					mat4.ortho(scroll[0], layout.width+scroll[0], scroll[1], layout.height+scroll[1], -100, 100, this.pick_viewmatrix)
+					mat4.ortho(scroll[0], layout.width*zoom+scroll[0], scroll[1], layout.height*zoom+scroll[1], -100, 100, this.pick_viewmatrix)
 					mat4.ortho(0, layout.width, 0, layout.height, -100, 100, this.pick_noscrollmatrix)
 				}
 				else{
-					mat4.ortho(scroll[0], layout.width+scroll[0], layout.height+scroll[1], scroll[1], -100, 100, this.pick_viewmatrix)
+					mat4.ortho(scroll[0], layout.width*zoom+scroll[0], layout.height*zoom+scroll[1], scroll[1], -100, 100, this.pick_viewmatrix)
 					mat4.ortho(0, layout.width, layout.height, 0, -100, 100, this.pick_noscrollmatrix)
 				}
 			}

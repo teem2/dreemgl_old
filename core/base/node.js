@@ -201,7 +201,7 @@ define.class(function(require, constructor){
 	}
 
 	this.getAttributeConfig = function(key){
-		return this['_cfg_' + key]
+		return this._attributes[key]
 	}
 
 	this.has_wires = function(key){
@@ -223,41 +223,19 @@ define.class(function(require, constructor){
 
 	}
 	
-	this.emitRecursive = function(key, value, block){
+	this.emitRecursive = function(key, event, block){
 
 		if(block && block.indexOf(child)!== -1) return
-		this.emit(key,value);
+		this.emit(key, event);
 		for(var a in this.children){
 			var child = this.children[a]
-			child.emitRecursive(key, value)
+			child.emitRecursive(key, event)
 		}
 	}
 	
-	this.emit = function(key, value, recur){
+	this.emit = function(key, event){
 		var on_key = 'on' + key
 		var listen_key = '_listen_' + key
-		var config = this['_cfg_' + key]
-		var value_key = '_' + key
-		if(!config){
-			console.log(this)
-			throw new Error("Cannot emit "+key+" attribute not found")
-		}
-		if(value !== undefined){ // lets check storage
-			if(config.storage && !recur){
-				var storage_key = '_' + config.storage
-				var store
-				if(!this.hasOwnProperty(storage_key)){
-					store = this[storage_key]
-					store = this[storage_key] = store.struct(store)
-				}
-				else{
-					store = this[storage_key]
-				}
-				this[value_key] = store[config.index] = value
-				//this.emit(config.storage, store)
-			}
-			this[value_key] = value
-		}
 
 		var proto = this
 		var stack
@@ -268,7 +246,7 @@ define.class(function(require, constructor){
 		}
 
 		if(stack !== undefined) for(var j = stack.length - 1; j >=0; j--){
-			stack[j].call(this, value)
+			stack[j].call(this, event)
 		}
 
 		var proto = this
@@ -276,7 +254,7 @@ define.class(function(require, constructor){
 			if(proto.hasOwnProperty(listen_key)){
 				var listeners = proto[listen_key]
 				for(var j = 0; j < listeners.length; j++){
-					listeners[j].call(this, value)
+					listeners[j].call(this, event)
 				}
 			}
 			proto = Object.getPrototypeOf(proto)
@@ -355,39 +333,6 @@ define.class(function(require, constructor){
 		return fn
 	}
 
-	// JSON API
-
-	Object.defineProperty(this, 'attributes', {
-		get:function(){
-			throw new Error("attribute can only be assigned to")
-		},
-		set:function(arg){
-			for(var key in arg){
-				this.defineAttribute(key, arg[key])
-			}
-		}
-	})
-
-	Object.defineProperty(this, 'events', {
-		get:function(){
-			throw new Error("event can only be assigned to")
-		},
-		set:function(arg){
-			if(Array.isArray(arg)){
-				for(var i = 0; i < arg.length; i++){
-					this.defineAttribute(arg[i],{type:Object})
-				}
-			}
-			else{
-				if(typeof arg === 'object'){
-					for(var key in arg){
-						this.defineAttribute(key, {type:Object})
-					}
-				}
-				else this.defineAttribute(arg, {type:Object})
-			}
-		}
-	})
 
 	this.definePersist = function(arg){
 		if (!this.hasOwnProperty("_persists")){
@@ -401,6 +346,23 @@ define.class(function(require, constructor){
 		}
 		this._persists[arg] = 1
 	}
+
+
+
+	// magical setters JSON API
+
+
+
+	Object.defineProperty(this, 'attributes', {
+		get:function(){
+			throw new Error("attribute can only be assigned to")
+		},
+		set:function(arg){
+			for(var key in arg){
+				this.defineAttribute(key, arg[key])
+			}
+		}
+	})
 
 	Object.defineProperty(this, 'persists', {
 		get:function(){
@@ -457,6 +419,27 @@ define.class(function(require, constructor){
 		}
 	})
 
+	Object.defineProperty(this, 'events', {
+		get:function(){
+			throw new Error("event can only be assigned to")
+		},
+		set:function(arg){
+			if(Array.isArray(arg)){
+				for(var i = 0; i < arg.length; i++){
+					this.defineAttribute(arg[i],{type:Event})
+				}
+			}
+			else{
+				if(typeof arg === 'object'){
+					for(var key in arg){
+						this.defineAttribute(key, {type:Event})
+					}
+				}
+				else this.defineAttribute(arg, {type:Event})
+			}
+		}
+	})
+	
 	Object.defineProperty(this, 'animate', {
 		get:function(){ return this.animateAttribute },
 		set:function(arg){
@@ -506,25 +489,31 @@ define.class(function(require, constructor){
 		var on_key = 'on' + key
 		var listen_key = '_listen_' + key
 		var wiredfn_key = '_wiredfn_' + key
-		var config_key = '_cfg_' + key 
+		//var config_key = '_cfg_' + key 
 		var get_key = '_get_' + key
 		var set_key = '_set_' + key
 
 		if(this.isAttribute(key)){ // extend the config
 			if('type' in config) throw new Error('Cannot redefine attribute '+key)
-			var obj = this[config_key] = Object.create(this[config_key])
+			var obj = Object.create(this._attributes[key])
 			for(var prop in config){
 				obj[prop] = config[prop]
 			}
-			this._attributes[key] = this[config_key]
+			this._attributes[key] = obj
 			return
 		}
 		else{
+			// autoprocess the config
+			if(!(typeof config === 'object' && config && !Array.isArray(config) && !config.struct)){
+				config = {value:config}
+			}
+			else if(!config.type) config = Object.create(config)
+
 			if(!config.type){
-				config = Object.create(config)
 				var value = config.value
+
 				if(typeof value === 'object'){
-					if(value && value.struct)config.type = value.struct
+					if(value && value.struct) config.type = value.struct
 					else if(Array.isArray(value)) config.type = Array
 					else config.type = Object
 				}
@@ -533,6 +522,10 @@ define.class(function(require, constructor){
 				}
 				else if(typeof value === 'boolean'){
 					config.type = boolean
+				}
+				else if(typeof value === 'function'){
+					config.type = value
+					config.value = undefined
 				}
 			}
 		}
@@ -554,7 +547,7 @@ define.class(function(require, constructor){
 				}
 			}
 		}
-		this._attributes[key] = this[config_key] = config
+		this._attributes[key] = config
 		
 		if(config.wired) this[wiredfn_key] = config.wired
 
@@ -580,6 +573,13 @@ define.class(function(require, constructor){
 					return
 				}
 				if(typeof value === 'object' && value !== null && value.atAttributeAssign) value.atAttributeAssign(this, key)
+
+				var config = this._attributes[key]
+
+				if(config.motion && this.startAnimation(key, value)){
+					return
+				}
+
 				if(!this.hasOwnProperty(storage_key)){
 					var store = this[storage_key]
 					store = this[storage_key] = store.struct(store)
@@ -587,23 +587,19 @@ define.class(function(require, constructor){
 				else{
 					store = this[storage_key]
 				}
-				var config = this[config_key]
-				if(config.motion && this.startAnimation(key, value)){
-					return
-				}
 
 				this[value_key] = store[config.index] = value
 
-				// emitting it on storage should emit it back to myself
-				this.emit(config.storage, store)
+				// emit storage
+				this.emit(config.storage, {type:'setter', via:key, key:config.storage, owner:this, value:this[storage_key]})
 
 				if(this.atAttributeSet !== undefined) this.atAttributeSet(key, value)
-				//if(on_key in this || listen_key in this) this.emit(key, value)
+				if(on_key in this || listen_key in this) this.emit(key,  {type:'setter', key:key, owner:this, value:value})
 			}
 
 			this.addListener(config.storage, function(value){
-				var myval = this[value_key] = value[config.index]
-				if(on_key in this || listen_key in this)  this.emit(key, myval, true)
+				this[value_key] = value[config.index]
+				if(on_key in this || listen_key in this)  this.emit(key, {type:'setter', key:key, owner:this, value:value})
 			})
 			// initialize value
 			this[value_key] = this[storage_key][config.index]
@@ -619,7 +615,7 @@ define.class(function(require, constructor){
 				}
 				if(typeof value === 'object' && value !== null && value.atAttributeAssign) value.atAttributeAssign(this, key)
 				
-				var config = this[config_key]
+				var config = this._attributes[key]
 			
 				var type = config.type
 				if(type){
@@ -634,7 +630,7 @@ define.class(function(require, constructor){
 				this[value_key] = value
 
 				if(this.atAttributeSet !== undefined) this.atAttributeSet(key, value)
-				if(on_key in this || listen_key in this)  this.emit(key, value)
+				if(on_key in this || listen_key in this)  this.emit(key, {type:'setter', owner:this, key:key, value:value})
 			}
 		}
 		
@@ -718,6 +714,12 @@ define.class(function(require, constructor){
 		if(initarray) initarray.push(bindcall)
 	}
 
+	this.emitForward = function(event){
+		return function(value){
+			this.emit(event, value)
+		}.bind(this)
+	}
+	
 	this.connectWires = function(initarray, depth){
 
 		var immediate = false
@@ -814,5 +816,8 @@ define.class(function(require, constructor){
 	this.hideProperty(Object.keys(this))
 
 	// always define an init and deinit
-	this.events = ["init", "deinit"]
+	this.attributes = {
+		init:Event, 
+		deinit:Event
+	}
 })

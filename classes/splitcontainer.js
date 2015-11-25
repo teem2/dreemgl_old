@@ -27,17 +27,6 @@ define.class(function(view, label){
 		this.flexdirection = this.vertical?"column":"row" ;
 	}
 	
-	var splitcontainer = this.constructor
-	
-	// Basic usage of the splitcontainer
-	define.example(this, function Usage(){ return [
-		splitcontainer({vertical: false, margin: 4, flex: 1.0, borderwidth:2, bordercolor: "darkblue", padding: vec4(2) },
-		label({flex: 0.2, fontsize: 26, text:"A", bgcolor: "transparent" ,multiline: true, align:"center" , fgcolor:"black", margin: 2})
-		,label({flex: 0.2, fontsize: 26, text:"B", bgcolor: "transparent" ,multiline: true, align:"center" ,fgcolor:"black", margin: 2})
-		,label({flex: 0.2, fontsize: 26, text:"C", bgcolor: "transparent" ,multiline: true, align:"center" , fgcolor:"black",margin: 2})
-		,label({flex: 0.2, fontsize: 26, text:"D", bgcolor: "transparent" ,multiline: true, align:"center" , fgcolor:"black",margin: 2})
-	)]})
-
 	// the visual class that defines the draggable bar between the resizable children
 	define.class(this, 'splitter', function(view){
 		
@@ -193,4 +182,18 @@ define.class(function(view, label){
 			return this.constructor_children;
 		}
 	}
-});
+
+	var splitcontainer = this.constructor
+	
+	// Basic usage of the splitcontainer
+	this.constructor.examples = {
+		Usage:function(){ return [
+			splitcontainer({vertical: false, margin: 4, flex: 1.0, borderwidth:2, bordercolor: "darkblue", padding: vec4(2) },
+			label({flex: 0.2, fontsize: 26, text:"A", bgcolor: "transparent" ,multiline: true, align:"center" , fgcolor:"black", margin: 2})
+			,label({flex: 0.2, fontsize: 26, text:"B", bgcolor: "transparent" ,multiline: true, align:"center" ,fgcolor:"black", margin: 2})
+			,label({flex: 0.2, fontsize: 26, text:"C", bgcolor: "transparent" ,multiline: true, align:"center" , fgcolor:"black",margin: 2})
+			,label({flex: 0.2, fontsize: 26, text:"D", bgcolor: "transparent" ,multiline: true, align:"center" , fgcolor:"black",margin: 2})
+		)]}
+	}
+
+})

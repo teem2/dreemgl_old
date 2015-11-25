@@ -126,10 +126,6 @@ define.class(function(require, exports, self){
 			this.redraw()
 		}.bind(this)
 
-		window.onhashchange = function(){
-			if(this.screen) this.screen.decodeLocationHash()
-		}.bind(this)
-
 		resize()		
 	}
 

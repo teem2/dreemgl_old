@@ -9,16 +9,18 @@ define.class(function(require, label){
 	var CodeFormatter = require('$font/codeformatter')	
 	var Parser = require('$parse/onejsparser')
 
-	// Display a function as syntax highlighted code.
-	// The code to display
 	this.attributes = {
-		model: {type:String, value:""},
+		// The code to display
+		source: {type:String, value:""},
+		// wrap the text
 		wrap: {type:Boolean, value:false}
 	}
+
 	this.bgcolor = vec4(12/255,33/255,65/255,1)
 	this.bg = 1
 	this.fontsize = 14
 	this.subpixel = true
+
 	// extend the font shader
 	this.font = function(){
 		for(var key in CodeFormatter.types){
@@ -129,7 +131,7 @@ define.class(function(require, label){
 			var view = this.view
 			var maxwidth = view.layout.width
 			var textbuf = this.mesh = this.newText()
-			var ast = Parser.parse(view.model)
+			var ast = Parser.parse(view.source)
 
 			textbuf.fontsize = view.fontsize
 			textbuf.add_y = textbuf.line_height
@@ -156,7 +158,9 @@ define.class(function(require, label){
 	// Basic usage
 	var codeviewer = this.constructor
 
-	define.example(this, function Usage(){
-		return [codeviewer({bgcolor:"#000040", padding:vec4(14), code: "console.log(\"Hello world!\");"})]
-	})
+	this.constructor.examples = {
+		Usage: function(){
+			return [codeviewer({bgcolor:"#000040", padding:vec4(14), code: "console.log(\"Hello world!\");"})]
+		}
+	}
 })

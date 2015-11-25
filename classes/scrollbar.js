@@ -37,11 +37,7 @@ define.class(function(view){
 	}
 
 	var scrollbar = this.constructor;
-	
-	define.example(this, function Usage(){
-		return [scrollbar({vertical: false, height: 20, page: 0.2, offset: 0.5})]		
-	})
-	
+
 	this.page = function(){
 		this.redraw()
 	}
@@ -136,25 +132,11 @@ define.class(function(view){
 	}
 
 	this.drawcount = 0;
-	/*
-	this.atDraw = function(){
-		this.drawcount ++
 
-		this.bg_shader._offset = this._offset
-		this.bg_shader._page = this._page
 
-	//	console.log("atdraw button", this.drawcount);
-		if (this.pressed > 0){
-				this.bg_shader._draggercolor = this.activecolor
-		}
-		else{
-			if (this.hovered > 0){
-				this.bg_shader._draggercolor = this.hovercolor
-			}
-			else{
-				this.bg_shader._draggercolor = this.draggercolor
-			}
+	this.constructor.examples = {
+		Usage:function(){
+			return [scrollbar({vertical: false, height: 20, total: 1, page: 0.2, offset: 0.5})]		
 		}
 	}
-	*/
 })

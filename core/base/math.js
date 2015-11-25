@@ -2200,7 +2200,7 @@ define(function(require, exports){
 	defineArrayProp(Int32Array.prototype, {x:0, y:1, z:2, w:3}, [exports.ivec2, exports.ivec3, exports.ivec4])
 	//defineArrayProp(Int32Array.prototype, {r:0, g:1, b:2, a:3}, [exports.ivec2, exports.ivec3, exports.ivec4])
 
-	exports.Enum = function(){
+	exports.Enum = function Enum(){
 		var types = Array.prototype.slice.call(arguments)
 		for(var i = 0; i < types.length; i++) types[i] = types[i].toUpperCase()
 		return function Enum(value){
@@ -2212,5 +2212,10 @@ define(function(require, exports){
 
 			return value
 		}
+	}
+
+	// events are passthrough types
+	exports.Event = function Event(arg){
+		return arg
 	}
 })

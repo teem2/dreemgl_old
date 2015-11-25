@@ -35,10 +35,8 @@ define.class('../mouse', function (require, exports, self){
 		}.bind(this))
 
 		document.addEventListener('wheel', function(e){
-			console.log(e)
 			if(e.ctrlKey || e.metaKey){
 				this.zoom = e.wheelDelta / 120
-				//console.log(e.wheelDelta)
 			}
 			else{
 				if(e.deltaX !== 0) this.wheelx = e.deltaX

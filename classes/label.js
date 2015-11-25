@@ -2,10 +2,9 @@
    You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, 
    software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, 
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
-// Sprite class
 
 define.class(function(view, require){	
-
+	// Text label!
 	var Font = require('$font/fontshader')
 
 	var glfontParser = require('$font/fontparser')
@@ -95,8 +94,11 @@ define.class(function(view, require){
 		return {width: this.fontshader.mesh.bound_w, height: this.fontshader.mesh.bound_h};
 	}
 
+	var label = this.constructor
 	// A label.
-	define.example(this, function Usage(){
-		return [label({text:"I am a textlabel!", fgcolor:"purple", fontsize: 30 })]
-	})
+	this.constructor.examples = {
+		Usage: function(){
+			return [label({text:"I am a textlabel!", fgcolor:"purple", fontsize: 30 })]
+		}
+	}
 })

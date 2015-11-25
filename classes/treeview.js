@@ -4,24 +4,15 @@
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
 define.class(function(view,  label, button, icon){
-	// the treeview control - classic treeview with expandable nodes.
-	
-	var treeview = this.constructor;
-	
-	// Basic usage of the treeview control.
-	define.example(this, function Usage(){
-		return [treeview({dataset:{name:"root", children:[{name:"child1"}]}})]
-	})
 
+	// the treeview control - classic treeview with expandable nodes.
 	this.attributes = {
 		// the dataset to use for tree expansion
-		dataset:{type: Object, value:{}},
+		dataset: Object,
 		// the current selected value	
-		selected: {type: String, value:""}
+		select: Event
 	}
 
-	this.persists = ['selected']
-	this.events = ['selectclick']
 	this.bgcolor = 'white'
 	this.boundscheck = true
 	this.mode = '2D'
@@ -55,7 +46,8 @@ define.class(function(view,  label, button, icon){
 	define.class(this, 'newitemheading', function(view){
 		this.borderwidth = 0;
 		this.attributes = {
-			folded: {type: boolean, value: false}
+			folded: false,
+			select: Event
 		}
 		this.padding =  0
 		this.labelactivecolor = vec4("#303000")
@@ -75,9 +67,18 @@ define.class(function(view,  label, button, icon){
 		
 		this.render = function(){
 			return [
-				this.haschildren?this.outer.foldbutton({icon:this.folded?"arrow-right":"arrow-down",padding: 2,click: this.toggleclick}):[], 
+				this.haschildren?this.outer.foldbutton({
+					icon:this.folded? "arrow-right":"arrow-down", 
+					padding: 2, 
+					click: this.toggleclick
+				}):[], 
 				//flatbutton({icon:this.folded?"arrow-right":"arrow-down",padding: 2, click: this.toggleclick}),
-				this.outer.foldbutton({text: this.text, click:this.selectclick.bind(this)})
+				this.outer.foldbutton({
+					text: this.text, 
+					click:function(){
+						this.emit('select',{node:this})
+					}.bind(this)
+				})
 			];
 		}
 	});
@@ -85,22 +86,17 @@ define.class(function(view,  label, button, icon){
 	// the treeitem subclass contains 3 controls: a newitemheading, a set of treelines and an optional set of children treeitems in case the current node is expanded
 	define.class(this, 'treeitem', function(view){
 
-		this.flex = 1.0
-
 		this.attributes = {
-			text: {type:String, value:""}
+			text: "",
+			item: Object,
 		}
 
+		this.flex = 1.0
 		this.padding = vec4(3)
 		this.fgcolor = vec4("black")
 		this.bg = 0
 		this.flexdirection = "row"
-		
-		//this.attribute("fontsize", {type:float, value:12});
-		this.attributes = {
-			item: {type:Object}
-		}
-
+	
 		// Open/close this node
 		this.toggle = function(){
 			if (this.item){
@@ -116,7 +112,8 @@ define.class(function(view,  label, button, icon){
 		}
 		
 		// build path for the current treeitem and call the outer selectclick handler
-		this.selectclick = function(){
+		this.processSelect = function(value){
+
 			function walk(stack, node){
 				if(stack === node) return [node]
 				if(stack.children) for(var i = 0; i < stack.children.length; i++){
@@ -128,8 +125,10 @@ define.class(function(view,  label, button, icon){
 					}
 				}
 			}
+
 			var path = walk(this.outer.data, this.item)
-			this.outer.emit('selectclick', {item:this.item, path:path})
+
+			this.outer.emit('select', {item:this.item, path:path})
 		}
 		
 		this.atConstructor = function(){
@@ -147,13 +146,20 @@ define.class(function(view,  label, button, icon){
 			//console.log("treeitem", this.item.name, this.item.children);
 			return [view({flexdirection:"row", bg:0, flex:1}, [
 				view({bg:0, flexwrap:"none", flexdirection:"column" },
-					this.outer.newitemheading({haschildren:this.item.children&&this.item.children.length, folded: this.item.collapsed, toggleclick: this.toggle.bind(this), selectclick: this.selectclick.bind(this),text:this.item.name, id:this.item.id }),
+					this.outer.newitemheading({
+						haschildren: this.item.children && this.item.children.length, 
+						folded: this.item.collapsed, 
+						toggleclick: this.toggle.bind(this), 
+						select: this.processSelect.bind(this),
+						text:this.item.name,
+						id:this.item.id
+					}),
 					this.item.collapsed==false?
 						view({bg:0, flexdirection:"row" },
 							view({bg:0, flexdirection:"column" , flex:1,  padding: 0 },
 								this.item.children?
 								this.item.children.map(function(m, i, array){return [
-									view({bgcolor:"transparent",flexdirection:"row" , alignitems:"stretch", padding: 0},
+									view({bg:0,flexdirection:"row" , alignitems:"stretch", padding: 0},
 										this.outer.treeline({width:20,last:i === array.length - 1?1:0}), 
 										this.outer.treeitem({item: m})										
 									)
@@ -215,5 +221,15 @@ define.class(function(view,  label, button, icon){
 		}
 
 		return [this.treeitem({item:this.data})]
+	}
+
+	
+	var treeview = this.constructor;
+	
+	// Basic usage of the treeview control.
+	this.constructor.examples = {
+		Usage:function(){
+			return [treeview({dataset:{name:"root", children:[{name:"child1"}]}})]
+		}
 	}
 })

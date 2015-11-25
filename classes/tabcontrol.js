@@ -18,20 +18,6 @@ define.class(function(view, button, text){
 	// The currently active tab. 
 	this.persists("activetab")
 	
-	var tabcontrol = this.constructor;
-	
-	define.example(this, function Usage(){
-		return [
-			tabcontrol({}
-			,text({tabicon:"flask", tabname:"Flask",  text: "I am on tab 1 - my icon is a flask!", fgcolor: "blue", fontsize: 20})
-			,text({tabicon:"gears",tabname:"Gears",text: "I am on tab 2 - my icon is a gearbox!", fgcolor: "red", fontsize: 20})
-			,text({tabicon:"briefcase",tabname:"Briefcase",text: "I am on tab 3 - my icon is a briefcase!", fgcolor: "green", fontsize: 20})
-			,text({tabicon:"battery-full",tabname:"Battery",text: "I am on tab 4 - my icon is a battery!", fgcolor: "yellow", fontsize: 20})
-			)
-		]
-	});
-	
-
 	this.flex = 1;
 	
 	this.buttoncolor1= vec4("#b0b0b0")
@@ -66,4 +52,18 @@ define.class(function(view, button, text){
 			return [];// this.constructor_children;
 		}
 	}
-});
+
+	var tabcontrol = this.constructor
+	this.constructor.examples = {
+		Usage:{
+			return [
+				tabcontrol({}
+					,text({tabicon:"flask", tabname:"Flask",  text: "I am on tab 1 - my icon is a flask!", fgcolor: "blue", fontsize: 20})
+					,text({tabicon:"gears",tabname:"Gears",text: "I am on tab 2 - my icon is a gearbox!", fgcolor: "red", fontsize: 20})
+					,text({tabicon:"briefcase",tabname:"Briefcase",text: "I am on tab 3 - my icon is a briefcase!", fgcolor: "green", fontsize: 20})
+					,text({tabicon:"battery-full",tabname:"Battery",text: "I am on tab 4 - my icon is a battery!", fgcolor: "yellow", fontsize: 20})
+				)
+			]
+		}
+	}
+})
