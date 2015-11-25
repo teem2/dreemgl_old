@@ -4,7 +4,7 @@
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
 
-define.class(function(require, shape3d, text, view, icon){
+define.class(function(require, shape3d, view, icon){
 	// The classic Utah teapot - rebuilt from the original bezier patch set.
 	
 	if(define.$environment === 'nodejs') return

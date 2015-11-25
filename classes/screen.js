@@ -579,15 +579,18 @@ define.class(function(view, require) {
 			if(anim.start_time === undefined) anim.start_time = time
 			var mytime = time - anim.start_time
 			var value = anim.compute(mytime)
+
 			if(value instanceof anim.End){
 				delete this.anims[key] 
 				//console.log(value.last_value)
-				anim.obj.emit(anim.key, value.last_value)
+				anim.obj['_' + anim.key] = value.last_value
+				anim.obj.emit(anim.key, {type:'animation_end', key: anim.key, owner:anim.obj, value:value.last_value})
 				anim.obj.redraw()
-				if(anim.promise)anim.promise.resolve()
+				if(anim.promise) anim.promise.resolve()
 			}
 			else{
-				anim.obj.emit(anim.key, value)
+				anim.obj['_' + anim.key] = value
+				anim.obj.emit(anim.key, {type:'animation', key: anim.key, owner:anim.obj, value:value.last_value})
 				redrawlist.push(anim.obj)
 			}
 		}

@@ -1,4 +1,4 @@
-define.class(function(composition, require, screens, screen, docviewer, button, text, scrollcontainer, codeviewer, view, slideviewer, draggable, perspective3d, teapot,ballrotate, architecture){
+define.class(function(composition, require, screens, screen, docviewer, button, label, codeviewer, view, slideviewer, draggable, teapot,ballrotate, architecture){
 	// Live coding presentation docs!
 
 	this.attributes = {HELLO: {type:vec4,value:'red'}};

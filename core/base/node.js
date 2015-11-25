@@ -44,22 +44,7 @@ define.class(function(require, constructor){
 				this.name = arg
 				continue
 			}
-			if(typeof arg === 'number'){
-				var o = i - off
-				if(o === 0) this.x = arg
-				else if(o === 1) this.y = arg
-				else if(o === 2) this.w = arg
-				else if(o === 3) this.h = arg
-				continue
-			}
-			if(arg && arg.struct){
-				var o = i - off
-				if(o === 0) this.pos = arg
-				if(o === 1) this.size = arg
-				else this.bgcolor = arg
-				continue
-			}
-
+			
 			if(Array.isArray(arg)){
 				this.initFromConstructorArgs(arg)
 			}
@@ -623,6 +608,7 @@ define.class(function(require, constructor){
 				}
 
 				if(config.motion && this.startAnimation(key, value)){
+
 					// store the end value
 					return
 				}

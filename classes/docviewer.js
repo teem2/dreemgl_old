@@ -300,7 +300,7 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 						if (step.fn.key.name === "class"){
 							var innerclassname = step.args[1].value
 							var newclass = parseDoc(proto[innerclassname])
-							//NewClass.class_name = innerclassname;
+							newclass.class_name = innerclassname;
 							newclass.body_text = grabFirstCommentAbove(step.cmu)
 							class_doc.inner_classes.push(newclass)
 						} 

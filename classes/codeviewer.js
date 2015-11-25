@@ -160,7 +160,7 @@ define.class(function(require, label){
 
 	this.constructor.examples = {
 		Usage: function(){
-			return [codeviewer({bgcolor:"#000040", padding:vec4(14), code: "console.log(\"Hello world!\");"})]
+			return [codeviewer({bgcolor:"#000040", padding:vec4(14), source: "console.log(\"Hello world!\");"})]
 		}
 	}
 })

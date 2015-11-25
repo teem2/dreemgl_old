@@ -587,7 +587,7 @@ define.class( function(node, require){
 	}
 
 	this.startAnimation = function(key, value, track, resolve){
-		if(this.screen) this.screen.startAnimationRoot(this, key, value, track, resolve)
+		if(this.screen) return this.screen.startAnimationRoot(this, key, value, track, resolve)
 		else{
 			this['_' + key] = value
 		}
