@@ -888,7 +888,6 @@
 			this.reload_socket.onmessage = function(event){
 				var msg = JSON.parse(event.data)
 				if (msg.type === 'filechange'){
-
 					var old_module = define.module[msg.file]
 
 					if(define.partial_reload && old_module && typeof old_module.exports === 'function'){
