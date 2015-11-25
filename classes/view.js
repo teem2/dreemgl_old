@@ -11,7 +11,7 @@ define.class( function(node, require){
 	var view = this.constructor
 
 	this.attributes = {
-		pos: {type:vec3, value:vec3(NaN)},
+		pos: {type:vec3, value:vec3(0,0,0)},
 		x: {storage:'pos', index:0},
 		y: {storage:'pos', index:1},
 		z: {storage:'pos', index:2},
@@ -69,7 +69,7 @@ define.class( function(node, require){
 		scale: {type: vec3, value: vec3(1)},
 		anchor: {type: vec3, value: vec3(0)},
 		rotate: {type: vec3, value: vec3(0)},
-		translate: {type: vec3, value: vec3(0)},
+		//translate: {type: vec3, value: vec3(0)},
 
 		bordercolor: {type: vec4, value: vec4(0,0,0,0)},
 
@@ -377,12 +377,10 @@ define.class( function(node, require){
 
 	// called by doLayout
 	this.updateMatrices = function(parentmatrix, parentmode, depth){
-	//	if (!depth) depth = "";
-		//depth += " ";
-		//console.log(depth, this.constructor.name, this.translate,parentmode, this._mode);
 			
 		if (parentmode== '3D'){// && !this._mode ){	
-			mat4.TSRT2(this.anchor, this.scale, this.rotate, this.translate, this.modelmatrix);
+		
+			mat4.TSRT2(this.anchor, this.scale, this.rotate, this.pos, this.modelmatrix);
 			//mat4.debug(this.modelmatrix);
 		}
 		else {
@@ -420,7 +418,7 @@ define.class( function(node, require){
 				this.layermatrix = this.modelmatrix
 			}
 			this.totalmatrix = mat4.identity();
-			this.modelmatrix = mat4.identity();
+			this.modelmatrix = mat4.identity();	
 			parentmode = this._mode;
 			parentmatrix = mat4.identity();
 		}

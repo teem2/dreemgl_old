@@ -40,25 +40,25 @@ define.class(function(view, label,button, scrollbar){
 				,this.colorarea()
 				,view({flexdirection:"column", flex:1,bgcolor:"transparent"}
 					,view({bgcolor:"transparent", flexdirection:"row" }
-						,label({fgcolor:"black", bgcolor:"transparent" , text:"R", fontsize:14, margin:4})			
+						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"R", fontsize:14, margin:4})			
 						,view({bgcolor:"transparent", flexdirection:"column", flex:1 }
 							,scrollbar({height:18,margin:8, total:255, page:20, vertical:false})
 						)
 						,label({fgcolor:"black", bgcolor:"transparent" , text:"255", fontsize:14, margin:4})							
 					)
 					,view({bgcolor:"transparent", flexdirection:"row" }
-						,label({fgcolor:"black", bgcolor:"transparent" , text:"G", fontsize:14, margin:4})			
+						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"G", fontsize:14, margin:4})			
 						,view({bgcolor:"transparent", flexdirection:"column", flex:1 }
 							,scrollbar({height:18,margin:8, total:255, page:20, vertical:false})
 						)
 						,label({fgcolor:"black", bgcolor:"transparent" , text:"255", fontsize:14, margin:4})			
 					)
 					,view({bgcolor:"transparent", flexdirection:"row" }
-						,label({fgcolor:"black", bgcolor:"transparent" , text:"B", fontsize:14, margin:4})			
+						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"B", fontsize:14, margin:4})			
 						,view({bgcolor:"transparent", flexdirection:"column", flex:1 }
 							,scrollbar({height:18,margin:8, total:255, page:20, vertical:false})
 						)
-						,label({fgcolor:"black", bgcolor:"transparent" , text:"255", fontsize:14, margin:4})			
+						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"255", fontsize:14, margin:4})			
 					)			
 				)
 			)
