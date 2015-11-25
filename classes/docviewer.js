@@ -333,7 +333,7 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 
 		this.flexdirection = "column"
 		this.flexwrap = "none" 
-		
+		this.flex = 1;
 		this.BuildGroup = function (inputarray, title, icon, color, blocktype){
 			if (!blocktype) blocktype = "attribute"
 			var subs = []
@@ -344,7 +344,7 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 			}
 			
 			return foldcontainer(
-					{collapsed:true, basecolor:color, icon:icon, title:title , fontsize: 20,margin: vec4(10,0,0,20), fgcolor: "white" }, 
+					{collapsed:true, basecolor:color, icon:icon, title:title ,flex:1, fontsize: 20,margin: vec4(10,0,0,20), fgcolor: "white" }, 
 						view({flexdirection: "column", flex: 1}, subs)
 				);
 		}
@@ -399,9 +399,12 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 		}
 	})
 	
-	this.flexdirection = "column"
+	this.flexdirection = "column";
+	this.alignitems = "stretch";
 	this.flexwrap = "none" ;
-				
+	this.flex = 1;
+	this.mode = "2D";
+	
 	this.render = function(){	
 		var functions = [];
 		var res = [];
@@ -411,7 +414,10 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 		} 
 		else if(typeof(R) === 'function'){
 			var class_doc = parseDoc(R)		
-			return [this.ClassDocView({class_doc:class_doc})]
+			return [
+				this.ClassDocView({class_doc:class_doc}),
+			
+			]
 		}
 
 	}

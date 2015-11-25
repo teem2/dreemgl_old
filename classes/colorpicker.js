@@ -8,24 +8,36 @@ define.class(function(view, label,button, scrollbar){
 	
 	this.attributes =  {
 		color: {type: vec4, value: "white"}
+		,fgcolor: {type: vec4, value: "white"}		
+		,fontsize:{type: int, value: 15}
+		,internalbordercolor: {type:vec4, value:vec4("#d0d0d0")}
 	}
-	
 	this.bgcolor = vec4("#383838")
 	this.flexdirection = "column";
 	this.padding = vec4(10)
 	this.margin = vec4(10)
 	this.borderradius = 8
 	
+	define.class(this, 'colorarea', function(view){
+		this.bg ={
+			color:function(){
+					return vec4(mesh.x, mesh.y,0,1);
+				}
+			};
+		this.width = 100;
+		this.height = 100;
+		
+	})
+	
 	
 	this.render = function(){
-		
 		return [
 			label({text:"Select Color", bgcolor:"transparent", fgcolor:"white", fontsize: 15, margin:5})
 			
 
-			
+		
 			,view({flexdirection:"row", flex:1, bgcolor:"transparent"}
-				,view({margin:5, bg:{color:function(){return vec4(mesh.x, mesh.y,0,1);}}, width:100, height:100})
+				,this.colorarea()
 				,view({flexdirection:"column", flex:1,bgcolor:"transparent"}
 					,view({bgcolor:"transparent", flexdirection:"row" }
 						,label({fgcolor:"black", bgcolor:"transparent" , text:"R", fontsize:14, margin:4})			
@@ -50,10 +62,17 @@ define.class(function(view, label,button, scrollbar){
 					)			
 				)
 			)
-			,view({margin:7,borderwidth:1, borderradius:8, bordercolor:"white", bgcolor:"transparent", flex:1, padding:5}
-				,label({ margin:5, text:"#ff00ff", bgcolor:"transparent", fgcolor:"white", padding:vec4(20,2,2,2), fontsize: 16})
-			)
 			
+			,view({bgcolor:"transparent", justifycontent:"flex-end", flexdirection:"row", alignitems:"flex-end", flex:1}
+				,view({margin:7,borderwidth:1, borderradius:8, bordercolor:this.internalbordercolor, bgcolor:"transparent", flex:1, padding:5}
+					,label({margin:5,text:"hex:", bgcolor:"transparent", fgcolor:this.fgcolor, fontsize: this.fontsize})
+					,label({ margin:5, text:"#ff00ff", bgcolor:"transparent", fgcolor:this.fgcolor, padding:vec4(20,2,2,2), fontsize: this.fontsize})
+				)
+				,view({margin:7,borderwidth:1, borderradius:8, bordercolor:this.internalbordercolor, bgcolor:"transparent", flex:1, padding:5}
+					,label({margin:5,text:"alpha:", bgcolor:"transparent", fgcolor:this.fgcolor, fontsize: this.fontsize})
+					,label({ margin:5, text:"ff", bgcolor:"transparent", fgcolor:this.fgcolor, padding:vec4(20,2,2,2), fontsize: this.fontsize})
+				)
+			)				
 			,view({bgcolor:"transparent", justifycontent:"flex-end", flexdirection:"row", alignitems:"flex-end", flex:1}
 				,button({text:"Cancel", alignself:"flex-end"})
 				,button({text:"OK", alignself:"flex-end"})

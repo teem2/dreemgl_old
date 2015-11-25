@@ -53,9 +53,8 @@ define.class(function(composition, docviewer, codeviewer, fileio, screens, scree
 								}.bind(this))
 							}.bind(this)
 						},
-						mode:'2D', 
 						overflow:'scroll', 
-						flex:1
+						
 					})
 				)
 			)

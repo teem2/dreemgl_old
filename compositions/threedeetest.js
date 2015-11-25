@@ -89,7 +89,7 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 						},
 						flex:4,
 						name:'theview', 
-						bgcolor:'red',
+						bgcolor:'transparent',
 						clearcolor: 'rgba(255,255,255,0)',
 						mode: '3D', 
 						camera: vec3(2,2,2),
@@ -103,22 +103,24 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 						attributes:{
 							camera:{motion:'linear', duration:1},
 							fov:{motion:'easein', duration:1}
-						}
-						},
-
-						cube({pos:vec3(0,1,0), size:vec3(0.5)}),
-						cube({pos:vec3(1,0,0), size:vec3(0.5)}),
-						cube({pos:vec3(0,0,0), size:vec3(0.5)}),
-						cube({pos:vec3(0,0,1), size:vec3(0.5)}),
-						plane({pos:vec3(0,-2,0), size:vec3(500), rotate:vec3(PI/2,0,0)}),
-						sphere({pos:vec3(0,0,2), radius:0.5}),
-						view({mode:'2D', bgcolor:"red", pixelratio:2, scale: vec3(0.01, -0.01, 0.01), rotate:vec3(0,0, 0)},
-							button({
-								text:"Near", 
-								click:function(){
-									var cam = this.find("theview");
-									cam.camera = vec3(1,2,3);
-									cam.fov = 30;
+					}}
+						,cube({translate:vec3(0,1,0), size:vec3(0.5)})
+						,cube({translate:vec3(1,0,0), size:vec3(0.5)})
+						,cube({translate:vec3(0,0,0), size:vec3(0.5)})
+						,cube({translate:vec3(0,0,1), size:vec3(0.5)})
+						,plane({translate:vec3(0,-2,0), size:vec3(500), rotate:vec3(PI/2,0,0)})
+						,sphere({translate:vec3(0,0,2), radius:0.5})
+						
+						,view({mode:'2D', bgcolor:"red", pixelratio:2, scale: vec3(0.01, -0.01, 0.01), translate:vec3(0,20,0), rotate:vec3(0,0, 0)}
+							,mousedebug({width:100, height:100})
+						)
+						
+						,view({mode:'2D', bgcolor:"red", pixelratio:2, scale: vec3(0.01, -0.01, 0.01), rotate:vec3(0,0, 0)}
+							,button({text:"Near", click:function(){
+								
+								var cam = this.find("theview");
+								cam.camera = vec3(1,2,3);
+								cam.fov = 30;
 								}
 							}),
 							mousedebug({width:100, height:100}),
@@ -138,47 +140,37 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 									cam.camera = vec3(-4,0.2,-0.5);
 									cam.fov = 90;
 								}
-							}),
-						0),
-						view({
-							mode:'2D', 
-							flex:1,
-							bgcolor:"green", 
-							pixelratio:20, 
-							scale: vec3(0.02, -0.02, 0.02), 
-							pos: vec3(200,2000,200), 
-							rotate:vec3(0,1, 0)
-							},
-							button({
-								text:"Near", 
-								click:function(){								
-									var cam = this.find("theview");
-									cam.camera = vec3(1,2,3);
-									cam.fov = 30;
+								
+							})		
+
+							)
+						,view({mode:'2D', bgcolor:"green", pixelratio:2, scale: vec3(0.02, -0.02, 0.02), translate: vec3(200,2000,200), rotate:vec3(0,1, 0)}
+							,button({text:"A", click:function(){								
+								var cam = this.find("theview");
+								cam.camera = vec3(0,2,-5);
+								cam.fov = 30;
 								}
-							}),
-							mousedebug({width:100, height:100}),
-							button({
-								text:"Far", 
-								click:function(){
-									var cam = this.find("theview");
-									cam.camera = vec3(4,0.2,4);
-									cam.fov = 90;
+							})
+							,mousedebug({width:100, height:100})
+							,button({text:"B", click:function(){
+								var cam = this.find("theview");
+								cam.camera = vec3(3,3,-4);
+								cam.fov = 90;
 								}
-							}),	
-							mousedebug({width:100, height:100}),
-							button({
-								text:"Left", 
-								click:function(){
-									var cam = this.find("theview");
-									cam.camera = vec3(-4,0.2,-0.5);
-									cam.fov = 90;
-								}
-							}),
-						0),
-					0),
-				0),
-			0)
+								
+							})		
+							,mousedebug({width:100, height:100})
+							,button({text:"C", click:function(){
+								var cam = this.find("theview");
+								cam.camera = vec3(-3,3,-3);
+								cam.fov = 90;
+								}								
+							})		
+
+						)		
+					)
+				)
+			)
 		)
 	]}
 	
