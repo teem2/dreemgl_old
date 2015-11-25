@@ -8,6 +8,10 @@ define.class(function(node, require){
 
 	var RpcHub = require('$rpc/rpchub')
 
+	this._atConstructor = function(){
+		
+	}
+
 	this.atConstructor = function(){
 		this._intervals = []
 	}

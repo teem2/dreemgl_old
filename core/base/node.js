@@ -22,6 +22,7 @@ define.class(function(require, constructor){
 	this._atConstructor = function(){
 		// store the args for future reference
 		var args = this.constructor_args = Array.prototype.slice.call(arguments)
+		this.children =
 		this.constructor_children = []
 		this.initFromConstructorArgs(args)
 	}
@@ -109,6 +110,7 @@ define.class(function(require, constructor){
 		if(this.children) for(var i = 0; i < this.children.length; i ++){
 			var child = this.children[i]
 			if(child === ignore) continue
+			console.log(this.constructor.name)
 			var ret = child.findChild(name)
 			if(ret !== undefined) return ret
 		}

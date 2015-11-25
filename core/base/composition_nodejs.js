@@ -211,7 +211,7 @@ define.class('$base/composition_base', function(require, exports, self, baseclas
 				var init = []
 				child.connectWires(init)
 				for(var j = 0; j < init.length;j++) init[j]()				
-				child.emitRecursive('init')
+				child.emit('init')
 			}
 		}		
 	}

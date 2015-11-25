@@ -46,7 +46,6 @@ define.class(function(exports){
 					new_version.emit(key, {type:'persist', owner:new_version, key:key, value:value})
 				}
 			}
-			new_version.children = new_version.constructor_children;
 			new_version.emit('init', old_version)// old_version && old_version.constructor == new_version.constructor? old_version: undefined)
 		}
 		else{
