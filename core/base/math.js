@@ -696,6 +696,7 @@ define(function(require, exports){
 		o[1] = g;
 		o[2] = b;
 		o[3] = a?a:1.0
+		console.log(o,r,g,b	);
 		return o;
 	}
 	
