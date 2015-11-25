@@ -2,10 +2,9 @@
    You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, 
    software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, 
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
-// Sprite class
 
 define.class(function(view, require){	
-
+	// Text label!
 	var Font = require('$font/fontshader')
 
 	var glfontParser = require('$font/fontparser')
@@ -21,6 +20,8 @@ define.class(function(view, require){
 		// Size of the font in pixels
 		fontsize: {type:float, value: 18},
 	
+		boldness: {type:float, value: 0.3},
+
 		// Name of the font
 		typeface: {type:Object, value: undefined},
 	
@@ -44,6 +45,7 @@ define.class(function(view, require){
 			if(this.typeface) mesh.typeface = this.typeface
 
 			mesh.fontsize = view.fontsize
+			mesh.boldness = view.boldness
 			mesh.add_y = mesh.line_height
 			mesh.align = view.align
 			mesh.start_y = mesh.line_height
@@ -62,6 +64,7 @@ define.class(function(view, require){
 
 	define.class(this, 'fontsubpixelaa', this.fontnormal, function(){
 		this.subpixel = true
+		this.boldness = 0.6
 	})
 	this.fontsubpixelaa = false
 
@@ -95,8 +98,11 @@ define.class(function(view, require){
 		return {width: this.fontshader.mesh.bound_w, height: this.fontshader.mesh.bound_h};
 	}
 
+	var label = this.constructor
 	// A label.
-	define.example(this, function Usage(){
-		return [label({text:"I am a textlabel!", fgcolor:"purple", fontsize: 30 })]
-	})
+	this.constructor.examples = {
+		Usage: function(){
+			return [label({text:"I am a textlabel!", fgcolor:"purple", fontsize: 30 })]
+		}
+	}
 })

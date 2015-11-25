@@ -17,6 +17,7 @@ define.class(function(require, exports, self){
 	this.DrawPass = require('./drawpasswebgl')
 
 	this.preserveDrawingBuffer = true
+	this.premultipliedAlpha = false
 	this.antialias = false
 	this.debug_pick = false
 
@@ -124,10 +125,6 @@ define.class(function(require, exports, self){
 			resize()
 			this.atResize()
 			this.redraw()
-		}.bind(this)
-
-		window.onhashchange = function(){
-			if(this.screen) this.screen.decodeLocationHash()
 		}.bind(this)
 
 		resize()		
@@ -239,6 +236,7 @@ define.class(function(require, exports, self){
 		this.screen._size = vec2(this.main_frame.size[0] / this.ratio, this.main_frame.size[1] / this.ratio)
 
 		// do the dirty layouts
+		var order = [0,2,1]
 		for(var i = 0; i < this.layout_list.length; i++){
 			// lets do a layout?
 			var view = this.layout_list[i]
@@ -348,7 +346,7 @@ define.class(function(require, exports, self){
 			else{ // we are flex, make sure we layout after
 				this.layout_list.splice(this.layout_idx,0,view)
 			}
-			this.layout_idx++
+			//this.layout_idx++
 		}
 	}
 

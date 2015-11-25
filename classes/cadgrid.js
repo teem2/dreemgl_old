@@ -16,36 +16,30 @@ define.class(function(view, label){
 	this.alignself = "stretch"
 
 	this.bgcolor = vec4("#d0d0d0")
-
+	this.gridcolor = vec4("#ffffff")
 	// CADGrid shader - used various floored modulo functions to find out if either a major or minor gridline is being touched.
 	this.bg = {
-		gridcolor:vec4("#ffffff"),	
-		grid: function(a,b){
-			if (floor(mod(a.x * width,50. )) == 0. ||floor(mod(a.y * height,50. )) == 0.)	{
-				return mix(gridcolor, vec4(0.9,0.9,1.0,1.0), 0.5);
+		grid: function(a){
+			if (floor(mod(a.x * view.layout.width,50. )) == 0. ||floor(mod(a.y * view.layout.height,50. )) == 0.)	{
+				return mix(view.gridcolor, vec4(0.9,0.9,1.0,1.0), 0.5);
 			}
-			if (floor(mod(a.x * width,10. )) == 0. ||floor(mod(a.y * height,10. )) == 0.)	{
-				return mix(gridcolor, vec4(0.9,0.9,1.0,1.0), 0.2);
+			if (floor(mod(a.x * view.layout.width,10. )) == 0. ||floor(mod(a.y * view.layout.height,10. )) == 0.)	{
+				return mix(view.gridcolor, vec4(0.9,0.9,1.0,1.0), 0.2);
 			}
-			return gridcolor;
+			return view.gridcolor;
 		},
-		bgcolorfn:function(a,b){
-			return grid(a,b);
+		color:function(){
+			return grid(mesh.xy)
 		}
 	}
 
-	var grid = this.constructor
-	
-	// Basic usage of the cadgrid
-	define.example(this, function Usage(){
-		return [
-			grid({}, label({fgcolor: "black", bgcolor: "transparent", text:"I'm on a grid!" , margin: vec4(20)}))
-		]		
-	})
+	var cadgrid = this.constructor
 	
 	// The CADGrid does not do anything to its children - plain passthrough
 	this.render = function(){return this.constructor_children;}
 	
 	// Minimal usage example:
-	this.example = function(){return cadgrid({width:100,height:100});};
+	this.constructor.examples = {
+		Usage:function(){return cadgrid({width:200,height:200})}
+	}
 })

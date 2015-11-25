@@ -25,16 +25,7 @@ define.class(function(view, label){
 	this.flexdirection = "column"
 
 	var markdown = this.constructor
-		define.example(this, function BasicUsage(){
-			return [							
-				markdown({align:"right", body:"# Heading on the right\nBodytext"})
-				,markdown({align:"justify",body:"## Justified text\nShould space out neatly on the line."})
-				,markdown({align:"left",body:"### Basic leftalignment\nAs usual"})
-				,markdown({align:"center",body:"#### CENTER STAGE\nText in the middle"})
-			]
-		});
 
-	
 	// Create a set of visual elements for an array of textlines.
 	this.buildMarkdown= function(lines){
 		var res = [];
@@ -104,4 +95,14 @@ define.class(function(view, label){
 		}
 	}
 
+	this.constructor.examples = {
+		Usage:function(){
+			return [							
+				markdown({align:"right", body:"# Heading on the right\nBodytext"})
+				,markdown({align:"justify",body:"## Justified text\nShould space out neatly on the line."})
+				,markdown({align:"left",body:"### Basic leftalignment\nAs usual"})
+				,markdown({align:"center",body:"#### CENTER STAGE\nText in the middle"})
+			]
+		}
+	}
 });

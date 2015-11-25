@@ -22,11 +22,49 @@ define.class('$base/composition_client', function(require, baseclass){
 			this.device = new Device()
 		}
 
-		baseclass.prototype.atConstructor.call(this)
+		baseclass.prototype.atConstructor.call(this, previous, parent)
 	}
 
 	this.createBus = function(){
-		this.bus = new BusClient('ws://'+location.host+location.pathname)
+		this.bus = new BusClient((location.href.indexOf('https') === 0?'wss://':'ws://')+location.host+location.pathname)
+	}
+
+
+	this.doRender = function(previous, parent){
+		baseclass.prototype.doRender.call(this, previous, parent)
+
+		this.screen.addListener('locationhash', function(event){
+			var obj = event.value
+			var str = ''
+			for(var key in obj){
+				var value = obj[key]
+				if(str.length) str += '&'
+				if(value === true) str += key
+				else str += key + '=' + value
+			}
+			location.hash = '#' + str
+		})
+
+		this.decodeLocationHash = function(){
+			// lets split it on & into a=b pairs, 
+			var obj = {}
+			var parts = location.hash.slice(1).split(/\&/)
+			for(var i = 0; i < parts.length; i++){
+				var part = parts[i]
+				var kv = part.split(/=/)
+				if(kv.length === 1) obj[kv[0]] = true
+				else{
+					obj[kv[0]] = kv[1]
+				}
+			}
+			this.screen.locationhash = obj
+		}
+
+		window.onhashchange = function(){
+			this.decodeLocationHash()
+		}.bind(this)
+
+		if(!previous) this.decodeLocationHash()
 	}
 
 })

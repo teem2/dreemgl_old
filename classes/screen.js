@@ -33,7 +33,6 @@ define.class(function(view, require) {
 		this.mouse = this.device.mouse 
 		this.touch = this.device.touch
 		this.bindInputs()
-		this.decodeLocationHash()
 	}
 
 	this.remapmatrix = mat4();
@@ -540,41 +539,6 @@ define.class(function(view, require) {
 		}.bind(this))
 	}
 
-
-
-	// Location hash
-
-
-	this.decodeLocationHash = function(){
-		if(typeof location === 'undefined') return
-		// lets split it on & into a=b pairs, 
-		var obj = {}
-		var parts = location.hash.slice(1).split(/\&/)
-		for(var i = 0; i < parts.length; i++){
-			var part = parts[i]
-			var kv = part.split(/=/)
-			if(kv.length === 1) obj[kv[0]] = true
-			else{
-				obj[kv[0]] = kv[1]
-			}
-		}
-		this.locationhash = obj
-	}
-
-	// dont fire this one
-	this.locationhash = function(obj){
-		if(typeof location === 'undefined') return
-		var str = ''
-		for(var key in obj){
-			var value = obj[key]
-			if(str.length) str += '&'
-			if(value === true) str += key
-			else str += key + '=' + value
-		}
-		location.hash = '#' + str
-	}
-
-
 	// animation
 
 	this.startAnimationRoot = function(obj, key, value, track, promise){
@@ -615,15 +579,23 @@ define.class(function(view, require) {
 			if(anim.start_time === undefined) anim.start_time = time
 			var mytime = time - anim.start_time
 			var value = anim.compute(mytime)
+
 			if(value instanceof anim.End){
 				delete this.anims[key] 
 				//console.log(value.last_value)
-				anim.obj.emit(anim.key, value.last_value)
+				anim.obj['_' + anim.key] = value.last_value
+				anim.obj.emit(anim.key, {type:'animation_end', key: anim.key, owner:anim.obj, value:value.last_value})
 				anim.obj.redraw()
-				if(anim.promise)anim.promise.resolve()
+				if(anim.promise) anim.promise.resolve()
 			}
 			else{
-				anim.obj.emit(anim.key, value)
+				// what if we have a value with storage?
+				anim.obj['_' + anim.key] = value
+				if(anim.config.storage){
+					anim.obj['_' + anim.config.storage][anim.config.index] = value
+					anim.obj.emit(anim.config.storage, {type:'animation', key: anim.key, owner:anim.obj, value:value.last_value})
+				}
+				anim.obj.emit(anim.key, {type:'animation', key: anim.key, owner:anim.obj, value:value.last_value})
 				redrawlist.push(anim.obj)
 			}
 		}

@@ -42,10 +42,12 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 		this.cursor_spacing = 1.3
 		this.cursor_sink = 0.32
 		
-		this.boldness = 0
 		this.scaling = 0
 		this.distance = 0
+
+		this.boldness = 0
 		this.gamma_adjust = vec3(1.2)
+
 		this.outline = false
 		this.debug = false
 		this.contrast = 1.4
@@ -813,7 +815,7 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 	this.glyphy_sdf_draw = function(){
 		var pos = mesh.tex
 
-		var m = pixelscale*0.3//0.005
+		var m = pixelscale*0.4//0.005
 		// screenspace length
 		mesh.scaling = 500. * m 
 		

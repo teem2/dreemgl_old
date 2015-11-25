@@ -138,7 +138,7 @@ define.class(function(require, baseclass){
 		var view = this.view
 		var device = this.device
 		var layout = view.layout
-
+		var drawcalls = 0
 		if(!layout || layout.width === 0 || isNaN(layout.width) || layout.height === 0 || isNaN(layout.height)) return
 
 		// make sure layers are pixel aligned
@@ -169,12 +169,13 @@ define.class(function(require, baseclass){
 				mat4.ortho(mousex, 1 + mousex, 1 + mousey,  mousey, -100, 100, this.pick_viewmatrix)
 			}
 			else{
+				var zoom = view._zoom
 				if (isroot){
-					mat4.ortho(scroll[0], layout.width+scroll[0], scroll[1], layout.height+scroll[1], -100, 100, this.pick_viewmatrix)
+					mat4.ortho(scroll[0], layout.width*zoom+scroll[0], scroll[1], layout.height*zoom+scroll[1], -100, 100, this.pick_viewmatrix)
 					mat4.ortho(0, layout.width, 0, layout.height, -100, 100, this.pick_noscrollmatrix)
 				}
 				else{
-					mat4.ortho(scroll[0], layout.width+scroll[0], layout.height+scroll[1], scroll[1], -100, 100, this.pick_viewmatrix)
+					mat4.ortho(scroll[0], layout.width*zoom+scroll[0], layout.height*zoom+scroll[1], scroll[1], -100, 100, this.pick_viewmatrix)
 					mat4.ortho(0, layout.width, layout.height, 0, -100, 100, this.pick_noscrollmatrix)
 				}
 			}
@@ -190,11 +191,43 @@ define.class(function(require, baseclass){
 		pick[0] = (((passid+1)*131)%256)/255
 		// modulo inverse: http://www.wolframalpha.com/input/?i=multiplicative+inverse+of+31+mod+256
 		for(var dl = this.draw_list, i = 0; i < dl.length; i++){
+
+			var draw = dl[i]
+
+			var subview = draw.layout
+			if(draw._first_draw_pick){
+				if(view._mode === '2D' && view.boundscheck){ // do early out check using bounding boxes
+					var height = layout.height
+					var width = layout.width
+					if(draw.parent && draw.parent !== view){
+						subview.absx = draw.parent.layout.absx + subview.left
+						subview.absy = draw.parent.layout.absy + subview.top
+					}
+					else{
+						subview.absx = subview.left
+						subview.absy = subview.top
+					}
+					if(draw === view && view.sublayout){
+						width = view.sublayout.width
+						height = view.sublayout.height
+					}
+					// early out check
+					if(draw !== view && !draw.noscroll){
+						if( subview.absy - scroll[1] > height * zoom || subview.absy + subview.height - scroll[1] < 0){
+							continue
+						} 
+						if(subview.absx - scroll[0] > width * zoom || subview.absx + subview.width - scroll[0] < 0){
+							continue
+						}
+					}
+				}
+			}
+			else draw._first_draw_pick = 1
+
 			var id = ((i+1)*29401)%65536
 			pick[1] = (id&255)/255
 			pick[2] = (id>>8)/255
 
-			var draw = dl[i]
 			draw.pickguid = pick[0]*255<<16 | pick[1]*255 << 8 | pick[2]*255
 			draw.viewmatrix = this.pick_viewmatrix
 
@@ -226,10 +259,12 @@ define.class(function(require, baseclass){
 					//if(shader.order < 0) console.log(draw)
 					if(shader.order < 0) draw.viewmatrix = this.pick_noscrollmatrix
 					else draw.viewmatrix = this.pick_viewmatrix
+					drawcalls++
 					shader.drawArrays(this.device, 'pick')
 				}
 			}
 		}
+		//console.log('PICK', drawcalls)
 	}
 
 	var MyShader = define.class(this.Shader, function(){
@@ -246,7 +281,7 @@ define.class(function(require, baseclass){
 	})
 
 	this.drawColor = function(isroot){
-
+		var drawcalls = 0
 		var view = this.view
 		var device = this.device
 		var layout = view.layout
@@ -257,7 +292,7 @@ define.class(function(require, baseclass){
 		if(!isroot){
 			var ratio = view._pixelratio
 			if(isNaN(ratio)) ratio = device.main_frame.ratio
-			var twidth = layout.width * ratio, theight = layout.height * ratio			
+			var twidth = layout.width * ratio, theight = layout.height * ratio	
 			this.allocDrawTarget(twidth, theight, this.view._mode, 'color_buffer')
 		}
 
@@ -294,33 +329,37 @@ define.class(function(require, baseclass){
 		for(var dl = this.draw_list, i = 0; i < dl.length; i++){
 			var draw = dl[i]
 			var subview = draw.layout
-
 			// we make some bad shit early out assumptions here
-			if(view._mode === '2D' && view.boundscheck){ // do early out check using bounding boxes
-				var height = layout.height
-				var width = layout.width
-				if(draw.parent && draw.parent !== view){
-					subview.absx = draw.parent.layout.absx + subview.left
-					subview.absy = draw.parent.layout.absy + subview.top
-				}
-				else{
-					subview.absx = subview.left
-					subview.absy = subview.top
-				}
-				if(draw === view && view.sublayout){
-					width = view.sublayout.width
-					height = view.sublayout.height
-				}
-				// early out check
-				if(draw !== view && !draw.noscroll){
-					if( subview.absy - scroll[1] > height * zoom || subview.absy + subview.height - scroll[1] < 0){
-						continue
-					} 
-					if(subview.absx - scroll[0] > width * zoom || subview.absx + subview.width - scroll[0] < 0){
-						continue
+			if(draw._first_draw_color){
+				if(view._mode === '2D' && view.boundscheck){ // do early out check using bounding boxes
+					var height = layout.height
+					var width = layout.width
+					if(draw.parent && draw.parent !== view){
+						subview.absx = draw.parent.layout.absx + subview.left
+						subview.absy = draw.parent.layout.absy + subview.top
+					}
+					else{
+						subview.absx = subview.left
+						subview.absy = subview.top
+					}
+					if(draw === view && view.sublayout){
+						width = view.sublayout.width
+						height = view.sublayout.height
+					}
+					// early out check
+					if(draw !== view && !draw.noscroll){
+						if( subview.absy - scroll[1] > height * zoom || subview.absy + subview.height - scroll[1] < 0){
+							continue
+						} 
+						if(subview.absx - scroll[0] > width * zoom || subview.absx + subview.width - scroll[0] < 0){
+							continue
+						}
 					}
 				}
 			}
+			else draw._first_draw_color = 1
+
+			//if(view.constructor.name === 'slideviewer')console.log('here',draw.constructor.name, draw.text)
 
 			draw.viewmatrix = this.color_viewmatrix
 
@@ -343,6 +382,8 @@ define.class(function(require, baseclass){
 				blendshader.width = draw.layout.width
 				blendshader.height = draw.layout.height
 				blendshader.drawArrays(this.device)
+
+				drawcalls++
 			}
 			else{
 				draw.updateShaders()
@@ -356,6 +397,7 @@ define.class(function(require, baseclass){
 					if(shader.order < 0) draw.viewmatrix = this.color_noscrollmatrix
 					else draw.viewmatrix = this.color_viewmatrix
 					shader.drawArrays(this.device)
+					drawcalls++
 				}
 			}
 		}
@@ -363,5 +405,7 @@ define.class(function(require, baseclass){
 			//if(!this.testshader) this.testshader = new MyShader()
 			//this.testshader.drawArrays(this.device)
 		}
+		//console.log('COLOR', drawcalls, view.constructor.name)
+
 	}
 })

@@ -8,16 +8,6 @@ define.class( function(label, require){
 
 	// The icon class provides an easy way to access most of the commonly used web icons. Look at the FontAwesome cheat sheet to see what can be used.
 	
-	// Basic usage
-	define.example(this, function BasicUsage(){
-		return [
-			icon({icon:"flask", fontsize: 50, fgcolor: "red"})
-			,icon({icon:"youtube", fontsize: 50, fgcolor: "green"})
-			,icon({icon:"gears", fontsize: 50, fgcolor: "yellow"})
-			,icon({icon:"twitter", fontsize: 50, fgcolor: "blue"})
-		]
-	})
-
 	// The icon to be used. Look at the FontAwesome cheat sheet to see the available options. Icons do not need to specify their 'fa-' prefix -> use 'gears' instead of 'fa-gears'.
 	this.attributes = {
 		icon: {type:String, value:'wrench'}
@@ -715,4 +705,17 @@ define.class( function(label, require){
 		'youtube-play':'\uf16a',
 		'youtube-square':'\uf166'
 	}
+
+	var icon = this.constructor
+	this.constructor.examples = {
+		// Basic usage
+		BasicUsage: function(){
+			return [
+				icon({icon:"flask", fontsize: 50, fgcolor: "red"})
+				,icon({icon:"youtube", fontsize: 50, fgcolor: "green"})
+				,icon({icon:"gears", fontsize: 50, fgcolor: "yellow"})
+				,icon({icon:"twitter", fontsize: 50, fgcolor: "blue"})
+			]
+		}
+	}	
 })

@@ -19,30 +19,18 @@ define.class(function(view, label, icon){
 	
 	this.attributes = {
 		// The current state of the foldcontainer. False = open, True = closed.
-		collapsed: {type: Boolean, value: false},
+		collapsed: false,
 		// The icon to use in the top left of the foldcontainer. See the FontAwesome cheatsheet for acceptable icon names.
-		icon: {type: String, value: 'times'},
+		icon: 'times',
 		// The main color from which the foldcontainer will build some gradients.
 		basecolor: {type: vec4, value: vec4("#8080c0")}
 	}
-
-	this.persists = ["collapsed"]
 	
 	// Function to change the open/closed state. Used by the click handler of the clickablebar.
 	this.toggle = function(){
 		this.collapsed = !this.collapsed;		
 	}
-	
-	var foldcontainer = this.constructor;
-	define.example(this, function BasicExample(){
-		
-		return [
-			foldcontainer({icon:"flask", title:"folding thing", basecolor: "#90c0f0" } ,					
-				label({text:"I can be folded away!", fgcolor:"black", bgcolor:"transparent", margin:vec4(10) })
-			)
-		]
-	})
-	
+
 	// subclass to lay out the clickable portion of the folding container 
 	define.class(this, 'clickablebar', function(view){
 
@@ -53,6 +41,8 @@ define.class(function(view, label, icon){
 		
 		// default click-handler - when not bound this write "nothing happens" to the console. 
 		this.toggle = function(){console.log("nothing happens")}
+
+		this.minwidth =600
 
 		this.attributes = {
 			title: {type:String},
@@ -66,8 +56,7 @@ define.class(function(view, label, icon){
 			color: function(){	
 				var fill = mix(view.col1, view.col2,  (mesh.y)/0.8)
 				return fill;
-			}
-			
+			}			
 		}
 
 		this.padding = 6
@@ -89,6 +78,7 @@ define.class(function(view, label, icon){
 		this.stateclick = function(){
 			this.col1 = vec4.vec4_mul_float32(vec4(this.parent.basecolor), 1.3)
 			this.col2 = vec4.vec4_mul_float32(vec4(this.parent.basecolor), 1.0)
+			this.outer.toggle()
 		}
 		
 		this.init = this.statedefault
@@ -98,10 +88,10 @@ define.class(function(view, label, icon){
 		this.mouseleftup = this.statedefault
 	})
 
-	define.class(this, 'containerview', function(){
+	define.class(this, 'containerview', function(view){
 		this.bg = {
 			color:function(){
-				return mix(view.bgcolor*1.7, vec4("white"), (a.y/8))
+				return mix(view.bgcolor*1.7, vec4("white"), (mesh.y/8))
 			}
 		},
 		this.padding = vec4(5,5,5,5),
@@ -120,6 +110,7 @@ define.class(function(view, label, icon){
 		
 		this.bar.click = this.toggle.bind(this);
 		var res = [this.bar];
+
 		if (this.collapsed == false) {
 			this.container = this.containerview({
 			bgcolor: this.basecolor, 
@@ -133,5 +124,18 @@ define.class(function(view, label, icon){
 		this.children = [];
 		
 		return res;
+	}
+
+	
+	var foldcontainer = this.constructor;
+
+	this.constructor.examples = {
+		BasicExample:function(){
+			return [
+				foldcontainer({icon:"flask", title:"folding thing", basecolor: "#90c0f0" } ,					
+					label({text:"I can be folded away!", fgcolor:"black", bgcolor:"transparent", margin:vec4(10) })
+				)
+			]
+		}
 	}
 });

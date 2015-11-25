@@ -4,18 +4,10 @@
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
 
-define.class(function(require, node){	
+define.class(function(require, node, label){	
 	// The dataset class allows you to share a single "document" between various parts of your application. 
 	// The dataset provides undo/redo functionality by serializing its contents to a JSON string.
 	// To modify a dataset you need to use the "fork" method. The fork method saves the current instance to the undo stack, calls back to your code and then notifies all objects that have this dataset instance bound to them to update themselves.
-
-	// Basic dataset modification example:	
-	define.example(this, function Usage(dataset){
-		var a = dataset();
-		someitem.dataset = a;
-		a.fork(function(data){data.something = "a value"; })
-		return text({text:a.data.something});
-	});
 
 	this.atConstructor = function(){
 		this.undo_stack = []
@@ -94,6 +86,14 @@ define.class(function(require, node){
 	}
 	
 	
-	
+	// Basic dataset modification example:
+	var dataset = this.constructor
+	this.constructor.examples = {
+		Usage:function(){
+			var a = dataset({something:1});
+			a.fork(function(data){data.something = "a value"; })
+			return label({text:a.data.something});
+		}
+	}
 	
 })

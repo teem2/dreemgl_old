@@ -41,20 +41,13 @@ define.class(function(view, label, icon){
 		// First gradient color for the button background in pressed state
 		pressedcolor1: {type: vec4, value: vec4("#d0d0f0")},
 		// Second gradient color for the button background in pressed state
-		pressedcolor2: {type: vec4, value: vec4("#d0d0f0")}
+		pressedcolor2: {type: vec4, value: vec4("#d0d0f0")},
+
+		// fires when button is clicked
+		click:Event
 	}
 
 	var button = this.constructor
-	
-	// Basic usage of the button.	
-	define.example(this, function Usage(){
-		return [
-			button({label:"Press me!"})
-			,button({label:"Colored!", buttoncolor1: "red", buttoncolor2: "blue", labelcolor: "white"  })
-			,button({label:"With an icon!", icon:"flask" })
-		]
-	})
-	
 
 	this.bgcolor = 'white'
 	this.fgcolor = 'black'
@@ -82,6 +75,9 @@ define.class(function(view, label, icon){
 	// The icon class used for the icon display. Exposed to allow overloading/replacing from the outside.
 	define.class(this, 'labelclass', function(label){
 		this.subpixel = false
+		this.fontsubpixelaa =  {
+			boldness:0.9
+		}
 		this.bg = 0
 	})
 
@@ -129,5 +125,15 @@ define.class(function(view, label, icon){
 			return [this.iconres, this.buttonres]
 		}
 	}
-	
+
+	// Basic usage of the button.	
+	this.constructor.examples = {
+		Usage:function(){
+			return [
+				button({text:"Press me!"})
+				,button({text:"Colored!", buttoncolor1: "red", buttoncolor2: "blue", labelcolor: "white"  })
+				,button({text:"With an icon!", icon:"flask" })
+			]
+		}
+	}	
 })

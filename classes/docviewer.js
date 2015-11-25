@@ -6,20 +6,18 @@
 
 define.class(function(view, require, label,foldcontainer,icon, markdown, codeviewer, button){
 	
+	var Parser = require("$parse/onejsparser")
+
 	this.bgcolor = vec4("white")
 	
 	this.attributes = {
 		// the class for which to create the documentation. If a string is assigned, the model will be interpreted as a markdown text document.
-		model:{type:Object}
+		class:{type:Object}
 	}
 
 	this.flex = 1.0
 	this.padding = 20
-	var Parser = require("$parse/onejsparser");
-	
-	// this.flex = 0.5;	
-	// A single documentation block with name and bodytext.
-	
+
 	define.class(this, 'ClassDocItem', function(view, label){
 		
 		// the item to display. 
@@ -120,7 +118,7 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 					view({flexdirection:"row",  flex:1, padding: vec4(2)}
 							,view({flex: 1, borderwidth: 1, flexdirection:"column", padding: vec4(4), bordercolor: "#e0e0e0"}
 								,label({fgcolor:"black", text:"Code", margin:vec4(10)})
-								,codeviewer({margin:vec4(10),code:this.item.examplefunc.toString(), padding:vec4(4), fontsize: 14, bgcolor:"#000030", multiline: true})
+								,codeviewer({margin:vec4(10), source:this.item.examplefunc.toString(), padding:vec4(4), fontsize: 14, bgcolor:"#000030", multiline: true})
 							)
 							,view({flex: 1, borderwidth: 1, flexdirection:"column", padding: vec4(4), bordercolor: "#e0e0e0", bgcolor: "gray" } 
 								,label({fgcolor:"white",bgcolor:"transparent",  text:"Live demo", margin:vec4(10)})								
@@ -132,28 +130,7 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 			return res;
 		}
 	});
-			
-	// Look through the array of comments upwards until a full newline is found. 
-	function WalkCommentUp(commentarray)
-	{
-		var res = [];
-		if (!commentarray) return res;
-		var last1 = false;
-		for (var i = commentarray.length -1;i>=0;i--) {
-				var com = commentarray[i];
-				if (com === 1){
-					if(last1 === true){
-						break;
-					} else {
-						last1 = true;		
-					}
-				} else {
-					last1 = false;
-					res.unshift(com.trim());
-				}
-		}
-		return res;
-	}
+
 	// Build a minimal correct version of the ClassDoc structure
 	function BlankDoc(){
 		return {
@@ -170,12 +147,14 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 	}
 	
 	// Build a documentation structure for a given constructor function
-	function BuildDoc(constructor) {
-		if (!constructor) return;
-		var proto = constructor.prototype;
-		var class_doc = BlankDoc();
-		var p = constructor;
+	function parseDoc(constructor) {
+		if (!constructor) return
+
+		var proto = constructor.prototype
+		var class_doc = BlankDoc()
+		var p = constructor
 		
+		// build parent chain
 		while(p) {
 			var prot = Object.getPrototypeOf(p.prototype);
 			if (prot) {
@@ -186,133 +165,150 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 			}				
 		}
 		
-		class_doc.class_name = proto.constructor.name;
-			
-		var parser = new Parser();		
-		var total_ast = parser.parse(proto.constructor.body.toString());
-		var class_body = total_ast.steps[0];
-		var stepzero = class_body.body.steps[0];
-		if (!stepzero) return class_doc;
-		
-		var class_comment = class_body.body.steps[0].cmu;
-		var last1 = false;
-		
-		for(var a in class_comment) {
-			var com = class_comment[a];
-			if (com === 1){
-				if(last1 === true){
-					break;
-				} else {
-					last1 = true;		
+		class_doc.class_name = proto.constructor.name
+
+		// ok lets add the comments at the top of the class
+		var ast = Parser.parse(proto.constructor.body.toString());
+
+		// lets process the inner classes
+		// lets do an ast match what we want is
+		var class_body = ast.steps[0]
+
+		function grabFirstCommentBelow(commentarray){
+			var res = []
+			if (!commentarray) return res
+			var last1 = false
+			for(var i = 0; i < commentarray.length; i++) {
+				var com = commentarray[i]
+				if (com === 1){
+					if(last1 === true){
+						break
+					} 
+					else {
+						last1 = true
+					}
+				} 
+				else {
+					last1 = false
+					res.push(com)
 				}
-			} else {
-				last1 = false;
-				class_doc.body_text.push(com);
+			}		
+			return res
+		}
+
+		function grabFirstCommentAbove(commentarray){
+			var res = []
+			if (!commentarray) return res
+			var last1 = false
+			for (var i = commentarray.length -1;i>=0;i--) {
+				var com = commentarray[i];
+				if (com === 1){
+					if(last1 === true){
+						break
+					} 
+					else {
+						last1 = true
+					}
+				} 
+				else {
+					last1 = false
+					res.unshift(com.trim())
+				}
+			}
+			return res
+		}		
+		var body_steps = class_body.body.steps
+
+		if(!body_steps[0]) return class_doc
+
+		grabFirstCommentBelow(body_steps[0].cmu)
+		
+		for (var i = 0; i < body_steps.length; i++) {				
+			var step = body_steps[i]
+
+			if(step.type === 'Assign'){
+				if(step.left.type === 'Key' && step.left.object.type === 'This' && step.left.key.name === 'attributes' && step.right.type === 'Object'){
+					for(var j = 0; j < step.right.keys.length; j++){
+						var key = step.right.keys[j]
+						var attrname = key.key.name
+						var attr = proto._attributes[attrname]
+
+						var cmt = grabFirstCommentAbove(key.cmu)
+						var defvaluename = undefined
+						if (attr.value){
+							defvaluename = attr.value
+						}
+
+						var typename = "typeless";
+						if (attr.type) typename = attr.type.name.toString()
+
+						if(typename === 'Event'){
+							class_doc.events.push({name: attrname, body_text: grabFirstCommentAbove(step.cmu)})
+						}
+						else{
+							class_doc.attributes.push({name: attrname, type:typename, defvalue: defvaluename, body_text: grabFirstCommentAbove(key.cmu)})
+						}
+					}
+				}
+				if(step.left.type === 'Key' && step.left.object.type === 'Key' && step.left.object.object.type === 'This' && 
+					step.left.object.key.name === 'constructor' && step.left.key.name === 'examples' && step.right.type === 'Object'){
+					for(var j = 0; j < step.right.keys.length; j++){
+						var key = step.right.keys[j]
+
+						var example = {}
+						example.body_text = grabFirstCommentAbove(key.cmu)
+
+						var examplename = key.key.name
+						example.name = examplename
+						example.examplefunc = proto.constructor.examples[examplename]
+						class_doc.examples.push(example)
+					}
+				}
+
+				if(step.left.type === 'Key' && step.left.object.type === 'This' && step.right.type === 'Function'){
+					var stepleft = step.left
+					var method = {name:stepleft.key.name, params:[]};
+					var stepright = step.right;
+
+					method.body_text = grabFirstCommentAbove(step.cmu);
+					
+					for(var p in stepright.params){							
+						var param = stepright.params[p];						
+						var paramname = param.id.name; 		
+						var paramtag = '<' + paramname  + '>';
+						var param = {name: paramname, body_text: []}
+						
+						var remaining = [];
+						for(var a in method.body_text){
+							var L = method.body_text[a];
+							if (L.indexOf(paramtag) === 0) {
+								param.body_text.push(L.substr(paramtag.length).trim());
+							}
+							else{
+								remaining.push(L);
+							}
+						}
+						method.params.push(param)
+						method.body_text = remaining
+					}
+					class_doc.methods.push(method)			
+				}
+			}
+			else if (step.type ==="Call"){
+				if (step.fn.object.type ==="Id"){
+					if (step.fn.object.name === "define"){
+						if (step.fn.key.name === "class"){
+							var innerclassname = step.args[1].value
+							var newclass = parseDoc(proto[innerclassname])
+							newclass.class_name = innerclassname;
+							newclass.body_text = grabFirstCommentAbove(step.cmu)
+							class_doc.inner_classes.push(newclass)
+						} 
+					}
+				}
 			}
 		}
-		
-		for (var a in class_body.body.steps) {				
-			var step = class_body.body.steps[a];
-			if (step.type ==="Call"){
-				
-				if (step.fn.object.type ==="This"){
-					if (step.fn.key.name === "attribute"){
-						var attrname = step.args[0].value;
-						var attr = proto._attributes[attrname];
-						
-						var defvaluename = undefined;
-						if (attr.value){	
-							if (typeof(attr.value ) === "Function"){
-								console.log(attr.value.name);
-							} else {
-								defvaluename = attr.value;
-							}
-						}
-
-						var typename ="typeless";
-						if (attr.type) typename =attr.type.name.toString()
-						var attrdoc = {name: attrname, type:typename, defvalue: defvaluename, body_text: WalkCommentUp(step.cmu)}
-						class_doc.attributes.push(attrdoc)
-						
-					} else if (step.fn.key.name === "event"){							
-						class_doc.events.push({name: step.args[0].value, body_text: WalkCommentUp(step.cmu)})
-					}
-					else if (step.fn.key.name === "state"){								
-						class_doc.state_attributes.push({name: step.args[0].value})
-					}
-				}
-				else{
-					if (step.fn.object.type ==="Id"){
-						if (step.fn.object.name === "define"){
-							if (step.fn.key.name === "class"){
-								var innerclassname = step.args[1].value;
-									var NewClass = BuildDoc( proto[innerclassname]);
-									//NewClass.class_name = innerclassname;
-									NewClass.body_text = WalkCommentUp(step.cmu);
-									class_doc.inner_classes.push(NewClass);
-							} else if (step.fn.key.name === "example"){
-								var Example = {};
-								Example.body_text = WalkCommentUp(step.cmu);
-								var examplename = step.args[1].id.name;
-								Example.name = examplename;
-								for (var a in proto.constructor.examples)
-								{
-									if (proto.constructor.examples[a].name === examplename){
-										Example.examplefunc = proto.constructor.examples[a];
-									}
-								}
-								class_doc.examples.push(Example);
-							}	
-							
-						}
-					}
-				}
-			} else {
-				var stepleft = step.left;
-				//console.log(step.left, step.right);
-				if (stepleft)	{
-				//		console.log("left", stepleft.key.name, stepleft);
-					
-					if (stepleft.type==="Key" && stepleft.object.type ==="This"){ 
-						var method = {name:stepleft.key.name, params:[]};
-						var stepright = step.right;
-						if (stepright.type === "Function")
-						{
-					//	console.log("right:", stepright);
-						method.body_text = WalkCommentUp(step.cmu);
-						
-						
-						for(var p in stepright.params){							
-							var param = stepright.params[p];						
-							var paramname = param.id.name; 		
-							var paramtag = '<' + paramname  + '>';
-							var param = {name: paramname, body_text: []}
-							
-							var remaining = [];
-							for(var a in method.body_text){
-								var L = method.body_text[a];
-								if (L.indexOf(paramtag) === 0) {
-									param.body_text.push(L.substr(paramtag.length).trim());
-								}
-								else{
-									remaining.push(L);
-								}
-							}
-							method.params.push(param);
-						
-							method.body_text= remaining;
-						}
-						//console.log(method.name);
-						class_doc.methods.push(method);			
-						}						
-
-					}
-				}
-			}
-		}			
-
-		
-		return class_doc;
+		return class_doc
 	}
 	
 	// This class will recursively expand a class_doc sturcture to an on-screen view.
@@ -337,7 +333,7 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 
 		this.flexdirection = "column"
 		this.flexwrap = "none" 
-		
+		this.flex = 1;
 		this.BuildGroup = function (inputarray, title, icon, color, blocktype){
 			if (!blocktype) blocktype = "attribute"
 			var subs = []
@@ -348,7 +344,7 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 			}
 			
 			return foldcontainer(
-					{collapsed:true, basecolor:color, icon:icon, title:title , fontsize: 20,margin: vec4(10,0,0,20), fgcolor: "white" }, 
+					{collapsed:true, basecolor:color, icon:icon, title:title ,flex:1, fontsize: 20,margin: vec4(10,0,0,20), fgcolor: "white" }, 
 						view({flexdirection: "column", flex: 1}, subs)
 				);
 		}
@@ -367,7 +363,7 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 				body.push(view({}, class_doc.base_class_chain.map(function(r){
 					return [
 						icon({icon:"arrow-right", fgcolor:"gray", fontsize:15, margin:vec4(2)})
-						,button({margin: vec4(2),padding:vec4(3), text:r.name, fontsize:12, onclick: function(){this.screen.locationhash = {path: '$root'  + r.path};}.bind(this)})
+						,button({margin: vec4(2),padding:vec4(3), text:r.name, fontsize:12, click: function(){this.screen.locationhash = {path: '$root'  + r.path};}.bind(this)})
 					]
 				}.bind(this))));
 			}
@@ -402,27 +398,35 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 			return res;	
 		}
 	})
-
-	var docviewer = this.constructor;
-	// Show the documentation for a dreemgl class.
-	define.example(this, function Usage(){
-		return [docviewer({model: docviewer})]		
-	});
 	
-	this.flexdirection = "column"
+	this.flexdirection = "column";
+	this.alignitems = "stretch";
 	this.flexwrap = "none" ;
-				
+	this.flex = 1;
+	this.mode = "2D";
+	
 	this.render = function(){	
 		var functions = [];
 		var res = [];
-		var R = this.model// 	require("$classes/dataset")
+		var R = this.class// 	require("$classes/dataset")
 		if(typeof(R) === "string") {
 			return [markdown({body: " " + R.toString()})]
 		} 
 		else if(typeof(R) === 'function'){
-			var class_doc = BuildDoc(R)		
-			return [this.ClassDocView({class_doc:class_doc})]
+			var class_doc = parseDoc(R)		
+			return [
+				this.ClassDocView({class_doc:class_doc}),
+			
+			]
 		}
 
+	}
+
+	var docviewer = this.constructor;
+	// Show the documentation for a dreemgl class.
+	this.constructor.examples = {
+		Usage:function(){
+			return [docviewer({class: docviewer})]		
+		}
 	}
 })

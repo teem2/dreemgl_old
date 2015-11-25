@@ -11,32 +11,48 @@ define.class( function(node, require){
 	var view = this.constructor
 
 	this.attributes = {
-		pos: {type:vec2, value:vec2(NaN,NaN)},
+		pos: {type:vec3, value:vec3(NaN)},
 		x: {storage:'pos', index:0},
 		y: {storage:'pos', index:1},
+		z: {storage:'pos', index:2},
 
 		left: {storage:'pos', index:0},
 		top: {storage:'pos', index:1},
-		corner: {type:vec2, value:vec2(NaN, NaN)},
+		front: {storage:'pos', index:2},
+
+		corner: {type:vec3, value:vec3(NaN)},
 		right: {storage:'corner', index:0},
 		bottom: {storage:'corner',index:1},
+		rear: {storage:'corner', index:2},
 
 		bgcolor: {type:vec4, value: vec4('white')},
+
 		clearcolor: {type:vec4, value: vec4('transparent')},
 		scroll: {type:vec2, value:vec2(0, 0)},
 		zoom:{type:float, value:1},
-		size: {type:vec2, value:vec2(NaN, NaN)},
+		size: {type:vec3, value:vec3(NaN)},
 
 		overflow: {type: Enum('','hidden','scroll','auto'), value:''},
 		pixelratio: {type: float, value:NaN},
 
 		w: {storage:'size', index:0},
 		h: {storage:'size', index:1},
+		d: {storage:'size', index:2},
+		
 		width: {storage:'size', index:0},
 		height: {storage:'size', index:1},
+		depth: {storage:'size', index:2},
 
-		minsize: {type: vec2, value:vec2(NaN, NaN)},
-		maxsize: {type: vec2, value:vec2(NaN, NaN)},
+		minsize: {type: vec3, value:vec3(NaN)},
+		maxsize: {type: vec3, value:vec3(NaN)},
+
+		minwidth: {storage:'minsize', index:0},
+		minheight: {storage:'minsize', index:1},
+		mindepth: {storage:'minsize', index:2},
+
+		maxwidth: {storage:'maxsize', index:0},
+		maxheight: {storage:'maxsize', index:1},
+		maxdepth: {storage:'maxsize', index:2},
 
 		margin: {type: vec4, value: vec4(0,0,0,0)},
 		marginleft: {storage:'margin', index:0},
@@ -84,24 +100,30 @@ define.class( function(node, require){
 		
 		camera: {type: vec3, value: vec3(-2,2,-2)},
 		lookat: {type: vec3, value: vec3(0)},
-		up: {type: vec3, value: vec3(0,-1,0)}	
-	}
+		up: {type: vec3, value: vec3(0,-1,0)},
 
+		mousedblclick: Event,
+		mouseout: Event,
+		mouseover: Event,
+		mousemove: Event,
+		mouseleftdown: Event,
+		mouseleftup: Event,
+		mouserightdown: Event,
+		mouserightup: Event,
+		mousewheelx: Event,
+		mousewheely: Event,
+		mousezoom: Event,
+		keyup: Event,
+		keydown: Event,
+		keypress: Event,
+		keypaste: Event,
+
+		focusget: Event,
+		focuslost: Event	
+	}
 
 	this.camera = this.lookat = this.up = function(){this.redraw();};
 	
-	this.persists = ['model']
-
-	this.events = [
-		"click","dblclick","miss",
-		"mouseout","mouseover","mousemove",
-		"mouseleftdown","mouseleftup",
-		"mouserightdown","mouserightup",
-		"mousewheelx","mousewheely","mousezoom",
-		"keyup","keydown","keypress","keypaste",
-		"focusget","focuslost"
-	]
-
 	this.modelmatrix = mat4.identity()
 	this.totalmatrix = mat4.identity()
 	this.viewmatrix = mat4.identity()
@@ -355,9 +377,9 @@ define.class( function(node, require){
 
 	// called by doLayout
 	this.updateMatrices = function(parentmatrix, parentmode, depth){
-		if (!depth) depth = "";
-		depth += " ";
-		console.log(depth, this.constructor.name, this.translate,parentmode, this._mode);
+	//	if (!depth) depth = "";
+		//depth += " ";
+		//console.log(depth, this.constructor.name, this.translate,parentmode, this._mode);
 			
 		if (parentmode== '3D'){// && !this._mode ){	
 			mat4.TSRT2(this.anchor, this.scale, this.rotate, this.translate, this.modelmatrix);
@@ -397,6 +419,8 @@ define.class( function(node, require){
 			else{
 				this.layermatrix = this.modelmatrix
 			}
+			this.totalmatrix = mat4.identity();
+			this.modelmatrix = mat4.identity();
 			parentmode = this._mode;
 			parentmatrix = mat4.identity();
 		}
@@ -409,7 +433,7 @@ define.class( function(node, require){
 		if(children) for(var i = 0; i < children.length; i++){
 			var child = children[i]
 			if(child._mode) continue // it will get its own pass
-			child.updateMatrices(this.totalmatrix, parentmode)
+			child.updateMatrices(this.totalmatrix, parentmode, depth)
 		}
 	}
 
@@ -417,12 +441,14 @@ define.class( function(node, require){
 	// decide to inject scrollbars into our childarray
 	this.atRender = function(){
 		if(this._mode === '2D' && (this._overflow === 'SCROLL'|| this._overflow === 'AUTO')){
+			if(this.vscrollbar) this.vscrollbar.offset = 0
+			if(this.hscrollbar) this.hscrollbar.offset = 0
 			this.children.push(
 				this.vscrollbar = this.scrollbar({
 					position:'absolute',
 					vertical:true,
 					noscroll:true,
-					offset:function(value){
+					offset:function(){
 						this.parent._scroll = vec2(this.parent._scroll[0],this._offset)
 					},
 					layout:function(){
@@ -438,7 +464,7 @@ define.class( function(node, require){
 					position:'absolute',
 					vertical:false,
 					noscroll:true,
-					offset:function(value){
+					offset:function(){
 						this.parent._scroll = vec2(this._offset,this.parent._scroll[1])
 					},
 					layout:function(){
@@ -453,20 +479,21 @@ define.class( function(node, require){
 			)
 			this.mousewheelx = function(pos){
 				if(this.hscrollbar._visible){
-					this.hscrollbar.offset = clamp(this.hscrollbar._offset + pos, 0, this.hscrollbar._total - this.hscrollbar._page)
+					this.hscrollbar.offset = clamp(this.hscrollbar._offset - pos, 0, this.hscrollbar._total - this.hscrollbar._page)
 				}
 			}
 
 			this.mousewheely = function(pos){
 				if(this.vscrollbar._visible){
-					this.vscrollbar.offset = clamp(this.vscrollbar._offset + pos, 0, this.vscrollbar._total - this.vscrollbar._page)
+					this.vscrollbar.offset = clamp(this.vscrollbar._offset - pos, 0, this.vscrollbar._total - this.vscrollbar._page)
 				}
 			}
 
 			this.mousezoom = function(zoom){
 				// how about zooming around something? dont we need to auto-scroll too?
 				var lastzoom = this._zoom
-				this.zoom = this.zoom * (1+0.03*zoom)
+				var newzoom = clamp(lastzoom * (1+0.03 * zoom),0.01,10)
+				this.zoom = newzoom
 				// ok so how do we zoom around ourselves?
 				// well have to scroll 
 				
@@ -475,7 +502,7 @@ define.class( function(node, require){
 
 				var shiftx = pos[0] * lastzoom - pos[0] * this._zoom
 				var shifty = pos[1] * lastzoom - pos[1] * this._zoom 
- 
+ 				
 				this.hscrollbar.offset = clamp(this.hscrollbar._offset + shiftx, 0, this.hscrollbar._total - this.hscrollbar._page)
 				this.vscrollbar.offset = clamp(this.vscrollbar._offset + shifty, 0, this.vscrollbar._total - this.vscrollbar._page)
 
@@ -488,6 +515,7 @@ define.class( function(node, require){
 	
 	// show/hide scrollbars
 	this.updateScrollbars = function(){
+
 		if(this.vscrollbar){
 			var scroll = this.vscrollbar
 			var totalsize = this.sublayout.height , viewsize = this.layout.height * this.zoom
@@ -500,7 +528,9 @@ define.class( function(node, require){
 				if(off !== scroll._offset) scroll.offset = off
 			}
 			else{
-				if(0 !== scroll._offset) scroll.offset = 0
+				if(0 !== scroll._offset){
+					scroll.offset = 0
+				}
 				scroll._visible = false
 			}
 		}
@@ -537,6 +567,8 @@ define.class( function(node, require){
 			(layout.left !== oldlayout.left || layout.top !== oldlayout.top ||
 			 layout.width !== oldlayout.width || layout.height !== oldlayout.height)) {
 			// call setter
+			// lets reset the scroll position
+
 			ref.emit('layout', layout)
 		}
 
@@ -572,7 +604,7 @@ define.class( function(node, require){
 	}
 
 	this.startAnimation = function(key, value, track, resolve){
-		if(this.screen) this.screen.startAnimationRoot(this, key, value, track, resolve)
+		if(this.screen) return this.screen.startAnimationRoot(this, key, value, track, resolve)
 		else{
 			this['_' + key] = value
 		}

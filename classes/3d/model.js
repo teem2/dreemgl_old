@@ -5,31 +5,21 @@
 
 
 define.class(function(require, shape3d, text, view, icon){
-	
-	this.attributes = {model:{type:undefined}}
-	
-	this.model = function(data){
-		if(this.bg_shader)
-		{
-			this.bg_shader.addModel(data, function(){ this.setDirty()}.bind(this));
-		}
-		
-	}
-	
-	this.init = function(){
-		this.bg_shader.addModel(this.model, function(){ this.setDirty()}.bind(this));
-		//console.log("init" ,this.model);
-	}
+	var GLGeom = require('$core/geometry/basicgeometry')
 
-	this.mouseover  = function(){
-		console.log("mouse over geometry!", this.interfaceguid);
-		this.bg_shader.diffusecolor = vec4("#ff0000");
-		this.setDirty();
+	this.attributes = {
+		model:Object
 	}
 	
-	this.mouseout = function(){
-		console.log("mouse out geometry!", this.interfaceguid);
-		this.bg_shader.diffusecolor = vec4("#ffffff");
-		this.setDirty();
+	this.bg = {
+		update:function(){
+			var view = this.view
+			this.mesh = this.vertexstruct.array();
+			GLGeom.createModel(view.model, function(triidx,v1,v2,v3,n1,n2,n3,t1,t2,t3,faceidx){
+				this.mesh.push(v1,n1,t1);
+				this.mesh.push(v2,n2,t2);
+				this.mesh.push(v3,n3,t3);
+			}.bind(this))
+		}
 	}
 })

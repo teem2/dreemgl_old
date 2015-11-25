@@ -59,8 +59,11 @@ object that encapsulates a single "search" within the database (see `./composito
 
     define.class(function(server, require) {
 
-        this.attribute("results", {type:Array});
-        this.attribute("keyword", {type:String});
+        this.attributes = {
+          results: {type:Array},
+          keyword: {type:String}
+        };
+        
         this.onkeyword = function (keyword) {
             var request = require('request');
             request("http://www.omdbapi.com/?s=" + keyword.replace(/[^a-z0-9_-]/ig, '+'), (function (error, response, body) {
@@ -82,9 +85,11 @@ to consume the data coming from it's server component (see `./compositons/guide/
 
     define.class(function (view, text) {
     
-        this.attribute("Title", {type:String});
-        this.attribute("Year", {type:String});
-        this.attribute("Poster", {type:String});    
+        this.attributes = {
+          Title: {type:String},
+          Year: {type:String},
+          Poster: {type:String}
+        }
         this.onPoster = function (poster) { this.bgimage = poster; };
     
         this.render = function() { return [ 
@@ -117,8 +122,10 @@ and displays the list of movies (as `guide$movie` objects):
               
     define.class(function(screen, view, button, editor, text, this$movie) {
     
-        this.attribute('term', {type:String});
-        this.attribute('movies', {type:Array});
+        this.attributes = {
+          term: {type:String},
+          movies: {type:Array}
+        };
     
         this.renderMovies = function() {
             var mviews = [];

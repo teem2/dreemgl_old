@@ -47,13 +47,8 @@ define.class("../webgl/devicewebgl", function(require, exports, self){
 
 	this.initResize = function(){
 		this.document.on("resize", function (evt) {
-			console.log(evt);
 			this.canvas.width = evt.width * this.main_frame.ratio;
 			this.canvas.height = evt.height * this.main_frame.ratio;
-			
-			console.log("resize "+this.canvas.width+" x "+this.canvas.height);
-			//this.canvas.width
-			//this.canvas.height
 			this.doSize()
 			this.relayout()
 		}.bind(this))

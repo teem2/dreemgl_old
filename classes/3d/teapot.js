@@ -4,10 +4,8 @@
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
 
-define.class(function(require, shape3d, text, view, icon){
-	// The classic Utah teapot - rebuilt from the original bezier patch set.
-	
-	if(define.$environment === 'nodejs') return
+define.class(function(require, shape3d){
+	var GLGeom = require('$core/geometry/basicgeometry')
 
 	this.attributes = {
 		// Size of the teapot
@@ -15,13 +13,16 @@ define.class(function(require, shape3d, text, view, icon){
 		// Level of detail. 1 = cubic teapot, 10+ = very very smooth teapot.
 		detail: {type:float, value:10}
 	}
-	
-	this.radius = this.detail = function(){
-		this.setDirty();
-	}
-	
-	this.init = function(){
-		this.bg_shader.addTeapot(this.radius, this.detail);
-	}
 
+	this.bg = {
+		update:function(){
+			var view = this.view
+			this.mesh = this.vertexstruct.array();
+			GLGeom.createTeapot(view.radius, view.detail, function(triidx,v1,v2,v3,n1,n2,n3,t1,t2,t3,faceidx){
+				this.mesh.push(v1,n1,t1);
+				this.mesh.push(v2,n2,t2);
+				this.mesh.push(v3,n3,t3);
+			}.bind(this))
+		}
+	}
 })

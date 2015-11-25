@@ -4,9 +4,9 @@
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
 
-define.class(function(view, require){
+define.class(function(view, label){
 	
-	define.class(this, 'slide', function(view, text){
+	define.class(this, 'slide', function(view, label){
 		this.cornerradius = vec4(10,10,10,10);
 		this.borderwidth = 0;
 		this.bordercolor = vec4("blue");
@@ -14,28 +14,49 @@ define.class(function(view, require){
 		this.flex = 1;
 		this.padding= vec4(6);
 		this.render = function(){
-			return view({bg:{bgcolorfn:function(a,b){return vec4(1- a.y*0.4, 1- a.y*0.4,1- a.y*0.2,1);}}, cornerradius:vec4(10),flex:1,flexdirection:'column'}
-				,text({margin:[10,10,10,10],fontsize:50,alignself:'center',text:this.title})
-				,view({flex:1, bgcolor:"transparent", padding:vec4(10)},this.constructor_children)
-			)
+			return view({
+					bg:{
+						color:function(){
+							return vec4(1- mesh.y*0.4, 1- mesh.y*0.4,1- mesh.y*0.2,1)
+						}
+					},
+					cornerradius:vec4(10),
+					flex:1,
+					flexdirection:'column'
+				},
+				label({
+					margin:[10,10,10,10],
+					fgcolor:'black',
+					bg:0,
+					fontsize:50,
+					alignself:'center',
+					text:this.title
+				}),
+				view({
+					flex:1,
+					bgcolor:"transparent", 
+					padding:vec4(10)
+					},
+					this.constructor_children,
+				0),
+			0)
 		}
 	});
 
 	// lets put an animation on x
 
 	this.attributes = {
-		x: {motion:'inoutsine',duration:0.2},
-		page: {type:int}
+		scroll: {motion:'inoutsine',duration:0.5},
+		pos: {persist:true},
+		page: {type:int, persist:true}
 	}
 
 	this.page = function(){
-		this.x = -this.page * (this.slidewidth + this.slidemargin * 2)
+		this.scroll = vec2(this.page * (this.slidewidth + this.slidemargin * 2), 0)
 	}
 
-	this.persists = ['pos','page']
-
 	this.constructor.slide = this.slide
-	
+	this.boundscheck = true
 	this.slidewidth = 1024
 	this.slidemargin = 10
 	this.slideheight = 1024
@@ -66,7 +87,13 @@ define.class(function(view, require){
 		var count = 0
 		return this.constructor_children.map(function(item){
 			count++
-			return this.slide({flexdirection:'column',width:this.slidewidth,margin:this.slidemargin,height:this.slideheight,title:item.slidetitle}, item)
+			return this.slide({
+				flexdirection:'column',
+				width:this.slidewidth,
+				margin:this.slidemargin,
+				height:this.slideheight,
+				title:item.slidetitle
+			}, item)
 		}.bind(this))
 	}
 })
