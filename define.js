@@ -500,6 +500,9 @@
 		if (match) {
 			var comploc = match[1];
 			var remainder = cls.substr(comploc.length);
+			if (comploc.indexOf('this$') == 0) {
+				return comploc.replace('this$', './').replace(/\$/g, '/') + remainder;
+			}
 			return '$plugins/' + comploc.replace(/\$/g, '/') + remainder;
 		}
 
