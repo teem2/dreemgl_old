@@ -28,16 +28,10 @@ define.class(function(composition, require, screens, screen, docviewer, button, 
 						view({
 							bgcolor:"transparent", 
 							flex:1,
-							slidetitle:'DreemGL test',
-							init:function(){
-								console.log("init!");
-								var br = this.find("ballrotate1");
-								console.log("br:", br);
-								
-								br.target = this.find("teapot1");
-							}.bind(this)
+							slidetitle:'DreemGL test'
+							
 							},
-							ballrotate({name:"ballrotate1", flex:1,width:100, height:100, target:this.find("teapot1")})
+							ballrotate({name:"ballrotate1", position:"absolute",width:100, height:100, target:"teapot1"})
 							,view({
 								flex:1,
 								name:"teapot1", 
