@@ -1,4 +1,4 @@
-define.class(function(composition, require, screens, screen, docviewer, button, label, codeviewer, view, slideviewer, draggable, teapot){
+define.class(function(composition, require, screens, screen, docviewer, button, label, codeviewer, view, slideviewer, draggable, teapot, ballrotate){
 	// Live coding presentation docs!
 	this.attributes = {
 		test:"ELLO!"
@@ -28,10 +28,19 @@ define.class(function(composition, require, screens, screen, docviewer, button, 
 						view({
 							bgcolor:"transparent", 
 							flex:1,
-							slidetitle:'DreemGL test'
+							slidetitle:'DreemGL test',
+							init:function(){
+								console.log("init!");
+								var br = this.find("ballrotate1");
+								console.log("br:", br);
+								
+								br.target = this.find("teapot1");
+							}.bind(this)
 							},
-							view({
+							ballrotate({name:"ballrotate1", flex:1,width:100, height:100, target:this.find("teapot1")})
+							,view({
 								flex:1,
+								name:"teapot1", 
 								clearcolor: 'rgba(255,255,255,0)',
 								mode: '3D',
 								bg:0,

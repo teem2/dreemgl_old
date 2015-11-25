@@ -4,16 +4,18 @@
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
 
-define.class(function(require, view, text, view, icon){
+define.class(function(require, view, view, icon){
 
 	// The perspective3d object to rotate.
 	this.attributes = {target:{}}
 this.bgcolor = vec4("blue");
 this.width = 100;
 this.height = 100;
+this.pos = vec3(0,0,0)
 	this.mouseleftdown = function(a){
 		
 		console.log("mouseleftdown")
+		console.log(this.target);
 		if (this.target) 
 		{
 			this.clickstart = a;
