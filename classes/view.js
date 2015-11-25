@@ -354,19 +354,18 @@ define.class( function(node, require){
 	}
 
 	// called by doLayout
-	this.updateMatrices = function(parentmatrix, parentmode){
-		
-		if (this._mode && this._mode != parentmode ){
-			//console.log("modeswitch:", this._mode);
-			parentmatrix = mat4.identity();
-			this.modelmatrix = mat4.identity();
-			parentmode = this._mode;
-		}
-		if (parentmode== '3D' && !this._mode ){	
+	this.updateMatrices = function(parentmatrix, parentmode, depth){
+		if (!depth) depth = "";
+		depth += " ";
+		console.log(depth, this.constructor.name, this.translate,parentmode, this._mode);
+			
+		if (parentmode== '3D'){// && !this._mode ){	
 			mat4.TSRT2(this.anchor, this.scale, this.rotate, this.translate, this.modelmatrix);
 			//mat4.debug(this.modelmatrix);
 		}
 		else {
+		//	console.log("2d" ,this.constructor.name, this.translate, );
+			
 			// compute TSRT matrix
 			if(this.layout){
 				var s = this._scale
@@ -391,16 +390,20 @@ define.class( function(node, require){
 			}
 		}
 
-		// do the matrix mul
 		if(this._mode){
-			//mat4.identity(this.totalmatrix)
-			//this.layermatrix = mat4.identity()
-			if(parentmatrix) mat4.mat4_mul_mat4(parentmatrix, this.modelmatrix, this.layermatrix)
-			else this.layermatrix = this.modelmatrix
+			if(parentmatrix) {
+				mat4.mat4_mul_mat4(parentmatrix, this.modelmatrix, this.layermatrix)
+			}
+			else{
+				this.layermatrix = this.modelmatrix
+			}
+			parentmode = this._mode;
+			parentmatrix = mat4.identity();
 		}
 		else{
 			if(parentmatrix) mat4.mat4_mul_mat4(parentmatrix, this.modelmatrix, this.totalmatrix)
 		}
+		
 
 		var children = this.children
 		if(children) for(var i = 0; i < children.length; i++){

@@ -16,16 +16,27 @@ define.class(function(view, label,button, scrollbar){
 	this.margin = vec4(10)
 	this.borderradius = 8
 	
+	define.class(this, 'colorarea', function(view){
+		this.bg ={
+			color:function(){
+					return vec4(mesh.x, mesh.y,0,1);
+				}
+			};
+		this.width = 100;
+		this.height = 100;
+		
+	})
+	
 	
 	this.render = function(){
-		
+		console.log(this.outer);
 		return [
 			label({text:"Select Color", bgcolor:"transparent", fgcolor:"white", fontsize: 15, margin:5})
 			
 
 			
 			,view({flexdirection:"row", flex:1, bgcolor:"transparent"}
-				,view({margin:5, bg:{color:function(){return vec4(mesh.x, mesh.y,0,1);}}, width:100, height:100})
+				,this.colorarea()
 				,view({flexdirection:"column", flex:1,bgcolor:"transparent"}
 					,view({bgcolor:"transparent", flexdirection:"row" }
 						,label({fgcolor:"black", bgcolor:"transparent" , text:"R", fontsize:14, margin:4})			
