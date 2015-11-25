@@ -38,7 +38,7 @@ define.class(function(composition, require, screens, screen, docviewer, button, 
 								camera: vec3(0,0,8)
 							},
 							teapot({
-								detail:4,
+								detail:10,
 								pos:[0,0,-0.5], 
 								rotate:[-.6*PI,PI,0], 
 								radius:0.8, 
@@ -72,9 +72,10 @@ define.class(function(composition, require, screens, screen, docviewer, button, 
 								width:800, 
 								height:450, 
 								bg:{
-									texture: require('./graph.png'),
+									//texture: require('./graph.png'),
 									color:function(){
-										return texture.sample(mesh.xy)
+										return 'red'
+									//	return texture.sample(mesh.xy)
 									}
 								}})
 						),

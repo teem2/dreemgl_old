@@ -195,31 +195,34 @@ define.class(function(require, baseclass){
 			var draw = dl[i]
 
 			var subview = draw.layout
-			if(view._mode === '2D' && view.boundscheck){ // do early out check using bounding boxes
-				var height = layout.height
-				var width = layout.width
-				if(draw.parent && draw.parent !== view){
-					subview.absx = draw.parent.layout.absx + subview.left
-					subview.absy = draw.parent.layout.absy + subview.top
-				}
-				else{
-					subview.absx = subview.left
-					subview.absy = subview.top
-				}
-				if(draw === view && view.sublayout){
-					width = view.sublayout.width
-					height = view.sublayout.height
-				}
-				// early out check
-				if(draw !== view && !draw.noscroll){
-					if( subview.absy - scroll[1] > height * zoom || subview.absy + subview.height - scroll[1] < 0){
-						continue
-					} 
-					if(subview.absx - scroll[0] > width * zoom || subview.absx + subview.width - scroll[0] < 0){
-						continue
+			if(draw._first_draw_pick){
+				if(view._mode === '2D' && view.boundscheck){ // do early out check using bounding boxes
+					var height = layout.height
+					var width = layout.width
+					if(draw.parent && draw.parent !== view){
+						subview.absx = draw.parent.layout.absx + subview.left
+						subview.absy = draw.parent.layout.absy + subview.top
+					}
+					else{
+						subview.absx = subview.left
+						subview.absy = subview.top
+					}
+					if(draw === view && view.sublayout){
+						width = view.sublayout.width
+						height = view.sublayout.height
+					}
+					// early out check
+					if(draw !== view && !draw.noscroll){
+						if( subview.absy - scroll[1] > height * zoom || subview.absy + subview.height - scroll[1] < 0){
+							continue
+						} 
+						if(subview.absx - scroll[0] > width * zoom || subview.absx + subview.width - scroll[0] < 0){
+							continue
+						}
 					}
 				}
 			}
+			else draw._first_draw_pick = 1
 
 			var id = ((i+1)*29401)%65536
 			pick[1] = (id&255)/255
@@ -327,31 +330,34 @@ define.class(function(require, baseclass){
 			var draw = dl[i]
 			var subview = draw.layout
 			// we make some bad shit early out assumptions here
-			if(view._mode === '2D' && view.boundscheck){ // do early out check using bounding boxes
-				var height = layout.height
-				var width = layout.width
-				if(draw.parent && draw.parent !== view){
-					subview.absx = draw.parent.layout.absx + subview.left
-					subview.absy = draw.parent.layout.absy + subview.top
-				}
-				else{
-					subview.absx = subview.left
-					subview.absy = subview.top
-				}
-				if(draw === view && view.sublayout){
-					width = view.sublayout.width
-					height = view.sublayout.height
-				}
-				// early out check
-				if(draw !== view && !draw.noscroll){
-					if( subview.absy - scroll[1] > height * zoom || subview.absy + subview.height - scroll[1] < 0){
-						continue
-					} 
-					if(subview.absx - scroll[0] > width * zoom || subview.absx + subview.width - scroll[0] < 0){
-						continue
+			if(draw._first_draw_color){
+				if(view._mode === '2D' && view.boundscheck){ // do early out check using bounding boxes
+					var height = layout.height
+					var width = layout.width
+					if(draw.parent && draw.parent !== view){
+						subview.absx = draw.parent.layout.absx + subview.left
+						subview.absy = draw.parent.layout.absy + subview.top
+					}
+					else{
+						subview.absx = subview.left
+						subview.absy = subview.top
+					}
+					if(draw === view && view.sublayout){
+						width = view.sublayout.width
+						height = view.sublayout.height
+					}
+					// early out check
+					if(draw !== view && !draw.noscroll){
+						if( subview.absy - scroll[1] > height * zoom || subview.absy + subview.height - scroll[1] < 0){
+							continue
+						} 
+						if(subview.absx - scroll[0] > width * zoom || subview.absx + subview.width - scroll[0] < 0){
+							continue
+						}
 					}
 				}
 			}
+			else draw._first_draw_color = 1
 
 			//if(view.constructor.name === 'slideviewer')console.log('here',draw.constructor.name, draw.text)
 

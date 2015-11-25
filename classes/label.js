@@ -20,6 +20,8 @@ define.class(function(view, require){
 		// Size of the font in pixels
 		fontsize: {type:float, value: 18},
 	
+		boldness: {type:float, value: 0.3},
+
 		// Name of the font
 		typeface: {type:Object, value: undefined},
 	
@@ -43,6 +45,7 @@ define.class(function(view, require){
 			if(this.typeface) mesh.typeface = this.typeface
 
 			mesh.fontsize = view.fontsize
+			mesh.boldness = view.boldness
 			mesh.add_y = mesh.line_height
 			mesh.align = view.align
 			mesh.start_y = mesh.line_height
@@ -61,6 +64,7 @@ define.class(function(view, require){
 
 	define.class(this, 'fontsubpixelaa', this.fontnormal, function(){
 		this.subpixel = true
+		this.boldness = 0.6
 	})
 	this.fontsubpixelaa = false
 

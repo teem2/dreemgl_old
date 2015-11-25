@@ -42,10 +42,12 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 		this.cursor_spacing = 1.3
 		this.cursor_sink = 0.32
 		
-		this.boldness = 0
 		this.scaling = 0
 		this.distance = 0
+
+		this.boldness = 0
 		this.gamma_adjust = vec3(1.2)
+
 		this.outline = false
 		this.debug = false
 		this.contrast = 1.4
