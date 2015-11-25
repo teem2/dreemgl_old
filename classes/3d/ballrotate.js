@@ -8,8 +8,12 @@ define.class(function(require, view, text, view, icon){
 
 	// The perspective3d object to rotate.
 	this.attributes = {target:{}}
-
+this.bgcolor = vec4("blue");
+this.width = 100;
+this.height = 100;
 	this.mouseleftdown = function(a){
+		
+		console.log("mouseleftdown")
 		if (this.target) 
 		{
 			this.clickstart = a;
