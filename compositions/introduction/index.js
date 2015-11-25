@@ -1,62 +1,76 @@
-define.class(function(composition, require, screens, screen, docviewer, button, label, codeviewer, view, slideviewer, draggable, teapot,ballrotate, architecture){
+define.class(function(composition, require, screens, screen, docviewer, button, label, codeviewer, view, slideviewer, draggable, teapot){
 	// Live coding presentation docs!
-
-	this.attributes = {HELLO: {type:vec4,value:'red'}};
 	
 	this.render = function render(){ 
 		return [
 			screens(
-				screen({name:'desktop',
+				screen({
+					name:'desktop',
 					init:function(){
-						this.rpc.screens.remote.pager = function(value){
-							this.children[0].page += value
+						this.rpc.screens.remote.pager = function(event){
+							this.children[0].page += event.value
 						}.bind(this)
 					}},
 					slideviewer({
-						init:function(){
-							console.log()
+						slide:{
+							padding:15,
+							borderradius:20
 						},
+						mode:'2D',
+						overflow:'scroll',
 						slideheight:800,
-						position:'absolute',
-						x: 0,
-						bgcolor:'black'
-					}
-					,view({
+						bgcolor:'black',
+						attributes:{scroll:{persist:true}}
+						},
+						view({
 							bgcolor:"transparent", 
 							flex:1,
 							slidetitle:'DreemGL test'
-						}
-						,perspective3d({bgcolor:"transparent", name:"teapotview", flex:1,flexdirection:"row", clipping:true,camera:[10,-10,-30],fov:60,flex:1}
-							,teapot({pos:[0,-100],bg:{diffusecolor:'white'},rot3d:[PI/2,0,0], pos3d:[0,2,0]})
-							,ballrotate({bgcolor:"transparent", init:function(){this.target= this.find("teapotview");}, flex:1})	
-						)
-					)
-					,view({
-						slidetitle:'This thing'
-						,flex:1
-						}
-						,scrollcontainer({flex:1},
-							codeviewer({flex:1,margin:vec4(10),code:render.toString(), padding:vec4(4), fontsize: 14, bgcolor:"#000030", multiline: true})
-						)
-					)
-					,view({
-							slidetitle:'High level overview'
-							,flex:1 , bgcolor:"transparent" 
-						}
-						,view({left:100, top:100,width:800, height:450, bgimage:require('./graph.png'),
-							bg:{
-								bgcolorfn:function(pos,dist){
-									return texture.sample(pos)
-									//return texture.sample(pos+0.1*noise.noise3d(vec3(pos, time)))
-								}
-							}})
-					)
-					/*,view({
-							slidetitle:'Architecture overview'
-							,flex:1 , bgcolor:"transparent" 
-						}
-						,architecture({flex:1, file:require("./dreemglarchitecture.json")})
-					)*/
+							},
+							view({
+								flex:1,
+								clearcolor: 'rgba(255,255,255,0)',
+								mode: '3D',
+								bg:0,
+								camera: vec3(0,0,8)
+							},
+							teapot({
+								pos:[0,0,-0.5], rotate:[-.6*PI,PI,0], radius:0.8, size:vec3(0.5)}),
+							0),
+						0),
+						view({
+							slidetitle:'This thing'
+							,flex:1
+							},
+							codeviewer({
+								mode:'2D',
+								overflow:'scroll',
+								flex:1,
+								margin:vec4(10),
+								source:render.toString(), 
+								padding:vec4(4), 
+								fontsize: 14,
+								bgcolor:"#000030", 
+								multiline: true
+							}),
+						0),
+						view({
+							slidetitle:'High level overview',
+							flex:1 , bgcolor:"transparent" 
+							},
+							view({
+								left:100, 
+								top:100,
+								width:800, 
+								height:450, 
+								bg:{
+									texture: require('./graph.png'),
+									color:function(){
+										return texture.sample(mesh.xy)
+									}
+								}})
+						),
+					/*
 					,view({
 							flex:1,
 							bgcolor:'transparent',
@@ -157,10 +171,11 @@ define.class(function(composition, require, screens, screen, docviewer, button, 
 					}
 					,docviewer({flex:1, model:this.constructor})
 				)
-			)
+				*/
+			0)
 		),
 		screen({
-				attribute_pager:{type:int, value:0},
+				attributes:{pager:0},
 				name:'remote',
 			}
 			,view({flex:1, bgcolor:'black'}

@@ -485,6 +485,10 @@ define.class(function(require, constructor){
 				obj[prop] = config[prop]
 			}
 			this._attributes[key] = obj
+			if(config.persist){
+				if(config.storage) throw new Error('Cannot define a persist property '+key+' with storage, use the storage attribute '+config.storage)
+				this.definePersist(key)
+			}
 			return
 		}
 		else{
@@ -512,6 +516,10 @@ define.class(function(require, constructor){
 					config.type = value
 					config.value = undefined
 				}
+			}
+			if(config.persist){
+				if(config.storage) throw new Error('Cannot define a persist property '+key+' with storage, use the storage attribute '+config.storage)
+				this.definePersist(key)
 			}
 		}
 
@@ -561,7 +569,11 @@ define.class(function(require, constructor){
 
 				var config = this._attributes[key]
 
-				if(config.motion && this.startAnimation(key, value)){
+
+				if(config.motion){
+					// lets copy our value in our property
+					this[value_key] = this[storage_key][config.index]
+					this.startAnimation(key, value)
 					return
 				}
 
@@ -582,9 +594,9 @@ define.class(function(require, constructor){
 				if(on_key in this || listen_key in this) this.emit(key,  {type:'setter', key:key, owner:this, value:value})
 			}
 
-			this.addListener(config.storage, function(value){
-				this[value_key] = value[config.index]
-				if(on_key in this || listen_key in this)  this.emit(key, {type:'setter', key:key, owner:this, value:value})
+			this.addListener(config.storage, function(event){
+				var val = this[value_key] = event.value[config.index]
+				if(on_key in this || listen_key in this)  this.emit(key, {type:'setter', key:key, owner:this, value:val})
 			})
 			// initialize value
 			this[value_key] = this[storage_key][config.index]

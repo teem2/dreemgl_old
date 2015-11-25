@@ -589,7 +589,12 @@ define.class(function(view, require) {
 				if(anim.promise) anim.promise.resolve()
 			}
 			else{
+				// what if we have a value with storage?
 				anim.obj['_' + anim.key] = value
+				if(anim.config.storage){
+					anim.obj['_' + anim.config.storage][anim.config.index] = value
+					anim.obj.emit(anim.config.storage, {type:'animation', key: anim.key, owner:anim.obj, value:value.last_value})
+				}
 				anim.obj.emit(anim.key, {type:'animation', key: anim.key, owner:anim.obj, value:value.last_value})
 				redrawlist.push(anim.obj)
 			}

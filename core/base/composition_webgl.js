@@ -22,7 +22,7 @@ define.class('$base/composition_client', function(require, baseclass){
 			this.device = new Device()
 		}
 
-		baseclass.prototype.atConstructor.call(this)
+		baseclass.prototype.atConstructor.call(this, previous, parent)
 	}
 
 	this.createBus = function(){

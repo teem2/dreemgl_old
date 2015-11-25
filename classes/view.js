@@ -14,34 +14,45 @@ define.class( function(node, require){
 		pos: {type:vec2, value:vec2(NaN,NaN)},
 		x: {storage:'pos', index:0},
 		y: {storage:'pos', index:1},
+		z: {storage:'pos', index:2},
 
 		left: {storage:'pos', index:0},
 		top: {storage:'pos', index:1},
-		corner: {type:vec2, value:vec2(NaN, NaN)},
+		front: {storage:'pos', index:2},
+
+		corner: {type:vec3, value:vec3(NaN, NaN, NaN)},
 		right: {storage:'corner', index:0},
 		bottom: {storage:'corner',index:1},
+		rear: {storage:'corner', index:2},
 
 		bgcolor: {type:vec4, value: vec4('white')},
+
 		clearcolor: {type:vec4, value: vec4('transparent')},
 		scroll: {type:vec2, value:vec2(0, 0)},
 		zoom:{type:float, value:1},
-		size: {type:vec2, value:vec2(NaN, NaN)},
+		size: {type:vec3, value:vec3(NaN, NaN, NaN)},
 
 		overflow: {type: Enum('','hidden','scroll','auto'), value:''},
 		pixelratio: {type: float, value:NaN},
 
 		w: {storage:'size', index:0},
 		h: {storage:'size', index:1},
+		d: {storage:'size', index:2},
+		
 		width: {storage:'size', index:0},
 		height: {storage:'size', index:1},
+		depth: {storage:'size', index:2},
 
-		minsize: {type: vec2, value:vec2(NaN, NaN)},
-		maxsize: {type: vec2, value:vec2(NaN, NaN)},
+		minsize: {type: vec3, value:vec3(NaN, NaN, NaN)},
+		maxsize: {type: vec3, value:vec3(NaN, NaN, NaN)},
 
 		minwidth: {storage:'minsize', index:0},
 		minheight: {storage:'minsize', index:1},
+		mindepth: {storage:'minsize', index:2},
+
 		maxwidth: {storage:'maxsize', index:0},
 		maxheight: {storage:'maxsize', index:1},
+		maxdepth: {storage:'maxsize', index:2},
 
 		margin: {type: vec4, value: vec4(0,0,0,0)},
 		marginleft: {storage:'margin', index:0},
@@ -476,7 +487,8 @@ define.class( function(node, require){
 			this.mousezoom = function(zoom){
 				// how about zooming around something? dont we need to auto-scroll too?
 				var lastzoom = this._zoom
-				this.zoom = this.zoom * (1+0.03*zoom)
+				var newzoom = clamp(lastzoom * (1+0.03 * zoom),0.01,10)
+				this.zoom = newzoom
 				// ok so how do we zoom around ourselves?
 				// well have to scroll 
 				
@@ -485,7 +497,7 @@ define.class( function(node, require){
 
 				var shiftx = pos[0] * lastzoom - pos[0] * this._zoom
 				var shifty = pos[1] * lastzoom - pos[1] * this._zoom 
- 
+ 				
 				this.hscrollbar.offset = clamp(this.hscrollbar._offset + shiftx, 0, this.hscrollbar._total - this.hscrollbar._page)
 				this.vscrollbar.offset = clamp(this.vscrollbar._offset + shifty, 0, this.vscrollbar._total - this.vscrollbar._page)
 

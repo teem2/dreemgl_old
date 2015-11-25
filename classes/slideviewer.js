@@ -14,25 +14,46 @@ define.class(function(view, label){
 		this.flex = 1;
 		this.padding= vec4(6);
 		this.render = function(){
-			return view({bg:{bgcolorfn:function(a,b){return vec4(1- a.y*0.4, 1- a.y*0.4,1- a.y*0.2,1);}}, cornerradius:vec4(10),flex:1,flexdirection:'column'}
-				,label({margin:[10,10,10,10],fontsize:50,alignself:'center',text:this.title})
-				,view({flex:1, bgcolor:"transparent", padding:vec4(10)},this.constructor_children)
-			)
+			return view({
+					bg:{
+						color:function(){
+							return vec4(1- mesh.y*0.4, 1- mesh.y*0.4,1- mesh.y*0.2,1)
+						}
+					},
+					cornerradius:vec4(10),
+					flex:1,
+					flexdirection:'column'
+				},
+				label({
+					margin:[10,10,10,10],
+					fgcolor:'black',
+					bg:0,
+					fontsize:50,
+					alignself:'center',
+					text:this.title
+				}),
+				view({
+					flex:1,
+					bgcolor:"transparent", 
+					padding:vec4(10)
+					},
+					this.constructor_children,
+				0),
+			0)
 		}
 	});
 
 	// lets put an animation on x
 
 	this.attributes = {
-		x: {motion:'inoutsine',duration:0.2},
-		page: {type:int}
+		scroll: {motion:'inoutsine',duration:0.2},
+		pos: {persist:true},
+		page: {type:int, persist:true}
 	}
 
 	this.page = function(){
-		this.x = -this.page * (this.slidewidth + this.slidemargin * 2)
+		this.scroll = vec2(this.page * (this.slidewidth + this.slidemargin * 2), 0)
 	}
-
-	this.persists = ['pos','page']
 
 	this.constructor.slide = this.slide
 	
@@ -41,6 +62,7 @@ define.class(function(view, label){
 	this.slideheight = 1024
 	this.page = 0
 	this.keydown = function(key){
+		console.log('keydown!')
 		// alright we have a keydown!
 		if(key.name == 'leftarrow'){
 			// we need to animate to the left

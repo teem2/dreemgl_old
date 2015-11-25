@@ -32,7 +32,6 @@ define.class(function(exports){
 		}
 		
 		// call connect wires before
-		if(!new_version.connectWires) debugger
 		if(!rerender) new_version.connectWires(state.wires)
 
 		var old_children = old_version? old_version.children: undefined
@@ -40,8 +39,11 @@ define.class(function(exports){
 		// lets call init only when not already called
 		if(!rerender){
 			if(old_version && old_version.constructor == new_version.constructor){
-				for(var key in new_version._persists){
-					new_version[key] = old_version[key]
+				for(var key in old_version._persists){
+					// we should set it using a special emit
+					var value =  old_version[key]
+					new_version['_' + key] = old_version[key]
+					new_version.emit(key, {type:'persist', owner:new_version, key:key, value:value})
 				}
 			}
 			new_version.emit('init', old_version)// old_version && old_version.constructor == new_version.constructor? old_version: undefined)

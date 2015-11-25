@@ -62,6 +62,7 @@ define.class('$base/composition_base', function(require, baseclass){
 			this.screen.parent = parent
 		}
 		//this.screen.teem = this
+
 		Render.process(this.screen, previous && previous.screen, globals)
 		
 		if(typeof document !== 'undefined' && this.screen.title !== undefined) document.title = this.screen.title 
