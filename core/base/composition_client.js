@@ -22,6 +22,7 @@ define.class('$base/composition_base', function(require, baseclass){
 
 		// web environment
 		if(previous){
+			this.session = previous.session
 			this.bus = previous.bus
 			this.rpc = previous.rpc
 			this.rpc.host = this
