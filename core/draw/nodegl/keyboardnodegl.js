@@ -46,7 +46,7 @@ define.class('../keyboard', function (require, exports, self){
 		document.on('keydown', function(e){
 			var code = e.which>255?e.which:e.keyCode
 			var keyname = this.toKey[ code ]
-			if( keyname ) this.emit(keyname, 1)
+			if( keyname ) this[keyname] = 1
 			var msg = {
 				repeat: e.repeat,
 				code: code,
@@ -61,7 +61,7 @@ define.class('../keyboard', function (require, exports, self){
 			var code = e.which>255?e.which:e.keyCode
 			var keyname = this.toKey[ code ]
 
-			if( keyname ) this.emit(keyname, 0)
+			if( keyname ) this[keyname] = 0
 			var msg = {
 				repeat: e.repeat,
 				code: code,

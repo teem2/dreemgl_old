@@ -475,13 +475,13 @@ define.class( function(node, require){
 			)
 			this.mousewheelx = function(pos){
 				if(this.hscrollbar._visible){
-					this.hscrollbar.offset = clamp(this.hscrollbar._offset - pos, 0, this.hscrollbar._total - this.hscrollbar._page)
+					this.hscrollbar.offset = clamp(this.hscrollbar._offset + pos, 0, this.hscrollbar._total - this.hscrollbar._page)
 				}
 			}
 
 			this.mousewheely = function(pos){
 				if(this.vscrollbar._visible){
-					this.vscrollbar.offset = clamp(this.vscrollbar._offset - pos, 0, this.vscrollbar._total - this.vscrollbar._page)
+					this.vscrollbar.offset = clamp(this.vscrollbar._offset + pos, 0, this.vscrollbar._total - this.vscrollbar._page)
 				}
 			}
 
