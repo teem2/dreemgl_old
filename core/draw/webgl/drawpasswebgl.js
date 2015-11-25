@@ -280,7 +280,7 @@ define.class(function(require, baseclass){
 		}
 	})
 
-	this.drawColor = function(isroot){
+	this.drawColor = function(isroot, time){
 		var drawcalls = 0
 		var view = this.view
 		var device = this.device
@@ -304,7 +304,7 @@ define.class(function(require, baseclass){
 
 		// 2d/3d switch
 		var scroll = view._scroll
-
+		var hastime = false
 		if(view._mode === '2D'){
 			var zoom = view._zoom
 			if (isroot){
@@ -360,7 +360,10 @@ define.class(function(require, baseclass){
 			else draw._first_draw_color = 1
 
 			//if(view.constructor.name === 'slideviewer')console.log('here',draw.constructor.name, draw.text)
-
+			draw._time = time
+			
+			if(draw._listen_time || draw.ontime) hastime = true
+				
 			draw.viewmatrix = this.color_viewmatrix
 
 			if(!draw._visible) continue
@@ -406,6 +409,6 @@ define.class(function(require, baseclass){
 			//this.testshader.drawArrays(this.device)
 		}
 		//console.log('COLOR', drawcalls, view.constructor.name)
-
+		return hastime
 	}
 })

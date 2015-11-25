@@ -14,7 +14,8 @@ define.class('$base/composition_client', function(require, baseclass){
 		
 		if(previous){
 			this.reload = (previous.reload || 0) + 1
-			this.device = new Device(previous.device) //previous.device
+			this.device = previous.device// new Device(previous.device) //previous.device
+			this.device.reload = this.reload
 			console.log("Reload " + this.reload)
 		}
 		else{

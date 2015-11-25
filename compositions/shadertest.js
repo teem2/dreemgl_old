@@ -9,10 +9,15 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 						flex:1,
 						bg:{
 							color:function(){
-								return 'red'
+								// gradient
+								//return mix('red','blue', mesh.y)
+
+								// plasma
+								//return pal.pal1(noise.noise3d(vec3(mesh.x,mesh.y,view.time)))
+
 								// lets make some examples
 								// add a mouse
-								//return 'red'
+								return 'red'
 							}
 						}
 					})

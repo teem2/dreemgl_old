@@ -32,8 +32,9 @@ define.class('../shader', function(require, exports, self){
 		gl.compileShader(vtx_shader)
 		if (!gl.getShaderParameter(vtx_shader, gl.COMPILE_STATUS)){
 			var err = gl.getShaderInfoLog(vtx_shader)
-			console.log(err.toString(), this.annotateLines(vtx_code))
-			throw new Error(err)
+			console.error(err.toString(), this.annotateLines(vtx_code))
+			return
+			//throw new Error(err)
 		}
 		
 		// compile the shader
@@ -43,8 +44,9 @@ define.class('../shader', function(require, exports, self){
 		if (!gl.getShaderParameter(pix_color_shader, gl.COMPILE_STATUS)){
 			var err = gl.getShaderInfoLog(pix_color_shader)
 
-			console.log(err.toString(), this.annotateLines(pix_color))
-			throw new Error(err)
+			console.error(err.toString(), this.annotateLines(pix_color))
+			return
+			//throw new Error(err)
 		}
 
 		shader = gldevice.shadercache[cache_id] = gl.createProgram()
@@ -103,6 +105,7 @@ define.class('../shader', function(require, exports, self){
 	}
 
 	this.useShader = function(gl, shader){
+		if(!shader) return
 		if(shader.use) return shader.use(gl, shader, this)
 		// use the shader
 		gl.useProgram(shader)
