@@ -14,7 +14,6 @@ define.class(function(view, label, icon){
 	this.alignitems ="stretch"
 	this.bordercolor = vec4("#c0c0c0")
 	this.flexdirection = "column"
-	this.flex = 1;
 	this.attributes = {
 		// The current state of the foldcontainer. False = open, True = closed.
 		collapsed: false,
@@ -38,8 +37,7 @@ define.class(function(view, label, icon){
 		
 		// default click-handler - when not bound this write "nothing happens" to the console. 
 		this.toggle = function(){console.log("nothing happens")}
-		this.flex = 1
-
+		
 		this.attributes = {
 			title: {type:String},
 			col1: {value:vec4("yellow")},
@@ -58,7 +56,7 @@ define.class(function(view, label, icon){
 		this.padding = 6
 		// The clickable bar creates icon and a textfield children.
 		this.render = function(){			
-			return [icon({fontsize:16, icon:this.icon, fgcolor: "#303030" }), label({marginleft:5,fgcolor:"#303030", fontsize: 16, text:this.title, flex:1, bgcolor: "transparent" })];
+			return [icon({fontsize:16, icon:this.icon, fgcolor: "#303030" }), label({marginleft:5,fgcolor:"#303030", fontsize: 16, text:this.title,  bgcolor: "transparent" })];
 		}
 
 		this.statedefault = function(){

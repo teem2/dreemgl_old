@@ -9,7 +9,6 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 	var Parser = require("$parse/onejsparser")
 
 	this.bgcolor = vec4("white")
-	this.flex = 1.0
 	this.padding = 20
 	this.flexdirection = "column"
 	this.alignitems = "stretch"
@@ -336,7 +335,7 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 
 		this.flexdirection = "column"
 		this.flexwrap = "none" 
-		this.flex = 1;
+		
 		this.bgcolor = 'red'
 
 		this.BuildGroup = function (inputarray, title, icon, color, blocktype){
