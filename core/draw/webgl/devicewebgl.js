@@ -275,8 +275,9 @@ define.class(function(require, exports, self){
 			}
 
 			if(skip){
-				this.screen.colornoscrollmatrix = view.colornoscrollmatrix
-				this.screen.colorviewmatrix = view.colorviewmatrix
+				this.screen.drawpass.calculateDrawMatrices();
+				
+				
 				this.screen.draw_dirty &= 2
 				break
 			}
