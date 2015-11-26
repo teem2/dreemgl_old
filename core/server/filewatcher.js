@@ -12,9 +12,9 @@ define.class(function(require, exports, self){
 
 	var uid = 0
 	this.__trace__  = 2
-	self.atConstructor = function(){
+	self.atConstructor = function(delay){
 		this.files = {}
-		this.timeout = 100
+		this.timeout = delay || 100
 		this.poll = this.poll.bind(this)
 		this.itv = setTimeout(this.poll, 0)
 		this.lastfire = 0

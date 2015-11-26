@@ -27,11 +27,14 @@ define.class(function(require){
 
 		this.busserver = new BusServer()
 
-		this.watcher = new FileWatcher()
+		this.slow_watcher = new FileWatcher(200)
+
+		this.fast_watcher = new FileWatcher(10)
 		// lets give it a session
 		this.session = Math.random() * 1000000
 
-		this.watcher.atChange = function(){
+		this.fast_watcher.atChange = 
+		this.slow_watcher.atChange = function(){
 			// lets reload this app
 			this.reload()
 		}.bind(this)
@@ -43,9 +46,12 @@ define.class(function(require){
 			if(filename.indexOf(define.expandVariables('$build')) == 0){
 				return
 			}
-			// lets output to the main watcher
-			// process.stderr.write('\x0F!'+filename+'\n', function(){})
-			this.watcher.watch(filename)
+			if(filename.indexOf( define.expandVariables('$compositions') ) === 0){
+				this.fast_watcher.watch(filename)
+			}
+			else{
+				this.slow_watcher.watch(filename)
+			}
 		}.bind(this)
 		//
 		this.reload()

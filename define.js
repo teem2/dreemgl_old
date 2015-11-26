@@ -231,9 +231,25 @@
 				define.reload_id++
 
 				// lets wipe the old module
+				var old_module = define.module[path] 
+				var old_factory = define.factory[path]
+
+				var prev_error = window.onerror
+
+				window.onerror = function(e, errpath){
+					//if(errpath.indexOf(path) !== -1){
+					window.onerror = prev_error
+					define.module[path] = old_module
+					define.factory[path] = old_factory
+					return reject(e)
+				}
+
 				define.module[path] = define.factory[path] = undefined
+
 				// lets require it async
 				define.require.async(path).then(function(new_class){
+
+					window.onerror = prev_error
 					// fetch all modules dependent on this class, and all dependent on those
 					// and cause them to reinitialize
 					function wipe_module(name){
@@ -798,6 +814,9 @@
 					//define.script_tags[url] = script
 						
 					function onLoad(){
+						//for(var key in this)console.log(keys)
+						//console.log("ONLOAD!", Object.keys(this))
+
 						// pull out the last factor
 						var factory = define.last_factory
 						define.factory[facurl] = factory
@@ -832,8 +851,8 @@
 					}
 					script.onload = onLoad
 					script.onreadystatechange = function(){
-						console.log(s.readyState)
-						if(s.readyState == 'loaded' || s.readyState == 'complete') onLoad()
+						console.log(script.readyState)
+						if(script.readyState == 'loaded' || script.readyState == 'complete') onLoad()
 					}
 					define.in_body_exec = false
 					document.getElementsByTagName('head')[0].appendChild(script)

@@ -309,6 +309,7 @@ define.class('../shader', function(require, exports, self){
 		
 		// set up depth test
 		if(root.depth_test_eq.func){
+			//console.log(root.depth_test_eq)
 			gl.enable(gl.DEPTH_TEST)
 			gl.depthFunc(root.depth_test_eq.func)
 		}
