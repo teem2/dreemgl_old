@@ -244,7 +244,6 @@ define.class(function(require, exports, self){
 		//var screen = this.layout_list[this.layout_list.length - 1]
 		this.screen._maxsize =
 		this.screen._size = vec2(this.main_frame.size[0] / this.ratio, this.main_frame.size[1] / this.ratio)
-		console.log(this.layout_list)
 		// do the dirty layouts
 		for(var i = 0; i < this.layout_list.length; i++){
 			// lets do a layout?
@@ -274,13 +273,13 @@ define.class(function(require, exports, self){
 				}
 				else hastime = viewhastime
 			}
+
 			if(skip){
 				this.screen.colornoscrollmatrix = view.colornoscrollmatrix
 				this.screen.colorviewmatrix = view.colorviewmatrix
 				this.screen.draw_dirty &= 2
 				break
 			}
-			//else console.log("NOT DIRTY", view)
 		}
 
 		if(anim_redraw.length){

@@ -11,12 +11,10 @@ define.class(function(view, label, icon){
 	this.position ="relative"
 	this.borderwidth = 1
 	this.margin = 2
-	
+	this.alignitems ="stretch"
 	this.bordercolor = vec4("#c0c0c0")
-	
-	this.alignitems = "stretch"
 	this.flexdirection = "column"
-	
+	this.flex = 1;
 	this.attributes = {
 		// The current state of the foldcontainer. False = open, True = closed.
 		collapsed: false,
@@ -25,7 +23,6 @@ define.class(function(view, label, icon){
 		// The main color from which the foldcontainer will build some gradients.
 		basecolor: {type: vec4, value: vec4("#8080c0")}
 	}
-	
 	// Function to change the open/closed state. Used by the click handler of the clickablebar.
 	this.toggle = function(){
 		this.collapsed = !this.collapsed;		
@@ -41,7 +38,6 @@ define.class(function(view, label, icon){
 		
 		// default click-handler - when not bound this write "nothing happens" to the console. 
 		this.toggle = function(){console.log("nothing happens")}
-
 		this.flex = 1
 
 		this.attributes = {
@@ -102,6 +98,7 @@ define.class(function(view, label, icon){
 	this.render = function(){
 		
 		this.bar = this.clickablebar({
+			bgcolor:"red",
 			borderwidth: this.borderwidth, 
 			bordercolor: this.bordercolor,
 			icon: this.icon, 
@@ -109,7 +106,10 @@ define.class(function(view, label, icon){
 		});
 		
 		this.bar.click = this.toggle.bind(this);
-		var res = [this.bar];
+		var res = [
+		this.bar
+		// view({alignself:'stretch', flex:1, height:10, padding:4, bgcolor:"blue",
+		];
 
 		if (this.collapsed == false) {
 			this.container = this.containerview({

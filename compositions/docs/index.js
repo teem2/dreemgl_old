@@ -46,6 +46,7 @@ define.class(function(composition, docviewer, codeviewer, fileio, screens, scree
 						})
 					)
 					,docviewer({
+						attributes:{class:{persist:true}},
 						init:function(){
 							this.screen.locationhash = function(event){
 								require.async(event.value.path).then(function(module){
@@ -53,8 +54,8 @@ define.class(function(composition, docviewer, codeviewer, fileio, screens, scree
 								}.bind(this))
 							}.bind(this)
 						},
-						overflow:'scroll', 
-						
+						overflow:'hidden'
+					//	overflow:'scroll'
 					})
 				)
 			)

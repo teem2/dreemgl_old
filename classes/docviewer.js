@@ -9,14 +9,17 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 	var Parser = require("$parse/onejsparser")
 
 	this.bgcolor = vec4("white")
+	this.flex = 1.0
+	this.padding = 20
+	this.flexdirection = "column"
+	this.alignitems = "stretch"
+	this.flexwrap = "none" 
+	this.mode = "2D"
 	
 	this.attributes = {
 		// the class for which to create the documentation. If a string is assigned, the model will be interpreted as a markdown text document.
 		class:{type:Object}
 	}
-
-	this.flex = 1.0
-	this.padding = 20
 
 	define.class(this, 'ClassDocItem', function(view, label){
 		
@@ -334,6 +337,8 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 		this.flexdirection = "column"
 		this.flexwrap = "none" 
 		this.flex = 1;
+		this.bgcolor = 'red'
+
 		this.BuildGroup = function (inputarray, title, icon, color, blocktype){
 			if (!blocktype) blocktype = "attribute"
 			var subs = []
@@ -356,7 +361,7 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 			if (!this.class_doc) return [];
 			
 			if (!this.collapsible ){
-				body.push(view({},[icon({fontsize: 38, icon:"cube", fgcolor: "black" }),label({width: 500, text:class_doc.class_name,fontsize: 30,margin: vec4(10,10,0,20), fgcolor: "black" })]));
+				body.push(view({},[icon({fontsize: 38, icon:"cube", fgcolor: "black" }),label({text:class_doc.class_name,fontsize: 30,margin: vec4(10,10,0,20), fgcolor: "black" })]));
 			}
 
 			if (class_doc.base_class_chain.length> 0){
@@ -398,12 +403,6 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 			return res;	
 		}
 	})
-	
-	this.flexdirection = "column";
-	this.alignitems = "stretch";
-	this.flexwrap = "none" ;
-	this.flex = 1;
-	this.mode = "2D";
 	
 	this.render = function(){	
 		var functions = [];

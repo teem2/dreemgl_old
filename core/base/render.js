@@ -38,8 +38,9 @@ define.class(function(exports){
 
 		// lets call init only when not already called
 		if(!rerender){
-			if(old_version && old_version.constructor == new_version.constructor){
+			if(old_version && old_version._persists && new_version._persists){
 				for(var key in old_version._persists){
+					if(!(key in new_version._persists)) continue
 					// we should set it using a special emit
 					var value =  old_version[key]
 					new_version['_' + key] = old_version[key]

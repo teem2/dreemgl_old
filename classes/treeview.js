@@ -34,6 +34,7 @@ define.class(function(view,  label, button, icon){
 		this.borderwidth = 0
 		this.fgcolor = "black"
 		this.labelclass = {
+			bg:1,
 			subpixel:true
 		}
 		this.margin = 0
