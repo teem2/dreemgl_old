@@ -172,12 +172,21 @@ define.class(function(require, exports, self){
 		var x = this.pick_x, y = this.pick_y
 		for(var i = 0, len = this.drawpass_list.length; i < len; i++){
 			var last = i === len - 1 
+			var skip = false
+			var view = this.drawpass_list[i]
+
+			if(view.parent == this.screen && view.flex ==1 && this.screen.children.length ===1){
+				skip = last = true
+			}
 			// lets set up glscissor on last
 			// and then read the goddamn pixel
-			var view = this.drawpass_list[i]
 			if(last || view.draw_dirty & 2){
 				view.draw_dirty &= 1
 				view.drawpass.drawPick(last, i, x, y, this.debug_pick)
+			}
+			if(skip){
+				this.screen.draw_dirty &= 1
+				break
 			}
 		}
 		// now lets read the pixel under the mouse
@@ -232,7 +241,7 @@ define.class(function(require, exports, self){
 
 		// set the size externally of the main view
 		//var screen = this.layout_list[this.layout_list.length - 1]
-		this.screen._max =
+		this.screen._maxsize =
 		this.screen._size = vec2(this.main_frame.size[0] / this.ratio, this.main_frame.size[1] / this.ratio)
 
 		// do the dirty layouts
@@ -249,12 +258,26 @@ define.class(function(require, exports, self){
 		var hastime
 		for(var i = 0, len = this.drawpass_list.length; i < len; i++){
 			var view = this.drawpass_list[i]
-			if(view.draw_dirty & 1 || i === len - 1){
-				var viewhastime = view.drawpass.drawColor(i === len - 1, stime)
+
+			var skip = false
+			var last = i === len - 1
+
+			if(view.parent == this.screen && view.flex ==1 && this.screen.children.length ===1){
+				skip = last = true							
+			}
+
+			if(view.draw_dirty & 1 || last){
+				var viewhastime = view.drawpass.drawColor(last, stime)
 				if(!viewhastime){
 					view.draw_dirty &= 2
 				}
 				else hastime = viewhastime
+			}
+			if(skip){
+				this.screen.colornoscrollmatrix = view.colornoscrollmatrix
+				this.screen.colorviewmatrix = view.colorviewmatrix
+				this.screen.draw_dirty &= 2
+				break
 			}
 			//else console.log("NOT DIRTY", view)
 		}
@@ -337,6 +360,7 @@ define.class(function(require, exports, self){
 		if(children) for(var i = 0; i < children.length; i++){
 			this.addDrawPassRecursive(children[i])
 		}
+
 		// lets create a drawpass 
 		if(view._mode){
 			var pass = new this.DrawPass(this, view)
@@ -352,6 +376,7 @@ define.class(function(require, exports, self){
 			}
 			//this.layout_idx++
 		}
+
 	}
 
 	this.relayout = function(){
