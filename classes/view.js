@@ -613,15 +613,25 @@ define.class( function(node, require){
 			var layout = this._layout
 			var flex = this._flex
 			var size = this._size
+			var minsize = this._minsize
 			this._flex = 1
-			this._size = vec2(NaN,NaN)
+			
+			if(this._overflow === 'HIDDEN'){
+				this._size = vec2(layout.width, layout.height)
+			}
+			else{
+				this._size = vec2(NaN)
+			}
+			this._minsize = vec2(layout.width, layout.height)//NaN,NaN)
 
 			var copynodes = FlexLayout.fillNodes(this)
 			FlexLayout.computeLayout(copynodes)
 		
 			this.sublayout = this.layout
+
 			this._flex = flex
 			this._size = size
+			this._minsize = minsize
 			this._layout = layout
 	
 			emitPostLayout(copynodes)

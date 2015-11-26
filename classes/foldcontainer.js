@@ -42,7 +42,7 @@ define.class(function(view, label, icon){
 		// default click-handler - when not bound this write "nothing happens" to the console. 
 		this.toggle = function(){console.log("nothing happens")}
 
-		this.minwidth =600
+		this.flex = 1
 
 		this.attributes = {
 			title: {type:String},

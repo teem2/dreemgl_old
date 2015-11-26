@@ -75,10 +75,10 @@ define.class(function(composition, require, screens, screen, docviewer, button, 
 								width:800, 
 								height:450, 
 								bg:{
-									texture: require('./graph.png'),
+									//texture: require('./graph.png'),
 									color:function(){
-									//	return 'red'
-										return texture.sample(mesh.xy)
+										return 'red'
+									//	return texture.sample(mesh.xy)
 									}
 								}})
 						),
