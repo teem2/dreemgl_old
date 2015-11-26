@@ -236,7 +236,6 @@ define.class(function(require, exports, self){
 		this.screen._size = vec2(this.main_frame.size[0] / this.ratio, this.main_frame.size[1] / this.ratio)
 
 		// do the dirty layouts
-		var order = [0,2,1]
 		for(var i = 0; i < this.layout_list.length; i++){
 			// lets do a layout?
 			var view = this.layout_list[i]
@@ -247,11 +246,15 @@ define.class(function(require, exports, self){
 		}
 
 		// lets draw draw all dirty passes.
+		var hastime
 		for(var i = 0, len = this.drawpass_list.length; i < len; i++){
-			var view = this.drawpass_list[i]	
+			var view = this.drawpass_list[i]
 			if(view.draw_dirty & 1 || i === len - 1){
-				view.drawpass.drawColor(i === len - 1)
-				view.draw_dirty &= 2
+				var viewhastime = view.drawpass.drawColor(i === len - 1, stime)
+				if(!viewhastime){
+					view.draw_dirty &= 2
+				}
+				else hastime = viewhastime
 			}
 			//else console.log("NOT DIRTY", view)
 		}
@@ -262,6 +265,7 @@ define.class(function(require, exports, self){
 			}
 			return true
 		}
+		return hastime
 	}
 
 	this.atNewlyRendered = function(view){

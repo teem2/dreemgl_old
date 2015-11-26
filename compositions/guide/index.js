@@ -1,12 +1,12 @@
-define.class(function(composition, screens, this$search, this$browser) {
+define.class(function(composition, screens, search, browser) {
 
     this.render = function() { return [
-        this$search({
+        search({
             name:'omdb',
             keyword:'${this.rpc.screens.main.term}'
         }),
         screens(
-            this$browser({
+            browser({
                 name:'main',
                 term:'Aliens',
                 movies:'${this.rpc.omdb.results}'
