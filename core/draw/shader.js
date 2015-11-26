@@ -20,6 +20,7 @@ define.class('$base/node', function(require, exports, self){
 	this.math = require('$shaderlib/mathlib')
 	this.demo = require('$shaderlib/demolib')
 	this.material = require('$shaderlib/materiallib')
+	this.colorlib = require('$shaderlib/colorlib')
 
 	this.RAD = '1'
 	this.DEG = '0.017453292519943295'

@@ -1,4 +1,4 @@
-define.class(function(screen, view, button, label, this$movie) {
+define.class(function(screen, view, button, label, movie) {
 
     this.attributes = {
         term: {type:String},
@@ -11,7 +11,7 @@ define.class(function(screen, view, button, label, this$movie) {
         if (this.movies) {
             for (var i=0;i<this.movies.length;i++) {
                 var movieData = this.movies[i];
-                mviews.push(this$movie(movieData));
+                mviews.push(movie(movieData));
             }
         }
         return mviews;
