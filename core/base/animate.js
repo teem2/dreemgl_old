@@ -19,12 +19,14 @@ define.class(function(require, exports){
 	this.interpolator = mix
 
 	this.atConstructor = function(config, obj, key, track, first_value, last_value){
+		console.log(config)
 		this.config = config
 		this.obj = obj
 		this.key = key
 		// the internal track construct
 		if(track) this.track = track
 		else this.track = config
+		if(config.motion) this.motion = config.motion
 
 		if(typeof this.motion === 'string') this.motion = ease[this.motion] || ease.linear
 		if(!config) debugger
