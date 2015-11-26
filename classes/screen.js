@@ -151,8 +151,8 @@ define.class(function(view, require) {
 				if (logging)  console.log(i, raystart, "coordinates after adjusting for layoutwidth/height", P._mode);
 				
 				lastrayafteradjust = vec3(raystart.x, raystart.y,-1);
-				lastprojection = P.perspectivematrix;
-				lastviewmatrix = P.lookatmatrix;
+				lastprojection = P.drawpass.colormatrices.perspectivematrix;
+				lastviewmatrix = P.drawpass.colormatrices.lookatmatrix;
 				camerapos = P._camera;
 			
 			}
