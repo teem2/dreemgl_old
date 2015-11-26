@@ -54,7 +54,8 @@ define.class(function(composition, docviewer, codeviewer, fileio, screens, scree
 								}.bind(this))
 							}.bind(this)
 						},
-						overflow:'hidden'
+						minsize:vec2(400,400),
+						overflow:'scroll'
 					//	overflow:'scroll'
 					})
 				)
