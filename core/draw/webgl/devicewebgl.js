@@ -34,7 +34,7 @@ define.class(function(require, exports, self){
 		this.doPick = this.doPick.bind(this)
 
 		this.animFrame = function(time){
-			if(this.doDraw(time)){
+			if(this.doColor(time)){
 				this.document.requestAnimationFrame(this.animFrame)
 			}
 			else this.anim_req = false
@@ -231,7 +231,7 @@ define.class(function(require, exports, self){
 		}.bind(this))
 	}
 
-	this.doDraw = function(time){
+	this.doColor = function(time){
 		if(!this.first_time) this.first_time = time
 
 		var stime = (time - this.first_time) / 1000
@@ -275,7 +275,7 @@ define.class(function(require, exports, self){
 			}
 
 			if(skip){
-				this.screen.drawpass.calculateDrawMatrices(true, this.screen.drawpass.colormatrices);
+				this.screen.drawpass.calculateDrawMatrices(false, this.screen.drawpass.colormatrices);
 				
 				
 				this.screen.draw_dirty &= 2

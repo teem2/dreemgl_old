@@ -133,7 +133,6 @@ define.class(function(view, require) {
 						if (logging) console.log(i, R, "intersectpoint")
 						raystart = R
 					}
-					
 				}
 
 				raystart = vec3.mul_mat4(raystart, this.remapmatrix)

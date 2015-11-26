@@ -5,6 +5,8 @@ define.class(function(screen, view, button, label, movie) {
         movies: {type:Array}
     };
 
+    this.bgcolor = 'red'
+
     this.renderMovies = function() {
         var mviews = [];
 
@@ -17,7 +19,9 @@ define.class(function(screen, view, button, label, movie) {
         return mviews;
     };
 
-    this.render = function() { return [
+    this.render = function() { 
+
+        return [
 
         view(
             {flexdirection:'column'},

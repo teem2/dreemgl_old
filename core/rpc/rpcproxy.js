@@ -84,7 +84,7 @@ define.class('$base/node', function(require, exports, self){
 				else{
 					var prop = proto[key]
 
-					if(typeof prop == 'function'){
+					if(typeof prop == 'function' && key.indexOf('on')!==0){
 						RpcProxy.defineMethod(proxy, key)
 					}
 					else if(Array.isArray(prop)){

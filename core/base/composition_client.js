@@ -55,7 +55,6 @@ define.class('$base/composition_base', function(require, baseclass){
 			device:this.device
 		}
 		globals.globals = globals
-
 		// copy keyboard and mouse objects from previous
 
 		if(parent){
@@ -142,14 +141,15 @@ define.class('$base/composition_base', function(require, baseclass){
 					this.bus.send({type:'webrtcOffer', offer:offer, index: this.index})
 				}.bind(this)
 				*/
+				if(!this.rendered) this.doRender()
+
 				for(var key in msg.attributes){
 					var attrmsg = msg.attributes[key]
 					// process it
 					this.bus.atMessage(attrmsg, socket)
 				}
-
-				if(!this.rendered) this.doRender()
 			}
+
 			else if(msg.type == 'connectScreen'){
 				//var obj = RpcProxy.decodeRpcID(this, msg.rpcid)
 				//if(!obj) console.log('Cannot find '+msg.rpcid+' on join')
@@ -170,7 +170,6 @@ define.class('$base/composition_base', function(require, baseclass){
 						if(!obj) return console.log("Invalid rpc attribute "+ msg.rpcid)
 					}
 				}
-
 				var value =  define.structFromJSON(msg.value)
 
 				var attrset = obj.atAttributeSet

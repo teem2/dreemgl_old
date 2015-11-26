@@ -56,6 +56,7 @@ define.class(function(node, require){
 	this.renderComposition = function(){
 		// we have to render the RPC bus
 		this.children = this.render()
+
 		this.names = {}
 		// now lets rpc proxify them
 		for(var i = 0; i < this.children.length; i++){

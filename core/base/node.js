@@ -316,6 +316,7 @@ define.class(function(require, constructor){
 		src = "return " + string.slice(2,-1)
 		var fn = new Function(src)
 		fn.is_wired = true
+
 		return fn
 	}
 
@@ -550,12 +551,7 @@ define.class(function(require, constructor){
 		// define attribute gettersetters
 
 		// block attribute emission on objects with an environment thats (stub it)
-		if(this.environment && this.environment === define.$environment){
-			setter  = function(value){
-				this[set_key] = value
-			}
-		}
-		else if(config.storage){
+		if(config.storage){
 			var storage_key = '_' + config.storage
 			
 			setter = function(value){

@@ -45,36 +45,6 @@ define.class(function(require, baseclass){
 			}
 		}
 	}
-	/*
-	this.orderDrawList = function(){
-		var zfunc = function(view){
-			var res = 0
-			// res = view.z
-			if (view.transparent){
-			// res = FARPLANE * 2 - res;
-			}
-			return res
-		}
-		
-		for (var i = 0; i < this.draw_list.length; i++){
-			var dl = this.draw_list[i]
-			dl.zorder = zfunc(v)
-		}
-		
-		this.draw_list.sort(function(a,b){return a.zorder < b.zorder})
-	}
-
-	this.nextPowerTwo = function(value){
-		var v = value - 1
-		v 
-		v |= v >> 1
-		v |= v >> 2
-		v |= v >> 4
-		v |= v >> 8
-		v |= v >> 16
-		return v + 1
-	}
-	*/
 
 	this.poolDrawTargets = function(){
 		var pools = this.device.drawtarget_pools
@@ -218,7 +188,7 @@ define.class(function(require, baseclass){
 		device.clear(0,0,0,0)
 		
 		var matrices = this.pickmatrices
-		this.calculateDrawMatrices(isroot, matrices, mousex, mousey)
+		this.calculateDrawMatrices(isroot, matrices, debug?undefined:mousex, mousey)
 
 		var pickguid = vec3()
 		pickguid[0] = (((passid+1)*131)%256)/255

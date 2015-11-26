@@ -210,6 +210,7 @@ define.class('$base/composition_base', function(require, exports, self, baseclas
 			if(!child.environment || child.environment === define.$environment){
 				var init = []
 				child.connectWires(init)
+
 				for(var j = 0; j < init.length;j++) init[j]()				
 				child.emit('init')
 			}
