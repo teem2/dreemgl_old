@@ -16,6 +16,8 @@ define.class(function(view, label,button, scrollbar,require){
 		,fontsize:{type: int, value: 15}
 		,internalbordercolor: {type:vec4, value:vec4(1,1,1,0.6)}
 		,basehue: {type:float, value:0.5}
+		,basesat: {type:float, value:1}
+		,basel: {type:float, value:0.5}
 	}
 	this.bgcolor = vec4(0.0,0.0,0.0,0.4)
 	this.flexdirection = "column";
@@ -24,6 +26,7 @@ define.class(function(view, label,button, scrollbar,require){
 	this.borderradius = 8
 	this.borderwidth = 2
 	this.bordercolor = this.internalbordercolor
+	
 	this.internalbordercolor= function(){
 		this.bordercolor = this.internalbordercolor		
 	}
@@ -31,7 +34,12 @@ define.class(function(view, label,button, scrollbar,require){
 	
 	define.class(this, 'customslider',  function(view){
 		this.flex = 1;
+		this.height = 19;
 		this.bgcolor = vec4("blue");
+		this.attributes ={		
+			hslfrom:{type:vec3, value: vec3(0,1,0.5)}
+			,hslto:{type:vec3, value: vec3(1,1,0.5)}
+			}
 		define.class(this, 'bg', this.Shader, function(){
 			this.vertexstruct = define.struct({		
 				p:vec2,
@@ -56,12 +64,14 @@ define.class(function(view, label,button, scrollbar,require){
 			
 			this.mesh = this.vertexstruct.array()
 			this.draw_type = "TRIANGLE_STRIP"
+			
 			this.position = function(){
 				return vec4(mesh.p.x,mesh.p.y, 0, 1) * view.totalmatrix * view.viewmatrix
 			}
-			this.color = function(){
-				
-				return colorlib.hsla(vec4(mesh.uv.x, 1, 0.5, 1));
+			
+			this.color = function(){				
+				var hlsamix = vec4(mix(view.hslfrom, view.hslto, mesh.uv.x), 1.0)
+				return colorlib.hsla(hlsamix);
 			}
 		})
 	
@@ -116,7 +126,7 @@ define.class(function(view, label,button, scrollbar,require){
 			p:float,
 			side: float
 		})
-
+		
 		this.mesh = this.vertexstruct.array()
 			this.draw_type = "TRIANGLE_STRIP"
 	
@@ -179,16 +189,16 @@ define.class(function(view, label,button, scrollbar,require){
 						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"R", fontsize:14, margin:4})			
 						,view({bgcolor:"transparent", flexdirection:"column", flex:1 }
 							,scrollbar({height:18, total:255, page:20, vertical:false})
-							,this.customslider({height: 18, flex:1})
-							,view({height:10, bg:{color:function(){return vec4(uv.x,0,0,1);}}})
+							,this.customslider({flex:1, hslfrom:vec3(0,1,0), hslto:vec3(0,1,0.5)})
+							
 						)
 						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"255", fontsize:14, margin:4})							
 					)
 					,view({bgcolor:"transparent", flexdirection:"row" }
 						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"G", fontsize:14, margin:4})			
 						,view({bgcolor:"transparent", flexdirection:"column", flex:1 }
-							,scrollbar({height:18, total:255, page:20, vertical:false})
-							,view({height:10, bg:{color:function(){return vec4(0,uv.x,0,1);}}})
+							,scrollbar({height:18, total:255, page:20, vertical:false})	
+							,this.customslider({ flex:1, hslfrom:vec3(0.33,1,0), hslto:vec3(0.333,1,0.5)})
 						)
 						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"255", fontsize:14, margin:4})			
 					)
@@ -196,7 +206,7 @@ define.class(function(view, label,button, scrollbar,require){
 						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"B", fontsize:14, margin:4})			
 						,view({bgcolor:"transparent", flexdirection:"column", flex:1 }
 							,scrollbar({height:18, total:255, page:20, vertical:false})
-							,view({height:10, bg:{color:function(){return vec4(0,0,uv.x,1);}}})
+							,this.customslider({height: 18, flex:1, hslfrom:vec3(0.666,1,0), hslto:vec3(0.666,1,0.5)})
 						)
 						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"255", fontsize:14, margin:4})			
 					)			
@@ -204,7 +214,15 @@ define.class(function(view, label,button, scrollbar,require){
 						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"H", fontsize:14, margin:4})			
 						,view({bgcolor:"transparent", flexdirection:"column", flex:1 }
 							,scrollbar({height:18, total:255, page:20, vertical:false})
-							,view({height:10, bg:{color:function(){return colorlib.hsla(vec4(uv.x,1,0.5,1));}}})
+								,this.customslider({height: 18, flex:1, hslfrom:vec3(0.0,this.basesat,this.basel), hslto:vec3(1,this.basesat,this.basel)})
+							)
+						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"255", fontsize:14, margin:4})			
+					)			
+					,view({bgcolor:"transparent", flexdirection:"row" }
+						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"H", fontsize:14, margin:4})			
+						,view({bgcolor:"transparent", flexdirection:"column", flex:1 }
+							,scrollbar({height:18, total:255, page:20, vertical:false})
+							,this.customslider({height: 18, flex:1, hslfrom:vec3(this.basehue,0,this.basel), hslto:vec3(this.basehue,1,this.basel)})
 						)
 						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"255", fontsize:14, margin:4})			
 					)			
@@ -212,15 +230,7 @@ define.class(function(view, label,button, scrollbar,require){
 						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"H", fontsize:14, margin:4})			
 						,view({bgcolor:"transparent", flexdirection:"column", flex:1 }
 							,scrollbar({height:18, total:255, page:20, vertical:false})
-							,view({height:10, root:this, bg:{color:function(){return colorlib.hsla(vec4(view.root.basehue,1,uv.x,1));}}})
-						)
-						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"255", fontsize:14, margin:4})			
-					)			
-					,view({bgcolor:"transparent", flexdirection:"row" }
-						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"H", fontsize:14, margin:4})			
-						,view({bgcolor:"transparent", flexdirection:"column", flex:1 }
-							,scrollbar({height:18, total:255, page:20, vertical:false})
-							,view({height:10, bg:{color:function(){return colorlib.hsla(vec4(0,uv.x,0.5,1));}}})
+							,this.customslider({height: 18, flex:1, hslfrom:vec3(this.basehue,this.basesat,0), hslto:vec3(this.basehue,this.basesat,1)})
 						)
 						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"255", fontsize:14, margin:4})			
 					)			
