@@ -58,7 +58,6 @@ define.class(function(view, label,button, scrollbar,require){
 				mesh.push(width,0,1,0,0);
 				mesh.push(0,height,0,1,1);
 				mesh.push(width,height,1,1,1);
-					console.log(width, height, view.layout);
 			
 			}
 			
@@ -119,27 +118,33 @@ define.class(function(view, label,button, scrollbar,require){
 	
 	})
 	
-	
-	define.class(this, 'colortriangle', this.Shader, function(){
+	define.class(this, 'triangleview', function(view){
+		this.width = 300;
+		this.height = 300;
+		this.attributes = {
+			basehue: {type:float, value:0.7}
+		}
+		define.class(this, 'bg', this.Shader, function(){
 		
 		this.vertexstruct = define.struct({		
-			p:float,
-			side: float
+			p:float,			
+			hsloff: vec3	
 		})
 		
 		this.mesh = this.vertexstruct.array()
-			this.draw_type = "TRIANGLE_STRIP"
+		this.draw_type = "TRIANGLES"
 	
 		this.position = function(){
-			uv = vec2(sin(mesh.p), cos(mesh.p))*mesh.side;
 			off = mesh.p / 6.283
 			var rad = min(view.layout.width, view.layout.height)/2;
+			uv = vec2(sin(mesh.p * PI * 2), cos(mesh.p* PI * 2)) * 0.7;
 			pos = vec2(view.layout.width/2 + rad * uv.x, view.layout.height/2 + rad * uv.y)
 			return vec4(pos, 0, 1) * view.totalmatrix * view.viewmatrix
 		}
 		
 		this.color = function(){
-			return colorlib.hsla(vec4(off, 1, 0.5, 1));
+			var hsl = vec3(view.basehue,1,0.5) + mesh.hsloff;
+			return colorlib.hsla(vec4(hsl, 1));
 		}
 		
 		this.update = function(){
@@ -150,15 +155,14 @@ define.class(function(view, label,button, scrollbar,require){
 			var cy = height/2;
 			var radius = Math.min(cx,cy);
 			this.mesh = this.vertexstruct.array()
-			var cnt = 100;
-			for (var i = 0;i<cnt;i++)
-			{
-				this.mesh.push(i*6.283/(cnt-1), 0.7);
-				this.mesh.push(i*6.283/(cnt-1), 1);
-			}
+			this.mesh.push(view.basehue,  vec3(0,0,0));
+			this.mesh.push(view.basehue + 1/3,  vec3(0,-1,-0.5));
+			this.mesh.push(view.basehue + 2/3, vec3(0,-1,0.5));
+			
 		}				
 	})
 	
+	})
 	
 	this.colorcircle = 0;
 	this.colortriangle = 0;
@@ -183,7 +187,10 @@ define.class(function(view, label,button, scrollbar,require){
 		return [
 			view({flexdirection:"row", flex:1, bgcolor:"transparent"}
 				,this.colorarea()
-				,view({bg:this.colorcircle, width:100,height:100})
+				,view({width:300, height:300, bgcolor: "transparent"}
+					,view({bg:this.colorcircle, position:"absolute",width:300, height:300})
+					,this.triangleview({basehue:this.basehue, position:"absolute"})
+				)
 				,view({flexdirection:"column", flex:1,bgcolor:"transparent"}
 					,view({bgcolor:"transparent", flexdirection:"row" }
 						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"R", fontsize:14, margin:4})			

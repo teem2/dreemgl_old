@@ -37,6 +37,7 @@ define.class(function(composition, screens, screen, view, label, button, colorpi
 								click:function(){
 									var cp = this.find("colorpicker");	
 									cp.color = vec4.fromHSL(0.5,1,0.5);
+									cp.basehue = Math.random();
 									console.log(cp.color);
 								}
 							})
