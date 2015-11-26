@@ -48,7 +48,7 @@ define.class(function(composition, require, screens, screen, docviewer, button, 
 							}),
 							0),
 						0),
-						/*
+						
 						view({
 							slidetitle:'This thing'
 							,flex:1
@@ -193,7 +193,7 @@ define.class(function(composition, require, screens, screen, docviewer, button, 
 							slidetitle:'Live documentation'
 							},
 							docviewer({flex:1, class:this.constructor}),
-						0),*/
+						0),
 					0),
 				0),
 				screen({
