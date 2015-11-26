@@ -215,8 +215,8 @@ define.class( function(node, require){
 						this.addListener(shkey, shobj.reupdate.bind(shobj))
 						var value = this[shkey]
 
-						if(value && value.struct && value.struct.equals(value, prev[shkey]) || value !== prev[shkey]){
-							shobj.reupdate()
+						if(!(value && value.struct && value.struct.equals(value, prev[shkey]) || value === prev[shkey])){
+							shobj.reupdate(shkey)
 						}
 					}
 				}
@@ -387,7 +387,9 @@ define.class( function(node, require){
 				// lets add a listener 
 				if(!shader._view_listeners) shader._view_listeners = {}
 				shader._view_listeners[attrname] = 1
-				this.addListener(attrname,shader.reupdate.bind(shader))
+
+				this.addListener(attrname,shader.reupdate.bind(shader, attrname))
+
 			}.bind(this)
 		}
 

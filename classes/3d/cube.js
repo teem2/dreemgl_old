@@ -8,7 +8,7 @@ define.class(function(require, shape3d, view, icon){
 
 	var GLGeom= require('$core/geometry/basicgeometry')
 	this.init = function(){
-		console.log(this.size, this.width)
+		//console.log(this.size, this.width)
 	}
 	this.bg = {
 		update:function(){

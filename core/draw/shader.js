@@ -404,9 +404,9 @@ define.class('$base/node', function(require, exports, self){
 	this.has_pick = true
 	this.update_dirty = true
 
-	this.reupdate = function(){
+	this.reupdate = function(key){
 		if(!this.update_dirty){
-			this.update_dirty = true
+			this.update_dirty = key
 			if(this.view && !this.view.update_dirty){
 				this.view.update_dirty = true
 				this.view.redraw()
@@ -437,10 +437,9 @@ define.class('$base/node', function(require, exports, self){
 			var value = this[key]
 			var other = prevshader[key]
 			// check type
-			if(!(value && value.struct && !value.struct.equals ||
-				value && value.struct && other && other.struct && value.struct.equals && value.struct.equals(value, other) ||
-				typeof value === 'function' && value.toString() === other.toString() || value === other)){
-				console.log('NOT EQUAL', key, value)
+			if(!(value && value.struct && !value.struct.equals || // geometry object
+				value && value.struct && other && other.struct && value.struct.equals && value.struct.equals(value, other) || // vector type
+				typeof value === 'function' && value.toString() === other.toString() || value === other)){ // function
 				return false
 			}
 		}
