@@ -141,12 +141,6 @@ define.class(function(require, baseclass){
 		var drawcalls = 0
 		if(!layout || layout.width === 0 || isNaN(layout.width) || layout.height === 0 || isNaN(layout.height)) return
 
-		// make sure layers are pixel aligned
-		layout.left = Math.floor(layout.left)
-		layout.top = Math.floor(layout.top)
-		layout.width = Math.floor(layout.width)
-		layout.height = Math.floor(layout.height)
-
 		if(isroot){
 			if(!debug) this.allocDrawTarget(1, 1, this.view._mode, 'pick_buffer', passid)
 		}
@@ -166,7 +160,7 @@ define.class(function(require, baseclass){
 		 // 2d/3d switch
 		if(view._mode === '2D'){
 			if(isroot && !debug){
-				mat4.ortho(mousex, 1 + mousex, 1 + mousey,  mousey, -100, 100, this.pick_viewmatrix)
+				mat4.ortho(scroll[0] + mousex, scroll[0] + 1 + mousex, scroll[1] + 1 + mousey,  scroll[1] + mousey, -100, 100, this.pick_viewmatrix)
 			}
 			else{
 				var zoom = view._zoom
