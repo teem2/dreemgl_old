@@ -234,22 +234,10 @@
 				var old_module = define.module[path] 
 				var old_factory = define.factory[path]
 
-				var prev_error = window.onerror
-
-				window.onerror = function(e, errpath){
-					//if(errpath.indexOf(path) !== -1){
-					window.onerror = prev_error
-					define.module[path] = old_module
-					define.factory[path] = old_factory
-					return reject(e)
-				}
-
 				define.module[path] = define.factory[path] = undefined
 
 				// lets require it async
 				define.require.async(path).then(function(new_class){
-
-					window.onerror = prev_error
 					// fetch all modules dependent on this class, and all dependent on those
 					// and cause them to reinitialize
 					function wipe_module(name){
@@ -267,7 +255,13 @@
 					wipe_module(path)
 
 					resolve(define.module[path])
-				})			
+				}).catch(function(error){
+
+					define.module[path] = old_module
+					define.factory[path] = old_factory
+
+					reject(error)
+				})
 			})
 		}
 
@@ -715,6 +709,7 @@
 		// if define was already defined use it as a config store
 		// storage structures
 		define.download_queue = {}
+		define.script_tags = {}
 		// the require function passed into the factory is local
 		var app_root = define.filePath(window.location.href)
 
@@ -809,10 +804,17 @@
 
 					var script = document.createElement('script')
 					var base_path = define.filePath(url)
+						
+					define.script_tags[location.origin+url] = script
+
 					script.type = 'text/javascript'
 					script.src = url
+					
 					//define.script_tags[url] = script
-						
+					window.onerror = function(error, url){
+						define.script_tags[url].onerror(error, url)
+					}
+
 					function onLoad(){
 						//for(var key in this)console.log(keys)
 						//console.log("ONLOAD!", Object.keys(this))
@@ -846,7 +848,7 @@
 
 					script.onerror = function(){ 
 						var err = "Error loading " + url + " from " + from_file
-						console.error(err)
+						//console.error(err)
 						reject(err)
 					}
 					script.onload = onLoad
