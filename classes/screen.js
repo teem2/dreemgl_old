@@ -66,8 +66,7 @@ define.class(function(view, require) {
 	
 	this.remapMouse = function(node, flags){
 
-	
-		var parentlist = [];
+		var parentlist = []
 		var ip = node.parent
 		
 		var sx =this.device.main_frame.size[0]  / this.device.ratio
@@ -75,77 +74,69 @@ define.class(function(view, require) {
 		var mx =  this.mouse._x/(sx/2) - 1.0
 		var my = -1 * (this.mouse._y/(sy/2) - 1.0)
 		
-		
-		while (ip)
-		{
-			if (ip._mode || !ip.parent) parentlist.push(ip);
-			
-			ip = ip.parent;
+		while (ip){
+			if (ip._mode || !ip.parent) parentlist.push(ip)
+			ip = ip.parent
 		}
-		var logging = false;
-		if (logging) console.clear();
+
+		var logging = false
+
+		if (logging) console.clear()
 		if (logging){
-			var	parentdesc = "Parentchain: " ;
-			for(var i =parentlist.length-1;i>=0;i--) {			
-				parentdesc += parentlist[i].constructor.name + "("+parentlist[i]._mode+") ";		
+			var	parentdesc = "Parentchain: "
+			for(var i =parentlist.length-1;i>=0;i--) {
+				parentdesc += parentlist[i].constructor.name + "("+parentlist[i]._mode+") "
 			}
-			
-			console.log(parentdesc);			
+			console.log(parentdesc)
 		}
 		
-		var raystart = vec3(mx,my,-100);
-		var rayend   = vec3(mx,my,100);
-		var lastrayafteradjust = vec3(mx,my,-100);
-		var lastprojection = mat4.identity();
-		var lastviewmatrix = mat4.identity();
-		var camerapos = vec3(0);
+		var raystart = vec3(mx,my,-100)
+		var rayend   = vec3(mx,my,100)
+		var lastrayafteradjust = vec3(mx,my,-100)
+		var lastprojection = mat4.identity()
+		var lastviewmatrix = mat4.identity()
+		var camerapos = vec3(0)
 		var scaletemp = mat4.scalematrix([1,1,1])
 		var transtemp2 = mat4.translatematrix([-1,-1,0])
 		
-		if (logging)  console.log(parentlist.length-1, raystart, "mousecoords in GL space");
-		var lastmode = "2D";
+		if (logging)  console.log(parentlist.length-1, raystart, "mousecoords in GL space")
+		var lastmode = "2D"
 		
-		for(var i =parentlist.length-1;i>=0;i--) {
-			var P = parentlist[i];
-		//	console.log(i, P.constructor.name)
-			var newmode = P.parent? P._mode:"2D";
+		for(var i = parentlist.length - 1; i >= 0; i--) {
+			var P = parentlist[i]
+
+			var newmode = P.parent? P._mode:"2D"
 
 			if (P.parent) {
 
-				var MM = P._mode?P.layermatrix: P.totalmatrix;
+				var MM = P._mode? P.layermatrix: P.totalmatrix
 				
-				if (!P.layermatrix) console.log("whaaa" );
+				if (!P.layermatrix) console.log("whaaa" )
 				mat4.invert(P.layermatrix, this.remapmatrix)
 
-				
 				if (lastmode == "3D") { // 3d to layer transition -> do a raypick.
 
-				if (logging) console.log(i, lastrayafteradjust, "performing raypick on previous clipspace coordinates" );
+					if (logging) console.log(i, lastrayafteradjust, "performing raypick on previous clipspace coordinates" )
 					
-					var startv = UnProject(lastrayafteradjust.x, lastrayafteradjust.y, 0, lastviewmatrix, lastprojection);
-					var endv = UnProject(lastrayafteradjust.x, lastrayafteradjust.y, 1, lastviewmatrix, lastprojection);
-//					console.log(i, startv, endv, "unprojected?");
-										
-										
+					var startv = UnProject(lastrayafteradjust.x, lastrayafteradjust.y, 0, lastviewmatrix, lastprojection)
+					var endv = UnProject(lastrayafteradjust.x, lastrayafteradjust.y, 1, lastviewmatrix, lastprojection)
+
 					camlocal = vec3.mul_mat4(camerapos, this.remapmatrix)
 					endlocal = vec3.mul_mat4(endv, this.remapmatrix)
 
-					
-					var R =vec3.intersectplane(camlocal, endlocal, vec3(0,0,-1), 0);
+					var R =vec3.intersectplane(camlocal, endlocal, vec3(0,0,-1), 0)
 					if (!R)	{
-						raystart = vec3(0.5,0.5,0);
+						raystart = vec3(0.5,0.5,0)
 					}
-					else{
-						R = vec3.mul_mat4(R, P.layermatrix);
-						if (logging) console.log(i, R, "intersectpoint");							
-						raystart = R;
+					else {
+						R = vec3.mul_mat4(R, P.layermatrix)
+						if (logging) console.log(i, R, "intersectpoint")
+						raystart = R
 					}
 					
 				}
 
 				raystart = vec3.mul_mat4(raystart, this.remapmatrix)
-				
-				
 			
 				// console.log(i, ressofar, "layermatrix");
 
@@ -156,7 +147,6 @@ define.class(function(view, require) {
 				// console.log(i, ressofar, "scalematrix");	
 
 				raystart = vec3.mul_mat4(raystart, transtemp2)
-				
 			
 				if (logging)  console.log(i, raystart, "coordinates after adjusting for layoutwidth/height", P._mode);
 				
@@ -167,66 +157,30 @@ define.class(function(view, require) {
 			
 			}
 			if(i == 0 && node.noscroll){
-				mat4.invert(P.colornoscrollmatrix, this.remapmatrix)
+				mat4.invert(P.drawpass.colormatrices.noscrollmatrix, this.remapmatrix)
 			} 
 			else {
-				mat4.invert(P.colorviewmatrix, this.remapmatrix)
+				mat4.invert(P.drawpass.colormatrices.viewmatrix, this.remapmatrix)
 			}
 			raystart = vec3.mul_mat4(raystart, this.remapmatrix)
 			
-			lastmode = newmode;
-	//		console.log(i, raystart, "last");	
+			lastmode = newmode
+			// console.log(i, raystart, "last");	
 		}
 
-		var MM = node._mode?node.layermatrix: node.totalmatrix;
+		var MM = node._mode?node.layermatrix: node.totalmatrix
 		mat4.invert(MM, this.remapmatrix)
 		raystart = vec3.mul_mat4(raystart, this.remapmatrix)
 		rayend = vec3.mul_mat4(rayend, this.remapmatrix)
-		if (lastmode == "3D")
-		{
-			if (logging)  console.log("last mode was 3d..");
-		}
-		if (logging)  console.log(" ", raystart, "final transform using own worldmodel");	
 
-		
+		if (lastmode == "3D"){
+			if (logging)  console.log("last mode was 3d..")
+		}
+		if (logging)  console.log(" ", raystart, "final transform using own worldmodel")
+
 		// console.log("_", ressofar, "result");
-		
-		/*var transtemp = mat4.translatematrix([1,1,0])
 
-
-		var M = node._mode?  node.layermatrix: node.totalmatrix
-		var P = node.parent
-
-		if (!M){
-			M = mat4.identity()
-		}
-		
-					
-		while(P){
-			if (P._mode || !P.parent) {
-					
-				var o = mat4()
-				var s = P.colorviewmatrix
-				if (P.parent){
-					o = mat4.mat4_mul_mat4(M, s)	
-					mat4.scalematrix([P.layout.width/2,P.layout.height/2,1], scaletemp)
-					o = mat4.mat4_mul_mat4(o, transtemp)
-					o = mat4.mat4_mul_mat4(o, scaletemp)
-					M = mat4.mat4_mul_mat4(o, P.layermatrix)					
-				}
-				else{					
-					mat4.mat4_mul_mat4(M, s, o)
-					M = o
-				}
-			}
-			P = P.parent
-		}
-
-		mat4.invert(M, this.remapmatrix)
-		vec2.mul_mat4_t([mx,my], this.remapmatrix, this.invertedmousecoords)
-		*/
-
-		var ret = vec2(raystart.x, raystart.y);
+		var ret = vec2(raystart.x, raystart.y)
 		ret.flags = flags
 
 		return ret

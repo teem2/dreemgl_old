@@ -275,7 +275,7 @@ define.class(function(require, exports, self){
 			}
 
 			if(skip){
-				this.screen.drawpass.calculateDrawMatrices();
+				this.screen.drawpass.calculateDrawMatrices(true, this.screen.drawpass.colormatrices);
 				
 				
 				this.screen.draw_dirty &= 2

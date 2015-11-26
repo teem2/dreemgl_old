@@ -16,12 +16,15 @@ define.class(function(require, baseclass){
 
 		this.addToDrawList(this.view, true)
 
-		this.pick_viewmatrix = mat4.identity()
-		this.pick_noscrollmatrix = mat4.identity()
+		this.pickmatrices = {
+			viewmatrix: mat4.identity(),
+			noscrollmatrix: mat4.identity()
+		}
 
-		this.color_viewmatrix = mat4.identity()
-		this.color_noscrollmatrix = mat4.identity()
-
+		this.colormatrices = {
+			viewmatrix: mat4.identity(),
+			noscrollmatrix: mat4.identity()
+		}
 	}
 
 	
@@ -133,12 +136,72 @@ define.class(function(require, baseclass){
 			this[drawtarget] = Texture.createRenderTarget(mode === '2D'?Texture.RGBA:Texture.RGBA|Texture.DEPTH|Texture.STENCIL, width, height, this.device)
 		}
 	}
+	
+	this.calculateDrawMatrices = function(isroot, storage, mousex, mousey){
+		var view = this.view
+		var scroll = view._scroll
+		var layout = view.layout
+
+		if(view._mode === '2D'){
+			if(isroot && mousex !== undefined){
+				mat4.ortho(scroll[0] + mousex, scroll[0] + 1 + mousex, scroll[1] + 1 + mousey,  scroll[1] + mousey, -100, 100, storage.viewmatrix)
+			}
+			else{
+				var zoom = view._zoom
+				if (isroot){
+					mat4.ortho(scroll[0], layout.width*zoom+scroll[0], scroll[1], layout.height*zoom+scroll[1], -100, 100, storage.viewmatrix)
+					mat4.ortho(0, layout.width, 0, layout.height, -100, 100, storage.noscrollmatrix)
+				}
+				else{
+					mat4.ortho(scroll[0], layout.width*zoom+scroll[0], layout.height*zoom+scroll[1], scroll[1], -100, 100, storage.viewmatrix)
+					mat4.ortho(0, layout.width, layout.height, 0, -100, 100, storage.noscrollmatrix)
+				}
+			}
+		}
+		else if(view._mode === '3D'){
+			storage.perspectivematrix = mat4.perspective(view._fov * PI * 2/360.0 , layout.width/layout.height, view._nearplane, view._farplane)			
+			storage.lookatmatrix = mat4.lookAt(view._camera, view._lookat, view._up)
+			storage.viewmatrix = mat4.mat4_mul_mat4(storage.lookatmatrix,storage.perspectivematrix);
+		}
+	}
+
+	function isInBounds2D(view, draw){
+
+		var height = view._layout.height
+		var width = view._layout.width
+		var drawlayout = draw.layout
+
+		if(draw.parent && draw.parent !== view){
+			drawlayout.absx = draw.parent.layout.absx + drawlayout.left
+			drawlayout.absy = draw.parent.layout.absy + drawlayout.top
+		}
+		else{
+			drawlayout.absx = drawlayout.left
+			drawlayout.absy = drawlayout.top
+		}
+		if(draw === view && view.sublayout){
+			width = view.sublayout.width
+			height = view.sublayout.height
+		}
+		// early out check
+		if(draw !== view && !draw.noscroll){
+			var scroll = view._scroll
+			var zoom = view._zoom
+			if( drawlayout.absy - scroll[1] > height * zoom || drawlayout.absy + drawlayout.height - scroll[1] < 0){
+				return false
+			} 
+			if(drawlayout.absx - scroll[0] > width * zoom || drawlayout.absx + drawlayout.width - scroll[0] < 0){
+				return false
+			}
+		}
+		return true
+	}
 
 	this.drawPick = function(isroot, passid, mousex, mousey, debug){
 		var view = this.view
 		var device = this.device
 		var layout = view.layout
-		var drawcalls = 0
+
 		if(!layout || layout.width === 0 || isNaN(layout.width) || layout.height === 0 || isNaN(layout.height)) return
 
 		if(isroot){
@@ -152,78 +215,29 @@ define.class(function(require, baseclass){
 		}
 
 		device.bindFramebuffer(this.pick_buffer || null)
-
 		device.clear(0,0,0,0)
 		
-		var scroll = view._scroll
+		var matrices = this.pickmatrices
+		this.calculateDrawMatrices(isroot, matrices, mousex, mousey)
 
-		 // 2d/3d switch
-		if(view._mode === '2D'){
-			if(isroot && !debug){
-				mat4.ortho(scroll[0] + mousex, scroll[0] + 1 + mousex, scroll[1] + 1 + mousey,  scroll[1] + mousey, -100, 100, this.pick_viewmatrix)
-			}
-			else{
-				var zoom = view._zoom
-				if (isroot){
-					mat4.ortho(scroll[0], layout.width*zoom+scroll[0], scroll[1], layout.height*zoom+scroll[1], -100, 100, this.pick_viewmatrix)
-					mat4.ortho(0, layout.width, 0, layout.height, -100, 100, this.pick_noscrollmatrix)
-				}
-				else{
-					mat4.ortho(scroll[0], layout.width*zoom+scroll[0], layout.height*zoom+scroll[1], scroll[1], -100, 100, this.pick_viewmatrix)
-					mat4.ortho(0, layout.width, layout.height, 0, -100, 100, this.pick_noscrollmatrix)
-				}
-			}
-		}
-		else if(view._mode === '3D'){
-			
-			var p = mat4.perspective(view._fov * PI * 2/360.0 , layout.width/layout.height, view._nearplane, view._farplane)			
-			var lookat = mat4.lookAt(view._camera, view._lookat, view._up)
-			this.pick_viewmatrix = mat4.mat4_mul_mat4(lookat,p);
-		}
+		var pickguid = vec3()
+		pickguid[0] = (((passid+1)*131)%256)/255
 
-		var pick = vec3()
-		pick[0] = (((passid+1)*131)%256)/255
 		// modulo inverse: http://www.wolframalpha.com/input/?i=multiplicative+inverse+of+31+mod+256
 		for(var dl = this.draw_list, i = 0; i < dl.length; i++){
-
 			var draw = dl[i]
 
-			var subview = draw.layout
-			if(draw._first_draw_pick){
-				if(view._mode === '2D' && view.boundscheck){ // do early out check using bounding boxes
-					var height = layout.height
-					var width = layout.width
-					if(draw.parent && draw.parent !== view){
-						subview.absx = draw.parent.layout.absx + subview.left
-						subview.absy = draw.parent.layout.absy + subview.top
-					}
-					else{
-						subview.absx = subview.left
-						subview.absy = subview.top
-					}
-					if(draw === view && view.sublayout){
-						width = view.sublayout.width
-						height = view.sublayout.height
-					}
-					// early out check
-					if(draw !== view && !draw.noscroll){
-						if( subview.absy - scroll[1] > height * zoom || subview.absy + subview.height - scroll[1] < 0){
-							continue
-						} 
-						if(subview.absx - scroll[0] > width * zoom || subview.absx + subview.width - scroll[0] < 0){
-							continue
-						}
-					}
-				}
+			if(draw._first_draw_pick && view._mode === '2D' && view.boundscheck && !isInBounds2D(view, draw)){ // do early out check using bounding boxes
+				continue
 			}
 			else draw._first_draw_pick = 1
 
 			var id = ((i+1)*29401)%65536
-			pick[1] = (id&255)/255
-			pick[2] = (id>>8)/255
+			pickguid[1] = (id&255)/255
+			pickguid[2] = (id>>8)/255
 
-			draw.pickguid = pick[0]*255<<16 | pick[1]*255 << 8 | pick[2]*255
-			draw.viewmatrix = this.pick_viewmatrix
+			draw.pickguid = pickguid[0]*255<<16 | pickguid[1]*255 << 8 | pickguid[2]*255
+			draw.viewmatrix = matrices.viewmatrix
 
 			if(!draw._visible) continue
 			if(draw._mode && draw.drawpass !== this && draw.drawpass.pick_buffer){
@@ -231,6 +245,7 @@ define.class(function(require, baseclass){
 				// and then hard forward the color
 				var blendshader = draw.blendshader
 				if (view._mode === '3D'){
+					// dont do this!
 					blendshader.depth_test = 'src_depth <= dst_depth'
 				}
 				else{
@@ -242,63 +257,25 @@ define.class(function(require, baseclass){
 				blendshader.drawArrays(this.device)
 			}
 			else{
-				draw.updateShaders()
+				//draw.updateShaders()
 				// alright lets iterate the shaders and call em
 				var shaders =  draw.shader_list
 				for(var j = 0; j < shaders.length; j++){
-					// lets draw em
 					var shader = shaders[j]
-					// we have to set our guid.
-					shader.pick = pick
-					//if(shader.order < 0) console.log(draw)
-					if(shader.order < 0) draw.viewmatrix = this.pick_noscrollmatrix
-					else draw.viewmatrix = this.pick_viewmatrix
-					drawcalls++
+
+					shader.pickguid = pickguid
+
+					if(shader.order < 0) draw.viewmatrix = matrices.noscrollmatrix
+					else draw.viewmatrix = matrices.viewmatrix
+
 					shader.drawArrays(this.device, 'pick')
 				}
 			}
 		}
-		//console.log('PICK', drawcalls)
 	}
 
-	var MyShader = define.class(this.Shader, function(){
-		this.mesh = vec2.array()
-		this.mesh.pushQuad(-1,-1,1,-1,-1,1,1,1)
-		this.position = function(){
-			return vec4(mesh.xy,0,1) 
-		}
-		this.color = function(){
-			if(mesh.x<-0.9)return 'red'
-			if(mesh.x>0.9)return 'red'
-			return 'black'
-		}
-	})
-	
-	this.calculateDrawMatrices = function()
-	{
-		if(view._mode === '2D'){
-			var zoom = view._zoom
-			if (isroot){
-				mat4.ortho(scroll[0], layout.width*zoom+scroll[0], scroll[1], layout.height*zoom+scroll[1], -100, 100, this.color_viewmatrix)
-				mat4.ortho(0, layout.width, 0, layout.height, -100, 100, this.color_noscrollmatrix)
-			}
-			else{
-				mat4.ortho(scroll[0], layout.width*zoom+scroll[0], layout.height*zoom+scroll[1], scroll[1], -100, 100, this.color_viewmatrix)
-				mat4.ortho(0, layout.width, layout.height, 0, -100, 100, this.color_noscrollmatrix)
-			}
-		}
-		else if(view._mode === '3D'){
-			view.perspectivematrix  = mat4.perspective(view._fov * PI * 2/360.0 , layout.width/layout.height, view._nearplane, view._farplane)			
-			view.lookatmatrix = mat4.lookAt(view._camera, view._lookat, view._up)
-			this.color_viewmatrix = mat4.mat4_mul_mat4(view.lookatmatrix,view.perspectivematrix);
-		}
-
-		view.colorviewmatrix = this.color_viewmatrix
-		view.colornoscrollmatrix = this.color_noscrollmatrix
-	}
 	
 	this.drawColor = function(isroot, time){
-		var drawcalls = 0
 		var view = this.view
 		var device = this.device
 		var layout = view.layout
@@ -318,59 +295,32 @@ define.class(function(require, baseclass){
 		if(layout.width === 0 || layout.height === 0) return
 	
 		device.clear(view._clearcolor)
-
-		// 2d/3d switch
-		var scroll = view._scroll
+		
 		var hastime = false
-		
-		this.calculateDrawMatrices();
-		
+		var zoom = view._zoom
+
+		var matrices = this.colormatrices
+		this.calculateDrawMatrices(isroot, matrices);
+
 		// each view has a reference to its layer
 		for(var dl = this.draw_list, i = 0; i < dl.length; i++){
 			var draw = dl[i]
-			var subview = draw.layout
-			// we make some bad shit early out assumptions here
-			if(draw._first_draw_color){
-				if(view._mode === '2D' && view.boundscheck){ // do early out check using bounding boxes
-					var height = layout.height
-					var width = layout.width
-					if(draw.parent && draw.parent !== view){
-						subview.absx = draw.parent.layout.absx + subview.left
-						subview.absy = draw.parent.layout.absy + subview.top
-					}
-					else{
-						subview.absx = subview.left
-						subview.absy = subview.top
-					}
-					if(draw === view && view.sublayout){
-						width = view.sublayout.width
-						height = view.sublayout.height
-					}
-					// early out check
-					if(draw !== view && !draw.noscroll){
-						if( subview.absy - scroll[1] > height * zoom || subview.absy + subview.height - scroll[1] < 0){
-							continue
-						} 
-						if(subview.absx - scroll[0] > width * zoom || subview.absx + subview.width - scroll[0] < 0){
-							continue
-						}
-					}
-				}
+
+			if(draw._first_draw_color && view._mode === '2D' && view.boundscheck && !isInBounds2D(view, draw)){ // do early out check using bounding boxes
+				continue
 			}
 			else draw._first_draw_color = 1
 
 			//if(view.constructor.name === 'slideviewer')console.log('here',draw.constructor.name, draw.text)
 			draw._time = time
-			
 			if(draw._listen_time || draw.ontime) hastime = true
 				
-			draw.viewmatrix = this.color_viewmatrix
+			draw.viewmatrix = matrices.viewmatrix
 
 			if(!draw._visible) continue
 
-			if(draw.atDraw){
-				draw.atDraw(this)
-			}
+			if(draw.atDraw) draw.atDraw(this)
+
 			if(draw._mode && draw.drawpass !== this && draw.drawpass.color_buffer){
 				// ok so when we are drawing a pick pass, we just need to 1 on 1 forward the color data
 				// lets render the view as a layer
@@ -385,8 +335,6 @@ define.class(function(require, baseclass){
 				blendshader.width = draw.layout.width
 				blendshader.height = draw.layout.height
 				blendshader.drawArrays(this.device)
-
-				drawcalls++
 			}
 			else{
 				draw.updateShaders()
@@ -397,18 +345,28 @@ define.class(function(require, baseclass){
 					var shader = shaders[j]
 					if(isNaN(shader.order)) continue // was pick only
 					// we have to set our guid.
-					if(shader.order < 0) draw.viewmatrix = this.color_noscrollmatrix
-					else draw.viewmatrix = this.color_viewmatrix
+					if(shader.order < 0) draw.viewmatrix = matrices.noscrollmatrix
+					else draw.viewmatrix = matrices.viewmatrix
+
 					shader.drawArrays(this.device)
-					drawcalls++
 				}
 			}
 		}
-		if(isroot){
-			//if(!this.testshader) this.testshader = new MyShader()
-			//this.testshader.drawArrays(this.device)
-		}
-		//console.log('COLOR', drawcalls, view.constructor.name)
+
 		return hastime
 	}
+
+	/*
+	var MyShader = define.class(this.Shader, function(){
+		this.mesh = vec2.array()
+		this.mesh.pushQuad(-1,-1,1,-1,-1,1,1,1)
+		this.position = function(){
+			return vec4(mesh.xy,0,1) 
+		}
+		this.color = function(){
+			if(mesh.x<-0.9)return 'red'
+			if(mesh.x>0.9)return 'red'
+			return 'black'
+		}
+	})*/
 })

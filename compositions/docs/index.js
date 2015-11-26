@@ -49,7 +49,7 @@ define.class(function(composition, docviewer, codeviewer, fileio, screens, scree
 						attributes:{class:{persist:true}},
 						init:function(){
 							this.screen.locationhash = function(event){
-								require.async(event.value.path).then(function(module){
+								if(event.value.path) require.async(event.value.path).then(function(module){
 									this.class = module
 								}.bind(this))
 							}.bind(this)

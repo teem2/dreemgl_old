@@ -426,7 +426,7 @@ define.class('$base/node', function(require, exports, self){
 		pix_state:1, 
 		vtx_state:1,
 		_view_listeners:1,
-		pick:1
+		pickguid:1
 	}
 
 	this.isShaderEqual = function(prevshader){
@@ -623,12 +623,12 @@ define.class('$base/node', function(require, exports, self){
 		pix_color += '}\n'
 
 		pix_pick += pix_base
-		pix_pick += 'uniform vec3 _pick;\n'
+		pix_pick += 'uniform vec3 _pickguid;\n'
 		pix_pick += '//------------------- Pick Pixel shader main -------------------\nvoid main(){\n'
 		pix_pick += this.compileUniformRename(pix_state.uniforms)
 		pix_pick += '\tvec4 col = ' + this.toVec4(pix_code, pix_ast, alpha_code, alpha_ast) + ';\n'
 		pix_pick += ''
-		pix_pick += '\tgl_FragColor = vec4(_pick.xyz, col.a>0.5?1.:0.);\n'
+		pix_pick += '\tgl_FragColor = vec4(_pickguid.xyz, col.a>0.5?1.:0.);\n'
 		pix_pick += '}\n'
 
 		if(this.dump){

@@ -21,7 +21,7 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 	}
 
 	define.class(this, 'ClassDocItem', function(view, label){
-		
+		this.bg = 0
 		// the item to display. 
 		// An "attribute" item can have name, body_text, defvalue and type properties.
 		// A "function" item can have name, params and body_text properties.
@@ -31,7 +31,7 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 			blocktype: {type:String, value:"function"}
 		}
 
-		this.bgcolor = vec4("#ffffff");
+		//this.bgcolor = vec4("#ffffff");
 		this.margin = 4;
 		this.padding = 4;
 		this.flexdirection = "column" ;
@@ -336,7 +336,7 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 		this.flexdirection = "column"
 		this.flexwrap = "none" 
 		
-		this.bgcolor = 'red'
+		this.bg = 0
 
 		this.BuildGroup = function (inputarray, title, icon, color, blocktype){
 			if (!blocktype) blocktype = "attribute"

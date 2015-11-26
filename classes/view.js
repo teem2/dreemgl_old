@@ -141,18 +141,16 @@ define.class( function(node, require){
 	this.borderradius = function(value){
 		if(typeof value === 'number' && value !== 0 || value[0] !== 0 || value[1] !== 0 || value[2] !== 0 || value[3] !== 0){
 			// this switches the bg shader to the rounded one
-			this.border = false;
-			this.border = this.roundedborder;
-			if (this.borderwidth > 0) this.border = 2;
+			this.border = false
+			this.border = this.roundedborder
+			if (this.borderwidth > 0) this.border = 2
 			this.bg = this.roundedrect
 		}
 		else {
 			this.border = false;
 			this.bg = this.hardrect
 			this.border = this.hardborder;
-			if (this.borderwidth > 0) this.border = 2;
-			
-
+			if (this.borderwidth > 0) this.border = 2
 		}
 	}
 
@@ -551,7 +549,7 @@ define.class( function(node, require){
 
 		if(this.vscrollbar){
 			var scroll = this.vscrollbar
-			var totalsize = this.sublayout.height , viewsize = this.layout.height * this.zoom
+			var totalsize = this.layout.boundh, viewsize = this.layout.height * this.zoom
 
 			if(totalsize > viewsize){
 				scroll._visible = true
@@ -569,7 +567,7 @@ define.class( function(node, require){
 		}
 		if(this.hscrollbar){
 			var scroll = this.hscrollbar
-			var totalsize = this.sublayout.width, viewsize = this.layout.width* this.zoom
+			var totalsize = this.layout.boundw, viewsize = this.layout.width* this.zoom
 
 			if(totalsize > viewsize){
 				scroll._visible = true
@@ -585,17 +583,30 @@ define.class( function(node, require){
 		}
 	}
 
-	function emitPostLayout(node){
+	function emitPostLayoutAndComputeBounds(node, boundsobj, nochild){
 		var ref = node.ref
-		// lets also emit the layout 
-
-		var children = node.children
-		for(var i = 0; i < children.length;i++){
-			emitPostLayout(children[i])
-		}
-
 		var oldlayout = ref.oldlayout || {}
 		var layout = ref._layout 
+
+		// lets also emit the layout 
+		if(boundsobj){
+			var width = layout.absx + layout.width
+			var height = layout.absy + layout.height
+			if(width > boundsobj.boundw) boundsobj.boundw = width
+			if(height > boundsobj.boundh) boundsobj.boundh = height
+		}
+
+		if(!nochild){
+			var children = node.children
+			for(var i = 0; i < children.length;i++){
+				var child = children[i]
+				var clayout = child.layout
+				clayout.absx = layout.absx + clayout.left 
+				clayout.absy = layout.absx + clayout.top
+
+				emitPostLayoutAndComputeBounds(child, boundsobj, child._mode)
+			}
+		}
 
 		if((node.ref._listen_layout || node.ref.onlayout) && 
 			(layout.left !== oldlayout.left || layout.top !== oldlayout.top ||
@@ -613,35 +624,36 @@ define.class( function(node, require){
 			var layout = this._layout
 			var flex = this._flex
 			var size = this._size
-			var minsize = this._minsize
+			var flexwrap = this._flexwrap
 			this._flex = 1
-			
-			//if(this._overflow === 'HIDDEN'){
 			this._size = vec2(layout.width, layout.height)
 			this._flexwrap = false
-			//}
-			//else{
-			//	this._size = vec2(NaN)
-			//}
-			//this._minsize = vec2(layout.width, layout.height)//NaN,NaN)
 
 			var copynodes = FlexLayout.fillNodes(this)
 			FlexLayout.computeLayout(copynodes)
-		
-			this.sublayout = this.layout
+			
+			// lets compute a bounding box of all our children
 
+			//this.sublayout = this.layout
 			this._flex = flex
 			this._size = size
-			this._minsize = minsize
+			this._flexwrap = flexwrap
 			this._layout = layout
 	
-			emitPostLayout(copynodes)
+			// this also computes the inner bounding box
+			this.layout.absx = 0
+			this.layout.absy = 0
+			this.layout.boundw = 0
+			this.layout.boundh = 0
+
+			emitPostLayoutAndComputeBounds(copynodes, this.layout)
+
 			this.updateScrollbars()
 		}
 		else{
 			var copynodes = FlexLayout.fillNodes(this)
 			FlexLayout.computeLayout(copynodes)
-			emitPostLayout(copynodes)
+			emitPostLayoutAndComputeBounds(copynodes)
 		}
 
 		this.updateMatrices(this.parent?this.parent.totalmatrix:undefined, this._mode)

@@ -94,7 +94,7 @@ define.class('../shader', function(require, exports, self){
 			gl.attachShader(shader.pick, pix_pick_shader)
 			gl.linkProgram(shader.pick)
 			// add our pick uniform
-			pix_state.uniforms['pick'] = vec3
+			pix_state.uniforms['pickguid'] = vec3
 
 			this.getLocations(gl, shader.pick, vtx_state, pix_state)
 
