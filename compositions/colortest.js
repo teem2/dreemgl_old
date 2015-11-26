@@ -27,8 +27,7 @@ define.class(function(composition, screens, screen, view, label, button, colorpi
 								click:function(){
 									var cp = this.find("colorpicker");	
 									cp.color = vec4("blue");
-									console.log(cp.color);
-									
+									console.log(cp.color);									
 								}
 							}),
 							

@@ -45,7 +45,7 @@ define.class(function(composition, docviewer, codeviewer, fileio, screens, scree
 							}
 						})
 					)
-					,docviewer({
+					,docviewer({flex:1,
 						attributes:{class:{persist:true}},
 						init:function(){
 							this.screen.locationhash = function(event){
