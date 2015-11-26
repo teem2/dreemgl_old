@@ -70,8 +70,6 @@ define.class(function(view, require) {
 		var parentlist = [];
 		var ip = node.parent
 		
-		
-		
 		var sx =this.device.main_frame.size[0]  / this.device.ratio
 		var sy =this.device.main_frame.size[1]  / this.device.ratio
 		var mx =  this.mouse._x/(sx/2) - 1.0
@@ -113,7 +111,7 @@ define.class(function(view, require) {
 			var P = parentlist[i];
 		//	console.log(i, P.constructor.name)
 			var newmode = P.parent? P._mode:"2D";
-			
+
 			if (P.parent) {
 
 				var MM = P._mode?P.layermatrix: P.totalmatrix;

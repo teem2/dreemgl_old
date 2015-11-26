@@ -175,6 +175,7 @@ define.class(function(require, exports, self){
 			var skip = false
 			var view = this.drawpass_list[i]
 
+			// little hack to dont use rtt if you only use a single view
 			if(view.parent == this.screen && view.flex ==1 && this.screen.children.length ===1){
 				skip = last = true
 			}
@@ -243,7 +244,7 @@ define.class(function(require, exports, self){
 		//var screen = this.layout_list[this.layout_list.length - 1]
 		this.screen._maxsize =
 		this.screen._size = vec2(this.main_frame.size[0] / this.ratio, this.main_frame.size[1] / this.ratio)
-
+		console.log(this.layout_list)
 		// do the dirty layouts
 		for(var i = 0; i < this.layout_list.length; i++){
 			// lets do a layout?

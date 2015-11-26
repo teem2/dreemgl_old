@@ -11,8 +11,10 @@ define.class(function(view, label){
 		this.borderwidth = 0;
 		this.bordercolor = vec4("blue");
 		this.bgcolor ="white";
-		this.flex = 1;
-		this.padding= vec4(6);
+		this.flex = 0;
+		this.mode = '2D'
+		this.overflow = 'hidden'
+		this.padding = vec4(6);
 		this.render = function(){
 			return view({
 					bg:{
@@ -55,6 +57,7 @@ define.class(function(view, label){
 		this.scroll = vec2(this.page * (this.slidewidth + this.slidemargin * 2), 0)
 	}
 
+	this.flexwrap = false
 	this.constructor.slide = this.slide
 	this.boundscheck = true
 	this.slidewidth = 1024
