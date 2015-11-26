@@ -97,7 +97,7 @@ define.class(function(composition, require, screens, screen, docviewer, button, 
 									var ret = []
 									for(var i = 0; i < 16; i ++) ret.push(
 										teapot({
-											detail:10,
+											detail:5,
 											position:'absolute',
 											attributes:{
 												vanim:{type:float, value:0, duration:0.5, motion:'bounce'}

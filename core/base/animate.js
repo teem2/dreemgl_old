@@ -25,6 +25,7 @@ define.class(function(require, exports){
 		// the internal track construct
 		if(track) this.track = track
 		else this.track = config
+		if(config.motion) this.motion = config.motion
 
 		if(typeof this.motion === 'string') this.motion = ease[this.motion] || ease.linear
 		if(!config) debugger
