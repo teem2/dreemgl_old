@@ -23,6 +23,7 @@ define.class(function (view, label) {
             name:"label",
             text:this.Title + " (" + this.Year + ")",
             fgcolor:'white',
+            fontsize:10,
             bgcolor:vec4(0,0,0,0.5),
             multiline: true
         })

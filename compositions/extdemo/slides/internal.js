@@ -21,7 +21,7 @@ define.class(function (view, codeviewer, label, guide$movie, cells) {
             view({flexdirection: 'row', flex: 1, bgcolor:'transparent'},
                 view({flexdirection: 'column', flex: 1, alignself: 'stretch', margin: vec4(10), padding: vec4(4), clipping:true, bgcolor:'transparent'},
                     label({height:30, fgcolor:'#333', bgcolor:'transparent', flex: 0, fontsize:14, alignself: 'stretch', text:'DreemGL Server (./compositions/guide/search.js)'}),
-                    codeviewer({flex: 1, alignself: 'stretch', source: this.searchCode, fontsize: 14, bgcolor: "#000030", multiline: true}),
+                    codeviewer({flex: 1, clipping:true, alignself: 'stretch', source: this.searchCode, fontsize: 14, bgcolor: "#000030", multiline: true}),
                     label({height:30, fgcolor:'#333', bgcolor:'transparent', flex: 0, fontsize:14, alignself: 'stretch', text:'DreemGL Client (./compositions/extdemo/index.js)'}),
                     codeviewer({flex: 1, alignself: 'stretch', source: this.compositionCode, fontsize: 11, bgcolor: "#000030", multiline: false})
                 ),

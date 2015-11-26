@@ -17,8 +17,8 @@ define.class(function (view, label) {
 
     this.render = function() {
         return [
-          view({width:this.width, height:'${this.parent.height - this.parent.txt.height}', bgimage:'$compositions/extdemo/slides/' + this.deviceType + '.png'}),
-          label({name:'txt', text:this.deviceId, fontsize:14, fgcolor:'white', align:'center', multiline: false})
+          view({width:this.width, bgcolor:'transparent', height:'${this.parent.height - this.parent.txt.height}', bgimage:'$compositions/extdemo/slides/' + this.deviceType + '.png'}),
+          label({name:'txt', text:this.deviceId, fontsize:14, fgcolor:'#333', bgcolor:'transparent', align:'center', multiline: false})
         ]
     }
 

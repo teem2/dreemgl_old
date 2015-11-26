@@ -34,7 +34,9 @@ define.class(function (view, label, codeviewer, cells, device) {
         'end'}
     };
 
-    this.ondevices = function (devices) {
+    this.ondevices = function (e) {
+        var devices = e.value;
+
         var deviceList = [];
         for (var d in devices) {
             if (devices.hasOwnProperty(d)) {

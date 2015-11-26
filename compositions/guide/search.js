@@ -11,8 +11,8 @@ define.class(function(server, require) {
     };
 
     this.onkeyword = function (event) {
-        var keyword = event.value
-        var request = require('request')
+        var keyword = event.value;
+        var request = require('request');
         if (keyword && request) {
             request(this.apiurl + keyword.replace(/[^a-z0-9_-]/ig, '+'), (function (error, response, body) {
                 if (!error && response.statusCode == 200) {
