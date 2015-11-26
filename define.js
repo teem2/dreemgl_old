@@ -883,9 +883,9 @@
 		define.showException = function(exc){
 			// lets append the div
 			var div = define.exception_div = document.createElement('div')
-			div.style.cssText ='position:absolute;left:10;top:10;padding:10px;background-color:black;border:2px solid white;color:red;margin:20px;margin-left:20px;font-weight:bold;font-size:20px'
+			div.style.cssText ='position:absolute;left:10;top:10;padding:30px;background-color:white;border-radius:10px;border:2px dotted #ffc0c0;color:#202020;margin:20px;margin-left:20px;font-size:14pt;font-family:arial, helvetica;'
 			
-			div.innerHTML = exc.exception+"<br/><div style='color:#ffffff'>"+exc.path+": "+exc.line+"</div>"
+			div.innerHTML = "<b>DreemGL has encountered a problem!</b><br/><br/><div>"+exc.exception+"<br/><br/><div style='color:black'><a href='view-source:"+exc.path+"#"+exc.line+"'>in "+exc.path+" on line "+exc.line+"</a></div>"
 			document.body.appendChild(div)
 		}
 
