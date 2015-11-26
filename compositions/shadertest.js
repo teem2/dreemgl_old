@@ -18,10 +18,13 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 					}),
 					view({
 						attributes:{
-							mycolor:{value:vec4('red'), motion:'linear', duration:3}
+							mycolor:{value:vec4('red'), motion:'linear', duration:1}
 						},
 						mouseleftdown:function(){
-							this.mycolor = vec4('blue')
+							this.mycolor = 'blue'
+						},
+						mouseleftup:function(){
+							this.mycolor = 'red'
 						},
 						flex:1,
 						bg:{

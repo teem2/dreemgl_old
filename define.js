@@ -811,14 +811,14 @@
 					script.src = url
 					
 					//define.script_tags[url] = script
-					window.onerror = function(error, url){
-						define.script_tags[url].onerror(error, url)
+					window.onerror = function(error, url, line){
+						define.script_tags[url].onerror(error, url, line)
 					}
 
 					function onLoad(){
 						//for(var key in this)console.log(keys)
 						//console.log("ONLOAD!", Object.keys(this))
-
+						if(this.rejected) return
 						// pull out the last factor
 						var factory = define.last_factory
 						define.factory[facurl] = factory
@@ -846,10 +846,11 @@
 						})
 					}
 
-					script.onerror = function(){ 
-						var err = "Error loading " + url + " from " + from_file
+					script.onerror = function(exception, path, line){ 
+						var error = "Error loading " + url + " from " + from_file
 						//console.error(err)
-						reject(err)
+						this.rejected = true
+						reject({error:error, exception:exception, path:path, line:line})
 					}
 					script.onload = onLoad
 					script.onreadystatechange = function(){
@@ -872,12 +873,31 @@
 		// make it available globally
 		window.define = define
 
+		define.hideException = function(){
+			if(define.exception_div){
+				define.exception_div.parentNode.removeChild(define.exception_div)
+				define.exception_div = undefined
+			}
+		}
+
+		define.showException = function(exc){
+			// lets append the div
+			var div = define.exception_div = document.createElement('div')
+			div.style.cssText ='position:absolute;left:10;top:10;padding:10px;background-color:black;border:2px solid white;color:red;margin:20px;margin-left:20px;font-weight:bold;font-size:20px'
+			
+			div.innerHTML = exc.exception+"<br/><div style='color:#ffffff'>"+exc.path+": "+exc.line+"</div>"
+			document.body.appendChild(div)
+		}
+
 		// boot up using the MAIN property
 		if(define.main){
 			define.loadAsync(define.main, 'main').then(function(){
 				if(define.atMain) define.atMain(define.require, define.main)
-			}, function(err){
-				console.log("Error starting up " + err)
+			}, function(exc){
+				if(define.atException) define.atException(exc)
+				else{
+					define.showException(exc)
+				}
 			})
 		}
 
@@ -910,10 +930,12 @@
 				var msg = JSON.parse(event.data)
 				if (msg.type === 'filechange'){
 					var old_module = define.module[msg.file]
-
+					define.hideException()
 					if(define.partial_reload && old_module && typeof old_module.exports === 'function'){
 						define.require.reloadAsync(msg.file).then(function(){
 							if(define.atMain) define.atMain(define.require, define.main)
+						}).catch(function(exception){
+							define.showException(exception)
 						})
 					}
 					else{
