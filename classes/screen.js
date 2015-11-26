@@ -86,10 +86,8 @@ define.class(function(view, require) {
 		if (logging) console.clear();
 		if (logging){
 			var	parentdesc = "Parentchain: " ;
-			for(var i =parentlist.length-1;i>=0;i--) {
-				
-				parentdesc += parentlist[i].constructor.name + "("+parentlist[i]._mode+") ";
-				
+			for(var i =parentlist.length-1;i>=0;i--) {			
+				parentdesc += parentlist[i].constructor.name + "("+parentlist[i]._mode+") ";		
 			}
 			
 			console.log(parentdesc);			

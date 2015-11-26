@@ -273,7 +273,30 @@ define.class(function(require, baseclass){
 			return 'black'
 		}
 	})
+	
+	this.calculateDrawMatrices = function()
+	{
+		if(view._mode === '2D'){
+			var zoom = view._zoom
+			if (isroot){
+				mat4.ortho(scroll[0], layout.width*zoom+scroll[0], scroll[1], layout.height*zoom+scroll[1], -100, 100, this.color_viewmatrix)
+				mat4.ortho(0, layout.width, 0, layout.height, -100, 100, this.color_noscrollmatrix)
+			}
+			else{
+				mat4.ortho(scroll[0], layout.width*zoom+scroll[0], layout.height*zoom+scroll[1], scroll[1], -100, 100, this.color_viewmatrix)
+				mat4.ortho(0, layout.width, layout.height, 0, -100, 100, this.color_noscrollmatrix)
+			}
+		}
+		else if(view._mode === '3D'){
+			view.perspectivematrix  = mat4.perspective(view._fov * PI * 2/360.0 , layout.width/layout.height, view._nearplane, view._farplane)			
+			view.lookatmatrix = mat4.lookAt(view._camera, view._lookat, view._up)
+			this.color_viewmatrix = mat4.mat4_mul_mat4(view.lookatmatrix,view.perspectivematrix);
+		}
 
+		view.colorviewmatrix = this.color_viewmatrix
+		view.colornoscrollmatrix = this.color_noscrollmatrix
+	}
+	
 	this.drawColor = function(isroot, time){
 		var drawcalls = 0
 		var view = this.view
@@ -299,25 +322,8 @@ define.class(function(require, baseclass){
 		// 2d/3d switch
 		var scroll = view._scroll
 		var hastime = false
-		if(view._mode === '2D'){
-			var zoom = view._zoom
-			if (isroot){
-				mat4.ortho(scroll[0], layout.width*zoom+scroll[0], scroll[1], layout.height*zoom+scroll[1], -100, 100, this.color_viewmatrix)
-				mat4.ortho(0, layout.width, 0, layout.height, -100, 100, this.color_noscrollmatrix)
-			}
-			else{
-				mat4.ortho(scroll[0], layout.width*zoom+scroll[0], layout.height*zoom+scroll[1], scroll[1], -100, 100, this.color_viewmatrix)
-				mat4.ortho(0, layout.width, layout.height, 0, -100, 100, this.color_noscrollmatrix)
-			}
-		}
-		else if(view._mode === '3D'){
-			view.perspectivematrix  = mat4.perspective(view._fov * PI * 2/360.0 , layout.width/layout.height, view._nearplane, view._farplane)			
-			view.lookatmatrix = mat4.lookAt(view._camera, view._lookat, view._up)
-			this.color_viewmatrix = mat4.mat4_mul_mat4(view.lookatmatrix,view.perspectivematrix);
-		}
-
-		view.colorviewmatrix = this.color_viewmatrix
-		view.colornoscrollmatrix = this.color_noscrollmatrix
+		
+		this.calculateDrawMatrices();
 		
 		// each view has a reference to its layer
 		for(var dl = this.draw_list, i = 0; i < dl.length; i++){
