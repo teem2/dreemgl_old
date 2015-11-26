@@ -54,23 +54,23 @@ define.class(function (view, label) {
 
     this.render = function render() {
         return [
-            label({marginleft:15, fgcolor:'red', text:'Use POST API when data is coming from external source, like IoT devices!'}),
+            label({marginleft:15, fgcolor:'red', bgcolor:'transparent', text:'Use POST API when data is coming from external source, like IoT devices!'}),
             view({flexdirection: 'row', flex: 1, bgcolor:'transparent'},
                 view(
                     {flexdirection: 'column', flex: 1, alignself: 'stretch', margin: vec4(10), padding: vec4(4), clipping:true, bgcolor:'transparent'},
-                    label({height:30, fontsize:14, flex: 0, alignself: 'stretch', text:'Set Attribute via API (Ruby Example)'}),
+                    label({height:30, fgcolor:'#333', bgcolor:'transparent', fontsize:14, flex: 0, alignself: 'stretch', text:'Set Attribute via API (Ruby Example)'}),
                     label({ flex: 1, alignself: 'stretch', text: this.setterCode, fontsize: 14, fgcolor:'aqua', bgcolor: "#000030", multiline: false})
                 ),
                 view(
                     {flexdirection: 'column', flex: 1, alignself: 'stretch', margin: vec4(10), padding: vec4(4), clipping:true, bgcolor:'transparent'},
-                    label({height:30, fontsize:14, flex: 0, alignself: 'stretch', text:'Get Attribute via API (Ruby Example)'}),
+                    label({height:30, fgcolor:'#333', bgcolor:'transparent', fontsize:14, flex: 0, alignself: 'stretch', text:'Get Attribute via API (Ruby Example)'}),
                     label({ flex: 1, alignself: 'stretch', text: this.getterCode, fontsize: 14, fgcolor:'pink', bgcolor: "#000030", multiline: false})
                 )
             ),
             view(
                 {flexdirection: 'column', flex: 0, alignself: 'stretch', padding:10, bgcolor:'transparent'},
-                label({fontsize:28, text:'${"The current value of search.keyword is: " + this.rpc.search.keyword}', alignself: 'center'}),
-                label({fontsize:18, text:'(Try using the post API to get and set this value!)', alignself: 'center'})
+                label({fontsize:28, bgcolor:'transparent', text:'${"The current value of search.keyword is: " + this.rpc.search.keyword}', alignself: 'center'}),
+                label({fontsize:18, bgcolor:'transparent', text:'(Try using the post API to get and set this value!)', alignself: 'center'})
             )
         ];
     }

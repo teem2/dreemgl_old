@@ -18,12 +18,14 @@ define.class(function (view, label, codeviewer) {
             label({
                 text:'+ Plugin components are directories - No special work required!',
                 fgcolor:'#333',
+                bgcolor:'transparent',
                 fontsize:25,
                 margintop:5
             }),
             label({
                 text:'(note: define.$plugins defaults to $compositions directory for convenience, but can be changed for security)',
                 fgcolor:'#666',
+                bgcolor:'transparent',
                 fontsize:14,
                 margintop:5,
                 marginleft:25
@@ -31,21 +33,25 @@ define.class(function (view, label, codeviewer) {
             label({
                 text:'+ Compositions can auto load classes from plugin directories:',
                 fgcolor:'#333',
+                bgcolor:'transparent',
                 fontsize:25,
                 margintop:15
             }),
             label({
                 text:'Use the `componentname$classname` syntax:',
                 fgcolor:'#444',
+                bgcolor:'transparent',
                 fontsize:20,
                 margintop:5,
                 marginleft:95
             }),
             codeviewer({
                 flex: 0,
+                mode:'2D',
+                overflow:'scroll',
                 alignself: 'center',
                 margin: vec4(10),
-                code: this.syntaxCode,
+                source: this.syntaxCode,
                 padding: vec4(4),
                 fontsize: 14,
                 bgcolor: "#000030",
@@ -54,16 +60,17 @@ define.class(function (view, label, codeviewer) {
             label({
                 text:'+ Example composition in `index.js`, no special mounting!',
                 fgcolor:'#333',
+                bgcolor:'transparent',
                 fontsize:25,
                 margintop:10
             }),
             label({
                 text:'+ See `./compositions/guide/README.md` for more full details.',
                 fgcolor:'#333',
+                bgcolor:'transparent',
                 fontsize:25,
                 margintop:20
             })
-
         ];
     };
 });

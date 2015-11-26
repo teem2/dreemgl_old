@@ -20,52 +20,52 @@ define.class(function (view, label) {
         return [
             label({
                 text:'+ Detailed Component Guide',
-                fgcolor:'#333',
+                fgcolor:'#333', bgcolor:'transparent',
                 fontsize:this.largefont,
                 margintop:0
             }),
             label({
                 text:'./compositions/guide/README.md',
-                fgcolor:'darkyellow',
+                fgcolor:'darkyellow', bgcolor:'transparent',
                 alignself:'center',
                 fontsize:this.smallfont,
                 margintop:this.space
             }),
             label({
                 text:'+ Web Service Example (Sample Component)',
-                fgcolor:'#333',
+                fgcolor:'#333', bgcolor:'transparent',
                 fontsize:this.largefont,
                 margintop:this.space
             }),
             label({
                 text:'https://github.com/teem2/teem-sample_component',
-                fgcolor:'darkyellow',
+                fgcolor:'darkyellow', bgcolor:'transparent',
                 alignself:'center',
                 fontsize:this.smallfont,
                 margintop:this.space
             }),
             label({
                 text:'+ IoT Example (Estimote Beacon)',
-                fgcolor:'#333',
+                fgcolor:'#333', bgcolor:'transparent',
                 fontsize:this.largefont,
                 margintop:this.space
             }),
             label({
                 text:'https://github.com/teem2/teem-estimotebeacon',
-                fgcolor:'darkyellow',
+                fgcolor:'darkyellow', bgcolor:'transparent',
                 alignself:'center',
                 fontsize:this.smallfont,
                 margintop:this.space
             }),
             label({
                 text:'+ Questions?',
-                fgcolor:'#333',
+                fgcolor:'#333', bgcolor:'transparent',
                 fontsize:this.largefont,
                 margintop:this.space
             }),
             label({
                 text:'Find me on slack or email mason@teem.nu!',
-                fgcolor:'darkpink',
+                fgcolor:'darkpink', bgcolor:'transparent',
                 alignself:'center',
                 fontsize:this.smallfont,
                 margintop:this.space

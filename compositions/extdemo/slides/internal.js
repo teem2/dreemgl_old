@@ -17,13 +17,13 @@ define.class(function (view, codeviewer, label, guide$movie, cells) {
 
     this.render = function render() {
         return [
-            label({marginleft:15, fgcolor:'red', text:'Proxy through server when everything can be handeled entirely via nodejs!'}),
+            label({marginleft:15, fgcolor:'red', bgcolor:'transparent', text:'Proxy through server when everything can be handeled entirely via nodejs!'}),
             view({flexdirection: 'row', flex: 1, bgcolor:'transparent'},
                 view({flexdirection: 'column', flex: 1, alignself: 'stretch', margin: vec4(10), padding: vec4(4), clipping:true, bgcolor:'transparent'},
-                    label({height:30, flex: 0, fontsize:14, alignself: 'stretch', text:'DreemGL Server (./compositions/guide/search.js)'}),
-                    codeviewer({flex: 1, alignself: 'stretch', code: this.searchCode, fontsize: 14, bgcolor: "#000030", multiline: true}),
-                    label({height:30, flex: 0, fontsize:14, alignself: 'stretch', text:'DreemGL Client (./compositions/extdemo/index.js)'}),
-                    codeviewer({flex: 1, alignself: 'stretch', code: this.compositionCode, fontsize: 11, bgcolor: "#000030", multiline: false})
+                    label({height:30, fgcolor:'#333', bgcolor:'transparent', flex: 0, fontsize:14, alignself: 'stretch', text:'DreemGL Server (./compositions/guide/search.js)'}),
+                    codeviewer({flex: 1, alignself: 'stretch', source: this.searchCode, fontsize: 14, bgcolor: "#000030", multiline: true}),
+                    label({height:30, fgcolor:'#333', bgcolor:'transparent', flex: 0, fontsize:14, alignself: 'stretch', text:'DreemGL Client (./compositions/extdemo/index.js)'}),
+                    codeviewer({flex: 1, alignself: 'stretch', source: this.compositionCode, fontsize: 11, bgcolor: "#000030", multiline: false})
                 ),
                 cells({flex: 1, padding: 4, margin: 10, cornerradius: 0, bgcolor:"#B3B3D7", clipping:true, data:this.movies, celltype:guide$movie})
             )

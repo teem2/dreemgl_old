@@ -17,7 +17,19 @@ define.class(function(composition, require, screens, screen, devices, guide$sear
 			screens(
 				screen({name:'desktop'},
 					slideviewer(
-						{name: 'slides', slideheight: 800, position: 'absolute', x: 0, bgcolor: 'black'},
+						{ name: 'slides',
+  						  slide:{
+							padding:15,
+							borderradius:20
+						  },
+						  slideheight: 800,
+						  position: 'absolute',
+						  x: 0,
+						  bgcolor: 'black',
+						  mode:'2D',
+						  overflow:'scroll',
+						  attributes:{scroll:{persist:true}}
+						},
 						this$slides$intro({
 							flex:1,
 							syntaxCode:getSource(syntax)

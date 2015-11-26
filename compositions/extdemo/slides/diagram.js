@@ -15,6 +15,7 @@ define.class(function (view, label) {
             label({
                 text:'When nodejs libraries are available, write everying in DreemGL for convenience!',
                 fgcolor:'#333',
+                bgcolor:'transparent',
                 fontsize:15,
                 margintop:0
             }),
@@ -26,6 +27,7 @@ define.class(function (view, label) {
             label({
                 text:'Otherwise, use the POST API to drive DreemGL externally from devices and services.',
                 fgcolor:'#333',
+                bgcolor:'transparent',
                 alignself:'right',
                 fontsize:15,
                 margintop:0
