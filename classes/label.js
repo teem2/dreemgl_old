@@ -89,13 +89,14 @@ define.class(function(view, require){
 	this.init = function(){
 		if(this.typeface) this.typeface = glfontParser(this.typeface)
 	}
-
+	
+	//!TODO make this also run the listeners
 	this.measure = function(width){
 		if(this.fontshader.update_dirty){
 			this.fontshader.update()
 			this.fontshader.update_dirty = true
 		}
-		return {width: this.fontshader.mesh.bound_w, height: this.fontshader.mesh.bound_h};
+		return {width: this.measured_width =this.fontshader.mesh.bound_w, height: this.measured_height =this.fontshader.mesh.bound_h};
 	}
 
 	var label = this.constructor

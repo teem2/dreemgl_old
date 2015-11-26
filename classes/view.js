@@ -549,7 +549,7 @@ define.class( function(node, require){
 
 		if(this.vscrollbar){
 			var scroll = this.vscrollbar
-			var totalsize = this.layout.boundh, viewsize = this.layout.height * this.zoom
+			var totalsize = Math.floor(this.layout.boundh), viewsize = Math.floor(this.layout.height * this.zoom)
 
 			if(totalsize > viewsize){
 				scroll._visible = true
@@ -567,8 +567,7 @@ define.class( function(node, require){
 		}
 		if(this.hscrollbar){
 			var scroll = this.hscrollbar
-			var totalsize = this.layout.boundw, viewsize = this.layout.width* this.zoom
-
+			var totalsize = Math.floor(this.layout.boundw), viewsize = Math.floor(this.layout.width* this.zoom)
 			if(totalsize > viewsize){
 				scroll._visible = true
 				scroll._total = totalsize
@@ -590,8 +589,14 @@ define.class( function(node, require){
 
 		// lets also emit the layout 
 		if(boundsobj){
-			var width = layout.absx + layout.width
-			var height = layout.absy + layout.height
+			if(ref.measured_width !== undefined || ref.measured_height !== undefined){
+				var width = layout.absx + max(layout.width,ref.measured_width)
+				var height = layout.absy + max(layout.height, ref.measured_height)
+			}
+			else{
+				var width = layout.absx + layout.width
+				var height = layout.absy + layout.height
+			}
 			if(width > boundsobj.boundw) boundsobj.boundw = width
 			if(height > boundsobj.boundh) boundsobj.boundh = height
 		}
@@ -628,6 +633,8 @@ define.class( function(node, require){
 			this._flex = 1
 			this._size = vec2(layout.width, layout.height)
 			this._flexwrap = false
+
+			if(this.measure) this.measure() // otherwise it doesnt get called
 
 			var copynodes = FlexLayout.fillNodes(this)
 			FlexLayout.computeLayout(copynodes)
