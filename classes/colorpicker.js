@@ -10,13 +10,18 @@ define.class(function(view, label,button, scrollbar){
 		color: {type: vec4, value: "white"}
 		,fgcolor: {type: vec4, value: "white"}		
 		,fontsize:{type: int, value: 15}
-		,internalbordercolor: {type:vec4, value:vec4("#d0d0d0")}
+		,internalbordercolor: {type:vec4, value:vec4(1,1,1,0.6)}
 	}
-	this.bgcolor = vec4("#383838")
+	this.bgcolor = vec4(0.0,0.0,0.0,0.4)
 	this.flexdirection = "column";
-	this.padding = vec4(10)
+	this.padding = vec4(20)
 	this.margin = vec4(10)
 	this.borderradius = 8
+	this.borderwidth = 2
+	this.bordercolor = this.internalbordercolor
+	this.internalbordercolor= function(){
+		this.bordercolor = this.internalbordercolor		
+	}
 	
 	define.class(this, 'colorarea', function(view){
 		this.bg ={
@@ -25,38 +30,44 @@ define.class(function(view, label,button, scrollbar){
 				}
 			};
 		this.width = 100;
-		this.height = 100;
-		
+		this.height = 100;		
 	})
 	
 	
 	this.render = function(){
 		return [
-			label({text:"Select Color", bgcolor:"transparent", fgcolor:"white", fontsize: 15, margin:5})
-			
-
-		
-			,view({flexdirection:"row", flex:1, bgcolor:"transparent"}
+			view({flexdirection:"row", flex:1, bgcolor:"transparent"}
 				,this.colorarea()
 				,view({flexdirection:"column", flex:1,bgcolor:"transparent"}
 					,view({bgcolor:"transparent", flexdirection:"row" }
 						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"R", fontsize:14, margin:4})			
 						,view({bgcolor:"transparent", flexdirection:"column", flex:1 }
-							,scrollbar({height:18,margin:8, total:255, page:20, vertical:false})
+							,scrollbar({height:18, total:255, page:20, vertical:false})
+							,view({height:10, bg:{color:function(){return vec4(uv.x,0,0,1);}}})
 						)
-						,label({fgcolor:"black", bgcolor:"transparent" , text:"255", fontsize:14, margin:4})							
+						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"255", fontsize:14, margin:4})							
 					)
 					,view({bgcolor:"transparent", flexdirection:"row" }
 						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"G", fontsize:14, margin:4})			
 						,view({bgcolor:"transparent", flexdirection:"column", flex:1 }
-							,scrollbar({height:18,margin:8, total:255, page:20, vertical:false})
+							,scrollbar({height:18, total:255, page:20, vertical:false})
+							,view({height:10, bg:{color:function(){return vec4(0,uv.x,0,1);}}})
 						)
-						,label({fgcolor:"black", bgcolor:"transparent" , text:"255", fontsize:14, margin:4})			
+						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"255", fontsize:14, margin:4})			
 					)
 					,view({bgcolor:"transparent", flexdirection:"row" }
 						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"B", fontsize:14, margin:4})			
 						,view({bgcolor:"transparent", flexdirection:"column", flex:1 }
-							,scrollbar({height:18,margin:8, total:255, page:20, vertical:false})
+							,scrollbar({height:18, total:255, page:20, vertical:false})
+							,view({height:10, bg:{color:function(){return vec4(0,0,uv.x,1);}}})
+						)
+						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"255", fontsize:14, margin:4})			
+					)			
+					,view({bgcolor:"transparent", flexdirection:"row" }
+						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"H", fontsize:14, margin:4})			
+						,view({bgcolor:"transparent", flexdirection:"column", flex:1 }
+							,scrollbar({height:18, total:255, page:20, vertical:false})
+							,view({height:10, bg:{color:function(){return vec4(0,0,uv.x,1);}}})
 						)
 						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"255", fontsize:14, margin:4})			
 					)			
