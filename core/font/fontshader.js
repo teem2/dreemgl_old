@@ -415,6 +415,10 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 	this.style = function(pos){
 	}
 
+	this.moddist = function(pos, dist){
+		return dist
+	}
+
 	this.glyphy_arc_t = define.struct({
 		p0:vec2,
 		p1:vec2,
@@ -827,9 +831,11 @@ define.class('$draw/$drawmode/shader$drawmode', function(require, exports, basec
 		}
 
 		style(pos)
-		
+
 		dist -= mesh.boldness / 300.
 		dist = dist / m * mesh.contrast
+
+		dist = moddist(pos, dist)
 
 		if(mesh.outline){
 			dist = abs(dist) - mesh.outline_thickness

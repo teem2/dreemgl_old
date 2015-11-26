@@ -419,6 +419,10 @@ define(function(require, exports){
 		return o
 	}
 
+	exports.vec2.equals = function(a, b){
+		return a[0] === b[0] && a[1] === b[1]
+	}
+
 	exports.vec2.notEqual = function(a, b, o){
 		if(!o) o = exports.bvec2()
 		o[0] = a[0] != b[0]
@@ -617,6 +621,10 @@ define(function(require, exports){
 		o[1] = a[1] == b[1]
 		o[2] = a[2] == b[2]
 		return o
+	}
+
+	exports.vec3.equals = function(a, b){
+		return a[0] === b[0] && a[1] === b[1] && a[2] === b[2]
 	}
 
 	exports.vec3.notEqual = function(a, b, o){

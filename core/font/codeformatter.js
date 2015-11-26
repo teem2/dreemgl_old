@@ -556,12 +556,12 @@ define.class(function(require, exports){
 		var old_indent = this.indent
 		this.indent++
 		if(n.cm1 && this.comments(n.cm1,' ')){
-			this.tab(indent)
+			this.tab(this.indent)
 		}
 		else this.space()
 		this.operator(n.op, exports._Binary, this.group++)
 		if(n.cm2 && this.comments(n.cm2,' ')){
-			this.tab(indent)
+			this.tab(this.indent)
 		}
 		else this.space()
 		if(paren_r) this.parenL(exports._Binary, mygroup)

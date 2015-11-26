@@ -5,7 +5,8 @@
 
 
 define.class(function(require, view, icon){
-	
+
+
 	define.class(this, 'bg', this.Shader, function(){
 		
 		this.depth_test = 'src_depth < dst_depth';

@@ -28,8 +28,7 @@ define.class(function(composition, require, screens, screen, docviewer, button, 
 						view({
 							bgcolor:"transparent", 
 							flex:1,
-							slidetitle:'DreemGL test'
-							
+							slidetitle:'DreemGL Introductions!'
 							},
 							ballrotate({name:"ballrotate1", position:"absolute",width:100, height:100, target:"teapot1"})
 							,view({
@@ -67,7 +66,7 @@ define.class(function(composition, require, screens, screen, docviewer, button, 
 						0),
 						view({
 							slidetitle:'High level overview',
-							flex:1 , bgcolor:"transparent" 
+							flex:1 , bgcolor:"transparent"
 							},
 							view({
 								left:100, 
@@ -113,7 +112,9 @@ define.class(function(composition, require, screens, screen, docviewer, button, 
 												view:{vanim:0},
 												patterns: require('./shaderpatterns').prototype,
 												color:function(){
-													return vec4( patterns.wave(mesh.uv, i*.1 + view.vanim * 10., i*.1 + view.vanim * 10.) * pal.pal1(i*.1).xyz, 1.)
+													return vec4( patterns.wave(mesh.uv, i*.1 + 
+														view.vanim * 10., i*.1 + view.vanim * 10.) * 
+														pal.pal1(i*.1).xyz, 1.)
 												//	return vec4( patterns.stripe(mesh.uv, 10., i*.1 + view.vanim * 10.) * pal.pal1(i*0.1).xyz, 1.) 
 												}
 											},

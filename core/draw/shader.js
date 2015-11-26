@@ -414,6 +414,39 @@ define.class('$base/node', function(require, exports, self){
 		}
 	}
 
+	var ignore_compare = {
+		outer:1, 
+		view:1, 
+		shadername:1, 
+		order:1, 
+		shader:1, 
+		update_dirty:1, 
+		dirty_props:1, 
+		pix_state:1, 
+		vtx_state:1,
+		_view_listeners:1,
+		pick:1
+	}
+
+	this.isShaderEqual = function(prevshader){
+		for(var key in this){
+			if(key in ignore_compare) continue
+			if(this.__lookupSetter__(key)) continue
+			// we also have to ignore geometry..
+
+			var value = this[key]
+			var other = prevshader[key]
+			// check type
+			if(!(value && value.struct && !value.struct.equals ||
+				value && value.struct && other && other.struct && value.struct.equals && value.struct.equals(value, other) ||
+				typeof value === 'function' && value.toString() === other.toString() || value === other)){
+				console.log('NOT EQUAL', key, value)
+				return false
+			}
+		}
+		return true
+	}
+
 	this.monitorCompiledProperty = function(name){
 		if(this.__lookupSetter__(name)) return
 		var get = '_' + name

@@ -93,7 +93,7 @@ define.class(function(view, require){
 	this.measure = function(width){
 		if(this.fontshader.update_dirty){
 			this.fontshader.update()
-			this.fontshader.update_dirty = false
+			this.fontshader.update_dirty = true
 		}
 		return {width: this.fontshader.mesh.bound_w, height: this.fontshader.mesh.bound_h};
 	}

@@ -181,23 +181,49 @@ define.class( function(node, require){
 	this.layout_dirty = true
 	this.update_dirty = true
 
-	this.init = function(){
+	this.init = function(prev){
 		this.anims = {}
 		this.layout = {width:0, height:0, left:0, top:0, right:0, bottom:0}
 		this.shader_list = []
 		this.modelmatrix = mat4()
 		this.totalmatrix = mat4.identity()
 		this.layermatrix = mat4()
-		this.atInit()
+		this.atInit(prev)
 	}
 
-	this.atInit = function(){
+	this.atInit = function(prev){
+		if(prev){
+			this._layout =
+			this.oldlayout = prev._layout
+		}
 		for(var key in this.shader_order){
 			var order = this.shader_order[key]
-			if(!order && !isNaN(order)) continue
+			if(!order) continue
 			var shader = this[key]
 			if(shader){
-				var shobj = this[key + 'shader'] = new shader(this)
+				var prevshader = prev && prev[key+'shader']
+				var shobj
+				// ok so instead of comparing constructor, lets compare the computational result
+				if(prevshader && (prevshader.constructor === shader || prevshader.isShaderEqual(shader.prototype))){
+					shobj = prevshader
+					shobj.view = this
+					shobj.outer = this
+					// ok now check if we need to dirty it
+
+					if(shobj._view_listeners) for(var shkey in shobj._view_listeners){
+
+						this.addListener(shkey, shobj.reupdate.bind(shobj))
+						var value = this[shkey]
+
+						if(value && value.struct && value.struct.equals(value, prev[shkey]) || value !== prev[shkey]){
+							shobj.reupdate()
+						}
+					}
+				}
+				else{
+					shobj = new shader(this)
+				}
+				this[key + 'shader'] = shobj
 				shobj.shadername = key
 				shobj.order = order
 				this.shader_list.push(shobj)
@@ -355,18 +381,23 @@ define.class( function(node, require){
 		// we can wire up the shader 
 		if(!this._shaderswired){
 			this.atAttributeGet = function(attrname){
+				//if(this.constructor.name === 'label')
+				//console.log(this.constructor.name, attrname, this['_'+attrname])
 				// monitor attribute wires for geometry
 				// lets add a listener 
+				if(!shader._view_listeners) shader._view_listeners = {}
+				shader._view_listeners[attrname] = 1
 				this.addListener(attrname,shader.reupdate.bind(shader))
 			}.bind(this)
 		}
 
+
 		var shaders = this.shader_list
 		for(var i = 0; i < shaders.length; i ++){
 			var shader = shaders[i]
-			// lets check our deps
+
 			if(shader.update && shader.update_dirty){
-				shader.update_dirty = false
+				shader.update_dirty = false				
 				shader.update()
 			}
 		}
@@ -563,21 +594,21 @@ define.class( function(node, require){
 
 		var oldlayout = ref.oldlayout || {}
 		var layout = ref._layout 
+
 		if((node.ref._listen_layout || node.ref.onlayout) && 
 			(layout.left !== oldlayout.left || layout.top !== oldlayout.top ||
 			 layout.width !== oldlayout.width || layout.height !== oldlayout.height)) {
 			// call setter
 			// lets reset the scroll position
-
 			ref.emit('layout', layout)
 		}
-
+		ref.oldlayout = layout
 	}
 
 	// called by the render engine
 	this.doLayout = function(width, height){
 		if(!isNaN(this._flex)){ // means our layout has been externally defined
-			var layout = this.layout
+			var layout = this._layout
 			var flex = this._flex
 			var size = this._size
 			this._flex = 1
@@ -589,7 +620,7 @@ define.class( function(node, require){
 			this.sublayout = this.layout
 			this._flex = flex
 			this._size = size
-			this.layout = layout
+			this._layout = layout
 	
 			emitPostLayout(copynodes)
 			this.updateScrollbars()
