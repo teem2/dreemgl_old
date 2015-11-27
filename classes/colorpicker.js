@@ -21,10 +21,11 @@ define.class(function(view, label,button, scrollbar,require){
 	}
 	this.bgcolor = vec4(0.0,0.0,0.0,0.4)
 	this.flexdirection = "column";
-	this.padding = vec4(20)
-	this.margin = vec4(10)
-	this.borderradius = 8
-	this.borderwidth = 2
+	this.padding = vec4(10)
+	this.minwidth = 200;
+	this.maxwidth = 300;
+	this.borderradius = 3
+	this.borderwidth = 1
 	this.bordercolor = this.internalbordercolor
 	
 	this.internalbordercolor= function(){
@@ -49,7 +50,7 @@ define.class(function(view, label,button, scrollbar,require){
 			
 			
 			// Color of the draggable part of the scrollbar
-			draggercolor: {type: vec4, value: vec4("#9090b0")},
+			draggercolor: {type: vec4, value: vec4(1,1,1,0.8)},
 
 			// Color of the draggable part of the scrollbar
 			draggerradius: {type: float, value: 3},
@@ -111,7 +112,7 @@ define.class(function(view, label,button, scrollbar,require){
 				else{
 					field = shape.roundbox(rel, offset * view.layout.width, 0.05*view.layout.height,page*view.layout.width, .9*view.layout.height, view.draggerradius)
 				}
-				var fg = vec4(view.draggercolor.rgb, smoothstep(-edge, edge, 2-abs(-field-1.))*view.draggercolor.a)
+				var fg = vec4(view.draggercolor.rgb, smoothstep(-edge, edge, 1-abs(-field-1.))*view.draggercolor.a)
 				//return vec4(vec3(sin(field)), 1.)
 				return mix(bg.rgba, fg.rgba, fg.a)
 			},
@@ -231,16 +232,21 @@ define.class(function(view, label,button, scrollbar,require){
 				pos = vec2(view.layout.width/2 + rad * uv.x, view.layout.height/2 + rad * uv.y)
 				return vec4(pos, 0, 1) * view.totalmatrix * view.viewmatrix
 			}
+			
 			this.color = function(){
 				
-				var edge = 1-pow(sin(mesh.side*3.1415),.40);
+				var f =  sin(mesh.side*3.1415);
+				var edge = 1-pow(f,.50);
+				var aaedge = pow(f,0.2);
 				//return vec4(view.hover, edge,0,1);
 				
 				var color = colorlib.hsla(vec4(off, 1, 0.5, 1));
 				var edgecolor = vec4(1,1,1,1);
-				
-				return mix(color, edgecolor, view.hover*edge);;
+				var mixed = mix(color, edgecolor, view.hover*edge);
+				mixed.a *= aaedge;
+				return mixed;
 			}
+			
 			this.update = function(){
 				var view = this.view
 				var width = view.layout?view.layout.width:view.width
@@ -326,73 +332,45 @@ define.class(function(view, label,button, scrollbar,require){
 	
 	this.render = function(){
 		return [
-			view({flexdirection:"row", flex:1, bgcolor:"transparent"}
+			view({flexdirection:"column", flex:1,alignitems:"center", justifycontent:"center", bgcolor:"transparent"}
 				
-				,view({width:200, height:200, bgcolor: "transparent"}
+				,view({margin:10, bg:0, position:"relative", alignself:"center"}
+					,view({bg:0, width:200, height:200, padding:3})
 					,this.colorcirclecontrol({position:"absolute",width:200, height:200})
 					,this.triangleview({basehue:this.basehue, position:"absolute"})
 				)
-				,view({flexdirection:"column", flex:1,bgcolor:"transparent"}
-					,view({bgcolor:"transparent", flexdirection:"row" }
-						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"R", fontsize:14, margin:4})			
-						,view({bgcolor:"transparent", flexdirection:"column", flex:1 }
-							,this.customslider({flex:1, hslfrom:vec3(0,1,0), hslto:vec3(0,1,0.5)})
-							
-						)
-						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"255", fontsize:14, margin:4})							
+				,view({bg:0, flexdirection:"column"}
+					,this.customslider({flex:1, hslfrom:vec3(0,1,0), hslto:vec3(0,1,0.5)})
+					,this.customslider({ flex:1, hslfrom:vec3(0.33,1,0), hslto:vec3(0.333,1,0.5)})
+					,this.customslider({height: 18, flex:1, hslfrom:vec3(0.666,1,0), hslto:vec3(0.666,1,0.5)})
+					,view({bg:0}
+						,label({flex:1, text:"rgb", fontsize:18, bg:0, fgcolor: this.fgcolor})
+						,view({flex:1, bg:0},label({text:"100", fontsize:18, bg:0, fgcolor: this.fgcolor}))
+						,view({flex:1, bg:0},label({text:"100", fontsize:18, bg:0, fgcolor: this.fgcolor}))
+						,view({flex:1, bg:0},label({text:"100", fontsize:18, bg:0, fgcolor: this.fgcolor}))
+						
 					)
-					,view({bgcolor:"transparent", flexdirection:"row" }
-						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"G", fontsize:14, margin:4})			
-						,view({bgcolor:"transparent", flexdirection:"column", flex:1 }
-							,this.customslider({ flex:1, hslfrom:vec3(0.33,1,0), hslto:vec3(0.333,1,0.5)})
-						)
-						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"255", fontsize:14, margin:4})			
+					,this.customslider({height: 18, flex:1, hslfrom:vec3(0.0,this.basesat,this.basel), hslto:vec3(1,this.basesat,this.basel)})
+					,this.customslider({height: 18, flex:1, hslfrom:vec3(this.basehue,0,this.basel), hslto:vec3(this.basehue,1,this.basel)})
+					,this.customslider({height: 18, flex:1, hslfrom:vec3(this.basehue,this.basesat,0), hslto:vec3(this.basehue,this.basesat,1)})
+					,view({bg:0}
+						,label({flex:1, text:"hsl", fontsize:18, bg:0, fgcolor: this.fgcolor})
+						,view({flex:1, bg:0},label({text:"100", fontsize:18, bg:0, fgcolor: this.fgcolor}))
+						,view({flex:1, bg:0},label({text:"100", fontsize:18, bg:0, fgcolor: this.fgcolor}))
+						,view({flex:1, bg:0},label({text:"100", fontsize:18, bg:0, fgcolor: this.fgcolor}))
+						
 					)
-					,view({bgcolor:"transparent", flexdirection:"row" }
-						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"B", fontsize:14, margin:4})			
-						,view({bgcolor:"transparent", flexdirection:"column", flex:1 }
-							,this.customslider({height: 18, flex:1, hslfrom:vec3(0.666,1,0), hslto:vec3(0.666,1,0.5)})
-						)
-						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"255", fontsize:14, margin:4})			
-					)			
-					,view({bgcolor:"transparent", flexdirection:"row" }
-						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"H", fontsize:14, margin:4})			
-						,view({bgcolor:"transparent", flexdirection:"column", flex:1 }
-								,this.customslider({height: 18, flex:1, hslfrom:vec3(0.0,this.basesat,this.basel), hslto:vec3(1,this.basesat,this.basel)})
-							)
-						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"255", fontsize:14, margin:4})			
-					)			
-					,view({bgcolor:"transparent", flexdirection:"row" }
-						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"H", fontsize:14, margin:4})			
-						,view({bgcolor:"transparent", flexdirection:"column", flex:1 }
-							,this.customslider({height: 18, flex:1, hslfrom:vec3(this.basehue,0,this.basel), hslto:vec3(this.basehue,1,this.basel)})
-						)
-						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"255", fontsize:14, margin:4})			
-					)			
-					,view({bgcolor:"transparent", flexdirection:"row" }
-						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"H", fontsize:14, margin:4})			
-						,view({bgcolor:"transparent", flexdirection:"column", flex:1 }
-							,this.customslider({height: 18, flex:1, hslfrom:vec3(this.basehue,this.basesat,0), hslto:vec3(this.basehue,this.basesat,1)})
-						)
-						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"255", fontsize:14, margin:4})			
-					)			
 				)
 			)
 			
-			,view({bgcolor:"transparent", justifycontent:"flex-end", flexdirection:"row", alignitems:"flex-end", flex:1}
-				,view({margin:7,borderwidth:1, borderradius:8, bordercolor:this.internalbordercolor, bgcolor:"transparent", flex:1, padding:5}
-					,label({margin:5,text:"hex:", bgcolor:"transparent", fgcolor:this.fgcolor, fontsize: this.fontsize})
-					,label({ margin:5, text:"#ff00ff", bgcolor:"transparent", fgcolor:this.fgcolor, padding:vec4(20,2,2,2), fontsize: this.fontsize})
-				)
-				,view({margin:7,borderwidth:1, borderradius:8, bordercolor:this.internalbordercolor, bgcolor:"transparent", flex:1, padding:5}
-					,label({margin:5,text:"alpha:", bgcolor:"transparent", fgcolor:this.fgcolor, fontsize: this.fontsize})
-					,label({ margin:5, text:"ff", bgcolor:"transparent", fgcolor:this.fgcolor, padding:vec4(20,2,2,2), fontsize: this.fontsize})
+			,view({ bg:0,justifycontent:"flex-end", flexdirection:"row", alignitems:"flex-end"}
+				,view({ bg:0,bgcolor:"transparent", margin:2,borderwidth:1, borderradius:1, bordercolor:this.internalbordercolor,flex:1, padding:1}
+					,label({bg:0, margin:vec4(10,5,0,0),text:"#", fgcolor:this.fgcolor, fontsize: this.fontsize})
+					,label({bg:0,  margin:vec4(0,5,0,0), text:"ff00ff",  fgcolor:this.fgcolor, padding:vec4(20,2,2,2), fontsize: this.fontsize})
+					,label({bg:0, margin:vec4(10,5,0,0),text:"alpha ",  fgcolor:this.fgcolor, fontsize: this.fontsize})
+					,label({bg:0,  margin:vec4(0,5,0,0), text:"128",  fgcolor:this.fgcolor, padding:vec4(20,2,2,2), fontsize: this.fontsize})
 				)
 			)				
-			,view({bgcolor:"transparent", justifycontent:"flex-end", flexdirection:"row", alignitems:"flex-end", flex:1}
-				,button({text:"Cancel", alignself:"flex-end"})
-				,button({text:"OK", alignself:"flex-end"})
-			)
 		]
 		
 	}

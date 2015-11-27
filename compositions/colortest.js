@@ -18,12 +18,17 @@ define.class(function(composition, screens, screen, view, label, button, colorpi
 								
 								var col1 = vec3(0.1,0.1,0.1);
 								var col2= vec3(0.2,0.25,0.5);
-								return vec4(mix(col1, col2, 1-uv.y  + noise.noise2d(uv.xy*403.6)*0.1),1.0)
+								return vec4(mix(col1, col2, 1-uv.y  + noise.noise2d(uv.xy*403.6)*0.02),1.0)
 							}
 						}},
-						view({flexdirection:"row", bgcolor:"transparent",padding:7 },
+						view({bg:0, padding:4},
+						colorpicker({margin:4, flex:1, bgcolor:vec4(0,0,0,0.4)}),
+						colorpicker({margin:4, flex:1, bgcolor:vec4(0,0,0,0.4)}),
+						colorpicker({margin:4, flex:1, bgcolor:vec4(0,0,0,0.4)})
+						)
+						,view({flexdirection:"row", bgcolor:"transparent",padding:7 },
 							button({
-								text:"Test color using vec4 constructor", 
+								text:"Set Vec4", 
 								click:function(){
 									var cp = this.find("colorpicker");	
 									cp.color = vec4("blue");
@@ -32,7 +37,7 @@ define.class(function(composition, screens, screen, view, label, button, colorpi
 							}),
 							
 							button({
-								text:"Set color from HSL", 
+								text:"Set HSL", 
 								click:function(){
 									var cp = this.find("colorpicker");	
 									cp.color = vec4.fromHSL(0.5,1,0.5);
@@ -40,8 +45,7 @@ define.class(function(composition, screens, screen, view, label, button, colorpi
 									console.log(cp.color);
 								}
 							})
-						),
-						colorpicker({})
+						)
 					)
 								
 
