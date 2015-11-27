@@ -30,97 +30,239 @@ define.class(function(view, label,button, scrollbar,require){
 	this.internalbordercolor= function(){
 		this.bordercolor = this.internalbordercolor		
 	}
+	this.setHueBase = function(h)
+	{
+		this.basehue = h;
+	}
 	
-	
-	define.class(this, 'customslider',  function(view){
-		this.flex = 1;
+	define.class(this, "customslider", function(view){
 		this.height = 19;
-		this.bgcolor = vec4("blue");
-		this.attributes ={		
-			hslfrom:{type:vec3, value: vec3(0,1,0.5)}
-			,hslto:{type:vec3, value: vec3(1,1,0.5)}
-			}
-		define.class(this, 'bg', this.Shader, function(){
-			this.vertexstruct = define.struct({		
-				p:vec2,
-				uv:vec2,
-				side: float
-			})	
+		
+		this.attributes = {
+				
+			// hsl color for the left side
+			hslfrom:{type:vec3, value: vec3(0,1,0.5)},
+
+			// hsl color for the right side
+			hslto:{type:vec3, value: vec3(1,1,0.5)},
 			
+			
+			
+			// Color of the draggable part of the scrollbar
+			draggercolor: {type: vec4, value: vec4("#9090b0")},
+
+			// Color of the draggable part of the scrollbar
+			draggerradius: {type: float, value: 3},
+			
+			// Color when the mouse is hovering over the draggable part of the scrollbar
+			hovercolor: {type: vec4, value: vec4("#8080c0")},
+			
+			// Color of the draggable part of the scrollbar while actively scrolling
+			activecolor: {type: vec4, value: vec4("#8080c0")},
+			
+			// Is this a horizontal or a vertical scrollbar? 
+			vertical: {type: Boolean, value: false},
+			
+			// Current start offset of the scrollbar. Ranges from 0 to total - page
+			offset: {type:float, value:0},
+			
+			// Page size, in total
+			page: {type:float, value:25},
+
+			// total size. 
+			total: {type:float, value:256},
+
+
+			// set animation on bgcolor
+			bgcolor: {duration: 1.0}
+		}
+
+		var scrollbar = this.constructor;
+
+		this.page = function(){
+			this.redraw()
+		}
+
+		this.offset = function(){
+			this.redraw()
+		}
+
+		var mesh = vec2.array()
+		mesh.pushQuad(0,0,0,1,1,0,1,1)
+
+		this.bg = {
+			draggercolor: vec4(),
+			offset: 0,
+			page: 0.3,
+		
+			color: function(){
+				// we have a rectangle
+				var hlsamix = vec4(mix(view.hslfrom, view.hslto, mesh.x), 1.0)
+				var bg =  colorlib.hsla(hlsamix);
+			
+			var rel = vec2(mesh.x*view.layout.width, mesh.y*view.layout.height)
+				var offset = view.offset / view.total
+				var page = view.page / view.total
+				var edge = 0.1//min(length(vec2(length(dFdx(rel)), length(dFdy(rel)))) * SQRT_1_2, 0.001)
+				var field = float(0)
+				if(view.vertical){
+					field = shape.roundbox(rel, 0.05 * view.layout.width, offset*view.layout.height,.9*view.layout.width, page*view.layout.height, view.draggerradius)
+				}
+				else{
+					field = shape.roundbox(rel, offset * view.layout.width, 0.05*view.layout.height,page*view.layout.width, .9*view.layout.height, view.draggerradius)
+				}
+				var fg = vec4(view.draggercolor.rgb, smoothstep(-edge, edge, 2-abs(-field-1.))*view.draggercolor.a)
+				//return vec4(vec3(sin(field)), 1.)
+				return mix(bg.rgba, fg.rgba, fg.a)
+			},
+			mesh: mesh,
+			update:function(){},
+			position: function(){
+				return vec4(mesh.x * view.layout.width, mesh.y * view.layout.height, 0, 1) * view.totalmatrix * view.viewmatrix
+			}
+		}
+
+		this.borderwidth = 0
+		this.margin = 1
+		this.bordercolor = vec4("#303060")
+		
+		this.pressed = 0
+		this.hovered = 0
+			
+		this.mouseover  = function(){
+		}
+		
+		this.mouseout = function(){
+		}
+		
+		this.mouseleftdown = function(start){
+			// detect if we clicked not on the button
+			if(this.vertical){
+				var p = start[1] / this.layout.height
+			}
+			else{
+				var p = start[0] / this.layout.width
+			}
+			var offset = this.offset / this.total
+			var page = this.page / this.total
+			if(p < offset){
+				var value = clamp(p - 0.5 * page, 0, 1.-page) * this.total
+				if(value != this.offset){
+					this.offset = value
+				}
+			}
+			else if (p > offset + page){
+				var value = clamp(p - 0.5*page, 0, 1.-page) * this.total
+				if(value != this.offset){
+					this.offset = value
+				}
+			}
+			var start_offset = offset//this.offset / this.total
+			this.mousemove = function(pos){
+				if(this.vertical){
+					var p = start_offset + (pos[1] - start[1]) / this.layout.height
+				}
+				else{
+					var p = start_offset + (pos[0] - start[0]) / this.layout.width
+				}
+				var value = clamp(p, 0, 1.-page) * this.total
+				if(value != this.offset){
+					this.offset = value
+				}
+			}
+		}
+		
+		this.mouseleftup = function(){
+			this.mousemove = function(){}
+		}
+
+		this.drawcount = 0;
+	})
+
+	
+	define.class(this, 'colorcirclecontrol', function(view){
+		this.width = 200;
+		this.height = 200;
+		this.attributes = {
+			ringwidth:{type:float, value: 0.3},
+			hover:{type:float, value: 0, motion:"linear", duration: 0.1}
+		}
+		this.mouseleftdown = function(){
+			
+			this.mousemove = function(m){
+				var dx = m[0] - this.layout.width/2;
+				var dy = m[1] - this.layout.height/2;
+				dx /= this.layout.width/2;
+				dy /= this.layout.height/2;
+				var angle = Math.atan2(dy,dx);
+				
+				this.outer.setHueBase(-angle/ 6.283+ 0.25);
+			};
+		}
+		this.mouseleftup = function(){
+			this.mousemove = function(){};
+		}
+		this.mouseout = function(){
+			if (this.overcount == 1) this.hover = 0;
+			this.overcount--;
+			if (this.overcount < 0) this.overcount = 0;
+			if (this.overcount = 0) this.redraw();
+			
+		}
+		this.mouseover = function(){
+			if (this.overcount == 0) this.hover = 1;
+			this.overcount++;
+			this.redraw();
+		}
+
+		this.bg = function(){
+			this.vertexstruct =  define.struct({		
+				p:float,
+				side: float
+			})
+			this.mesh = this.vertexstruct.array();
+			this.draw_type = "TRIANGLE_STRIP";
+		
+		
+			this.position = function(){
+				uv = vec2(sin(mesh.p), cos(mesh.p))*(1-view.ringwidth + view.ringwidth*mesh.side);
+				off = mesh.p / 6.283
+				var rad = min(view.layout.width, view.layout.height)/2;
+				pos = vec2(view.layout.width/2 + rad * uv.x, view.layout.height/2 + rad * uv.y)
+				return vec4(pos, 0, 1) * view.totalmatrix * view.viewmatrix
+			}
+			this.color = function(){
+				
+				var edge = 1-pow(sin(mesh.side*3.1415),.40);
+				//return vec4(view.hover, edge,0,1);
+				
+				var color = colorlib.hsla(vec4(off, 1, 0.5, 1));
+				var edgecolor = vec4(1,1,1,1);
+				
+				return mix(color, edgecolor, view.hover*edge);;
+			}
 			this.update = function(){
 				var view = this.view
-			
-				var mesh = this.mesh = this.vertexstruct.array()
 				var width = view.layout?view.layout.width:view.width
 				var height = view.layout?view.layout.height:view.height
-			
-				mesh.push(0,0,0,0,0);
-				mesh.push(width,0,1,0,0);
-				mesh.push(0,height,0,1,1);
-				mesh.push(width,height,1,1,1);
-			
+				var cx = width/2;
+				var cy = height/2;
+				var radius = Math.min(cx,cy);
+				this.mesh = this.vertexstruct.array()
+				var cnt = 100;
+				for (var i = 0;i<cnt;i++) {
+					this.mesh.push(i*6.283/(cnt-1), 0);
+					this.mesh.push(i*6.283/(cnt-1), 1);
+				}
 			}
-			
-			this.mesh = this.vertexstruct.array()
-			this.draw_type = "TRIANGLE_STRIP"
-			
-			this.position = function(){
-				return vec4(mesh.p.x,mesh.p.y, 0, 1) * view.totalmatrix * view.viewmatrix
-			}
-			
-			this.color = function(){				
-				var hlsamix = vec4(mix(view.hslfrom, view.hslto, mesh.uv.x), 1.0)
-				return colorlib.hsla(hlsamix);
-			}
-		})
-	
-	})
-	
-	define.class(this, 'colorcircle', this.Shader, function(){
-		
-		this.vertexstruct = define.struct({		
-			p:float,
-			side: float
-		})
-
-		this.mesh = this.vertexstruct.array()
-			this.draw_type = "TRIANGLE_STRIP"
-	
-		this.position = function(){
-			uv = vec2(sin(mesh.p), cos(mesh.p))*mesh.side;
-			off = mesh.p / 6.283
-			var rad = min(view.layout.width, view.layout.height)/2;
-			pos = vec2(view.layout.width/2 + rad * uv.x, view.layout.height/2 + rad * uv.y)
-			return vec4(pos, 0, 1) * view.totalmatrix * view.viewmatrix
-		}
-		
-		this.color = function(){
-			return colorlib.hsla(vec4(off, 1, 0.5, 1));
-		}
-		
-		this.update = function(){
-			var view = this.view
-			var width = view.layout?view.layout.width:view.width
-			var height = view.layout?view.layout.height:view.height
-			var cx = width/2;
-			var cy = height/2;
-			var radius = Math.min(cx,cy);
-			this.mesh = this.vertexstruct.array()
-			var cnt = 100;
-			for (var i = 0;i<cnt;i++)
-			{
-				this.mesh.push(i*6.283/(cnt-1), 0.7);
-				this.mesh.push(i*6.283/(cnt-1), 1);
-			}
-		}
-			
+		};	
 		
 	
 	})
 	
 	define.class(this, 'triangleview', function(view){
-		this.width = 300;
-		this.height = 300;
+		this.width = 200;
+		this.height = 200;
 		this.attributes = {
 			basehue: {type:float, value:0.7}
 		}
@@ -167,7 +309,6 @@ define.class(function(view, label,button, scrollbar,require){
 	this.colorcircle = 0;
 	this.colortriangle = 0;
 	this.color = function(aaaa){
-		console.log(aaaa);
 		
 		this.settingcontrol = undefined;
 	}
@@ -186,16 +327,15 @@ define.class(function(view, label,button, scrollbar,require){
 	this.render = function(){
 		return [
 			view({flexdirection:"row", flex:1, bgcolor:"transparent"}
-				,this.colorarea()
-				,view({width:300, height:300, bgcolor: "transparent"}
-					,view({bg:this.colorcircle, position:"absolute",width:300, height:300})
+				
+				,view({width:200, height:200, bgcolor: "transparent"}
+					,this.colorcirclecontrol({position:"absolute",width:200, height:200})
 					,this.triangleview({basehue:this.basehue, position:"absolute"})
 				)
 				,view({flexdirection:"column", flex:1,bgcolor:"transparent"}
 					,view({bgcolor:"transparent", flexdirection:"row" }
 						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"R", fontsize:14, margin:4})			
 						,view({bgcolor:"transparent", flexdirection:"column", flex:1 }
-							,scrollbar({height:18, total:255, page:20, vertical:false})
 							,this.customslider({flex:1, hslfrom:vec3(0,1,0), hslto:vec3(0,1,0.5)})
 							
 						)
@@ -204,7 +344,6 @@ define.class(function(view, label,button, scrollbar,require){
 					,view({bgcolor:"transparent", flexdirection:"row" }
 						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"G", fontsize:14, margin:4})			
 						,view({bgcolor:"transparent", flexdirection:"column", flex:1 }
-							,scrollbar({height:18, total:255, page:20, vertical:false})	
 							,this.customslider({ flex:1, hslfrom:vec3(0.33,1,0), hslto:vec3(0.333,1,0.5)})
 						)
 						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"255", fontsize:14, margin:4})			
@@ -212,7 +351,6 @@ define.class(function(view, label,button, scrollbar,require){
 					,view({bgcolor:"transparent", flexdirection:"row" }
 						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"B", fontsize:14, margin:4})			
 						,view({bgcolor:"transparent", flexdirection:"column", flex:1 }
-							,scrollbar({height:18, total:255, page:20, vertical:false})
 							,this.customslider({height: 18, flex:1, hslfrom:vec3(0.666,1,0), hslto:vec3(0.666,1,0.5)})
 						)
 						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"255", fontsize:14, margin:4})			
@@ -220,7 +358,6 @@ define.class(function(view, label,button, scrollbar,require){
 					,view({bgcolor:"transparent", flexdirection:"row" }
 						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"H", fontsize:14, margin:4})			
 						,view({bgcolor:"transparent", flexdirection:"column", flex:1 }
-							,scrollbar({height:18, total:255, page:20, vertical:false})
 								,this.customslider({height: 18, flex:1, hslfrom:vec3(0.0,this.basesat,this.basel), hslto:vec3(1,this.basesat,this.basel)})
 							)
 						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"255", fontsize:14, margin:4})			
@@ -228,7 +365,6 @@ define.class(function(view, label,button, scrollbar,require){
 					,view({bgcolor:"transparent", flexdirection:"row" }
 						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"H", fontsize:14, margin:4})			
 						,view({bgcolor:"transparent", flexdirection:"column", flex:1 }
-							,scrollbar({height:18, total:255, page:20, vertical:false})
 							,this.customslider({height: 18, flex:1, hslfrom:vec3(this.basehue,0,this.basel), hslto:vec3(this.basehue,1,this.basel)})
 						)
 						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"255", fontsize:14, margin:4})			
@@ -236,7 +372,6 @@ define.class(function(view, label,button, scrollbar,require){
 					,view({bgcolor:"transparent", flexdirection:"row" }
 						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"H", fontsize:14, margin:4})			
 						,view({bgcolor:"transparent", flexdirection:"column", flex:1 }
-							,scrollbar({height:18, total:255, page:20, vertical:false})
 							,this.customslider({height: 18, flex:1, hslfrom:vec3(this.basehue,this.basesat,0), hslto:vec3(this.basehue,this.basesat,1)})
 						)
 						,label({fgcolor:this.fgcolor, bgcolor:"transparent" , text:"255", fontsize:14, margin:4})			
