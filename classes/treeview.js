@@ -39,8 +39,8 @@ define.class(function(view,  label, button, icon){
 		}
 		this.margin = 0
 		this.bg = NaN 
-		this.flex = 0
-		this.alignself = "flex-start" 	
+		
+		//this.alignself = "flex-start" 	
 	})
 
 	// newitemheading combines a few foldbuttons in to a full "item" in the tree
@@ -63,8 +63,7 @@ define.class(function(view,  label, button, icon){
 		this.fgcolor = "black"
 		this.margin = 0
 		this.bgcolor = "transparent"
-		this.flex = undefined
-		this.alignself = "flex-start"
+		//this.alignself = "flex-start"
 		
 		this.render = function(){
 			return [
@@ -92,7 +91,7 @@ define.class(function(view,  label, button, icon){
 			item: Object,
 		}
 
-		this.flex = 1.0
+		//this.flex = 1.0
 		this.padding = vec4(3)
 		this.fgcolor = vec4("black")
 		this.bg = 0
@@ -145,7 +144,7 @@ define.class(function(view,  label, button, icon){
 			if (!this.item) return [label({text:"empty"})];
 			//this.collapsed;
 			//console.log("treeitem", this.item.name, this.item.children);
-			return [view({flexdirection:"row", bg:0, flex:1}, [
+			return [view({flexdirection:"row", bg:0}, [
 				view({bg:0, flexwrap:"none", flexdirection:"column" },
 					this.outer.newitemheading({
 						haschildren: this.item.children && this.item.children.length, 
@@ -157,11 +156,11 @@ define.class(function(view,  label, button, icon){
 					}),
 					this.item.collapsed==false?
 						view({bg:0, flexdirection:"row" },
-							view({bg:0, flexdirection:"column" , flex:1,  padding: 0 },
+							view({bg:0, flexdirection:"column" ,  padding: 0 },
 								this.item.children?
 								this.item.children.map(function(m, i, array){return [
-									view({bg:0,flexdirection:"row" , alignitems:"stretch", padding: 0},
-										this.outer.treeline({width:20,last:i === array.length - 1?1:0}), 
+									view({bg:0,flexdirection:"row" , padding: 0},
+										this.outer.treeline({alignself:"stretch", height:32, width:20,last:i === array.length - 1?1:0}), 
 										this.outer.treeitem({item: m})										
 									)
 									]}.bind(this))
@@ -177,9 +176,9 @@ define.class(function(view,  label, button, icon){
 	// subclass to render the gridlines of the tree
 	define.class(this, 'treeline', function(view){
 		//this.bgcolor = vec4("red");
-		this.flex = 1
+		//this.flex = 1
 		this.last = 0
-		this.alignself = "stretch"
+	//	this.alignself = "stretch"
 		this.fgcolor = vec4(0.5, 0.5, 0.5, 1.)
 		this.bgcolor = "#c0c0c0" 
 		this.bg = {
@@ -208,7 +207,7 @@ define.class(function(view,  label, button, icon){
 	this.bgcolor = vec4("white")
 
 	this.flexdirection = "row"
-	this.flex = 1
+//	this.flex = 1
 
 	this.alignself = "stretch"
 
