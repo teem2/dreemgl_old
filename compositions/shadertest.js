@@ -4,7 +4,7 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 		screens(
 			screen({clearcolor:vec4('black')},
 				view({flex:1, bgcolor:'gray', borderradius:20, flexdirection:'column', padding:30},
-					label({text:'Live shader coding', 
+					/*label({text:'Live shader coding', 
 						font:{
 							moddist:function(pos, dist){
 								//view.fgcolor = 
@@ -15,10 +15,10 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 							}
 						},
 						fontsize: 138, marginbottom:20, fgcolor:'black'
-					}),
+					}),*/
 					view({
 						attributes:{
-							mycolor:{value:vec4('red'), motion:'linear', duration:1}
+							mycolor:{value:vec4('orange'), motion:'linear', duration:1}
 						},
 						mouseleftdown:function(){
 							this.mycolor = 'blue'
@@ -49,7 +49,7 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 								
 								var t = view.time
 								var field = float(0)
-								var p = mesh.xy * vec2(view.layout.width, view.layout.height) + vec2(-500,-400)
+								var p = mesh.xy * vec2(view.layout.width, view.layout.height) + vec2(-300,-300)
 
 								var scale = 100
 								field = shape.circle(p, 0, 0, 50)

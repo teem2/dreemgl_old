@@ -19,7 +19,7 @@ define.class(function(composition, docviewer, codeviewer, fileio, screens, scree
 					}.bind(this))
 					
 				}},
-				splitcontainer({ vertical: false,  bgcolor: "black", flex:1}
+				splitcontainer({vertical: false,  bgcolor: "black", flex:1}
 					,view({flexdirection:"column", padding: 0,flex: 0.2}
 						,view({alignitems:"center", bgcolor:"#e0e0e0", flexdirection:"row" ,padding: 14},
 							label({text:"DreemGL", fgcolor:"black", bgcolor:"#e0e0e0", fontsize: 35 })
@@ -48,11 +48,15 @@ define.class(function(composition, docviewer, codeviewer, fileio, screens, scree
 					,docviewer({flex:1,
 						attributes:{class:{persist:true}},
 						init:function(){
+							//console.log("INITIALIZIN")
 							this.screen.locationhash = function(event){
+							//	debugger
+
 								if(event.value.path) require.async(event.value.path).then(function(module){
 									this.class = module
 								}.bind(this))
 							}.bind(this)
+							//this.screen.locationhash = this.screen.locationhash
 						},
 						minsize:vec2(400,400),
 						overflow:'scroll'

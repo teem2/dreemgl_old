@@ -1,11 +1,8 @@
-define.class(function(composition, require, screens, screen, docviewer, button, label, codeviewer, view, slideviewer, draggable, teapot, ballrotate){
+define.class(function(composition, require,  screens, screen, docviewer, button, label, codeviewer, view, slideviewer,draggable, teapot, ballrotate){
 	// Live coding presentation docs!
 	this.attributes = {
 		test:"ELLO!"
 	}
-	
-	
-	
 	
 	this.render = function render(){ 
 		return [
@@ -27,12 +24,13 @@ define.class(function(composition, require, screens, screen, docviewer, button, 
 						overflow:'scroll',
 						slideheight:800,
 						bgcolor:'black',
+						bg:0,
 						attributes:{scroll:{persist:true}}
 						},
 						view({
 							bgcolor:"transparent", 
 							flex:1,
-							slidetitle:'DreemGL Introductions!'
+							slidetitle:'DreemGL introduction'
 							},
 							ballrotate({name:"ballrotate1", position:"absolute",width:100, height:100, target:"teapot1"})
 							,view({
@@ -96,32 +94,32 @@ define.class(function(composition, require, screens, screen, docviewer, button, 
 								flex:1,
 								clearcolor: 'rgba(255,255,255,0)',
 								mode: '3D',
+								attributes:{count:8},
 								bg:0,
 								camera: vec3(0,0,18),
 								render: function(){
 									var ret = []
-									for(var i = 0; i < 16; i ++) ret.push(
+									for(var i = 0; i < this.count; i ++) ret.push(
 										teapot({
-											detail:5,
+											detail:6,
 											position:'absolute',
 											attributes:{
-												vanim:{type:float, value:0, duration:0.5, motion:'bounce'}
+												value:{type:float, value:0, duration:0.5, motion:ease.bounce}
 											},
 											mouseover:function(){
-												this.vanim = 1
+												this.value = 1
 											},
 											mouseout:function(){
-												this.vanim = 0
+												this.value = 0
 											},
 											bg:{
 												i:i,
-												view:{vanim:0},
 												patterns: require('./shaderpatterns').prototype,
 												color:function(){
 													return vec4( patterns.wave(mesh.uv, i*.1 + 
-														view.vanim * 10., i*.1 + view.vanim * 10.) * 
+														view.value * 10., i*.1 + view.value * 10.) * 
 														pal.pal1(i*.1).xyz, 1.)
-												//	return vec4( patterns.stripe(mesh.uv, 10., i*.1 + view.vanim * 10.) * pal.pal1(i*0.1).xyz, 1.) 
+												//	return vec4( patterns.stripe(mesh.uv, 10., i*.1 + view.value * 10.) * pal.pal1(i*0.1).xyz, 1.) 
 												}
 											},
 											rotate:[-.6*PI,PI,0], 
@@ -152,7 +150,7 @@ define.class(function(composition, require, screens, screen, docviewer, button, 
 										this.bg = {
 											value:0,
 											color:function(){
-												return mix('blue', 'red', abs(sin(uv.y*10.+value)))
+												return mix('red', 'orange', abs(sin(uv.y*10.+value)))
 											}
 										}
 									}.toString(), 
@@ -169,7 +167,7 @@ define.class(function(composition, require, screens, screen, docviewer, button, 
 									bg:{
 										value:1,
 										color:function(){
-											return mix('blue', 'red', abs(sin(uv.y*10.+value)))
+											return mix('red', 'red', abs(sin(uv.y*10.+value)))
 										}
 									}
 								}),

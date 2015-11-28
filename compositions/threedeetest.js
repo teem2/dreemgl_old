@@ -116,7 +116,7 @@ define.class(function(composition, screens, screen, view, label, button, cube, s
 						)
 						
 						,view({mode:'2D', bgcolor:"red", pixelratio:2, scale: vec3(0.01, -0.01, 0.01), rotate:vec3(0,0, 0)}
-							,button({text:"Near", click:function(){
+							,button({text:"LKJQEW", click:function(){
 								
 								var cam = this.find("theview");
 								cam.camera = vec3(1,2,3);

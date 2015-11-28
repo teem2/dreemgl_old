@@ -22,7 +22,8 @@ define.class(function(view, label){
 							return vec4(1- mesh.y*0.4, 1- mesh.y*0.4,1- mesh.y*0.2,1)
 						}
 					},
-					cornerradius:vec4(10),
+					//bgcolor: 'blue',
+					//borderradius:vec4(10),
 					flex:1,
 					flexdirection:'column'
 				},

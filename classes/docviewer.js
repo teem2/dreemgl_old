@@ -120,7 +120,7 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 					view({flexdirection:"row",  flex:1, padding: vec4(2)}
 							,view({flex: 1, borderwidth: 1, flexdirection:"column", padding: vec4(4), bordercolor: "#e0e0e0"}
 								,label({fgcolor:"black", text:"Code", margin:vec4(10)})
-								,codeviewer({margin:vec4(10), source:this.item.examplefunc.toString(), padding:vec4(4), fontsize: 14, bgcolor:"#000030", multiline: true})
+								,codeviewer({margin:vec4(10), wrap:true, source:this.item.examplefunc.toString(), padding:vec4(4), fontsize: 14, bgcolor:"#000030", multiline: true})
 							)
 							,view({flex: 1, borderwidth: 1, flexdirection:"column", padding: vec4(4), bordercolor: "#e0e0e0", bgcolor: "gray" } 
 								,label({fgcolor:"white",bgcolor:"transparent",  text:"Live demo", margin:vec4(10)})								
@@ -348,7 +348,9 @@ define.class(function(view, require, label,foldcontainer,icon, markdown, codevie
 			}
 			
 			return foldcontainer(
-					{collapsed:true, basecolor:color, icon:icon, title:title ,flex:1, fontsize: 20,margin: vec4(10,0,0,20), fgcolor: "white" }, 
+					{collapsed:true, 
+						attributes:{collapsed:{persist:true}},
+						basecolor:color, icon:icon, title:title ,flex:1, fontsize: 20,margin: vec4(10,0,0,20), fgcolor: "white" }, 
 						view({flexdirection: "column", flex: 1}, subs)
 				);
 		}

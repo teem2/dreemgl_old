@@ -114,7 +114,10 @@ define.class(function(require, baseclass){
 
 		if(view._mode === '2D'){
 			if(isroot && mousex !== undefined){
-				mat4.ortho(scroll[0] + mousex, scroll[0] + 1 + mousex, scroll[1] + 1 + mousey,  scroll[1] + mousey, -100, 100, storage.viewmatrix)
+				var sizel = 0
+				var sizer = 1
+				mat4.ortho(scroll[0] + mousex - sizel, scroll[0] + mousex + sizer, scroll[1] + mousey - sizer,  scroll[1] + mousey + sizel, -100, 100, storage.viewmatrix)
+				mat4.ortho( mousex - sizel, mousex + sizer, mousey - sizer, mousey + sizel, -100, 100, storage.noscrollmatrix)
 			}
 			else{
 				var zoom = view._zoom

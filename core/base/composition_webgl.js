@@ -65,7 +65,7 @@ define.class('$base/composition_client', function(require, baseclass){
 			this.decodeLocationHash()
 		}.bind(this)
 
-		if(!previous) this.decodeLocationHash()
+		this.decodeLocationHash()
 	}
 
 })
