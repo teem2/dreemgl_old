@@ -15,10 +15,11 @@ define.class(function(view, label,button, scrollbar,require){
 		,fgcolor: {type: vec4, value: "white"}		
 		,fontsize:{type: int, value: 15}
 		,internalbordercolor: {type:vec4, value:vec4(1,1,1,0.6)}
-		,basehue: {type:float, value:0.5}
-		,basesat: {type:float, value:1}
+		//,basehue: {type:float, value:0.5}
+		,basesat: {type:float, value:0.8}
 		,basel: {type:float, value:0.5}
 	}
+	this.basehue = 0.5;
 	this.bgcolor = vec4(0.0,0.0,0.0,0.4)
 	this.flexdirection = "column";
 	this.padding = vec4(10)
@@ -31,10 +32,38 @@ define.class(function(view, label,button, scrollbar,require){
 	this.internalbordercolor= function(){
 		this.bordercolor = this.internalbordercolor		
 	}
-	this.setHueBase = function(h)
-	{
-		this.basehue = h;
+	this.updatecontrol = function(name, val){
+		var c = this.find(name);
+		if (c){
+			c.currentcolor = this.color;
+			c.basehue = this.basehue;
+			c.basesat = this.basesat;
+			c.basel = this.basel;
+			newoff = val * (256);
+			if (newoff < 0) newoff += 256;
+			c.offset = newoff
+		}
+		else{
+			console.log("control not found in colorpicker:", c);
+		}
 	}
+	
+	this.updateallcontrols = function(){
+		this.color = vec4.fromHSL(this.basehue, this.basesat, this.basel);
+		this.updatecontrol("hslider", this.basehue);
+		this.updatecontrol("sslider", this.basesat);
+		this.updatecontrol("lslider", this.basel);
+		this.updatecontrol("rslider", this.color[0]);
+		this.updatecontrol("gslider", this.color[1]);
+		this.updatecontrol("bslider", this.color[2]);
+		this.updatecontrol("triangleview", this.color[2]);		
+	}
+	
+	this.setHueBase = function(h){
+		this.basehue = h;
+		this.updateallcontrols();		
+	}
+	
 	
 	define.class(this, "customslider", function(view){
 		this.height = 19;
@@ -46,7 +75,7 @@ define.class(function(view, label,button, scrollbar,require){
 
 			// hsl color for the right side
 			hslto:{type:vec3, value: vec3(1,1,0.5)},
-			
+			currentcolor: {type:vec4, value: vec4("red")},
 			
 			
 			// Color of the draggable part of the scrollbar
@@ -113,8 +142,9 @@ define.class(function(view, label,button, scrollbar,require){
 					field = shape.roundbox(rel, offset * view.layout.width, 0.05*view.layout.height,page*view.layout.width, .9*view.layout.height, view.draggerradius)
 				}
 				var fg = vec4(view.draggercolor.rgb, smoothstep(-edge, edge, 1-abs(-field-1.))*view.draggercolor.a)
-				//return vec4(vec3(sin(field)), 1.)
-				return mix(bg.rgba, fg.rgba, fg.a)
+				var fg2 = vec4(view.currentcolor.rgb, smoothstep(0.,-edge, field)*view.currentcolor.a)
+				//return vec4(vec3(sin(field*0.1))+ fg2.a*vec3(1,0,0) + fg.a*vec3(0,1,0), 1.)
+				return mix(bg.rgba, mix(fg2.rgba, fg.rgba, fg.a), max(fg.a,fg2.a))
 			},
 			mesh: mesh,
 			update:function(){},
@@ -269,14 +299,17 @@ define.class(function(view, label,button, scrollbar,require){
 	define.class(this, 'triangleview', function(view){
 		this.width = 200;
 		this.height = 200;
+		
 		this.attributes = {
-			basehue: {type:float, value:0.7}
+			basehue: {type:float, value:0.7},
+			hover:{type:float, motion:"linear", duration:0.1, value:1}
 		}
 		define.class(this, 'bg', this.Shader, function(){
 		
 		this.vertexstruct = define.struct({		
 			p:float,			
-			hsloff: vec3	
+			hsloff: vec3,
+			center: float
 		})
 		
 		this.mesh = this.vertexstruct.array()
@@ -291,8 +324,20 @@ define.class(function(view, label,button, scrollbar,require){
 		}
 		
 		this.color = function(){
+			
+			var edge = 1-pow(mesh.center,1.);
+			var aaedge = pow(mesh.center,2.0);
+				
 			var hsl = vec3(view.basehue,1,0.5) + mesh.hsloff;
-			return colorlib.hsla(vec4(hsl, 1));
+		
+			var color = colorlib.hsla(vec4(hsl, 1));;
+			var edgecolor = vec4(1,1,1,1);
+			var mixed = mix(color, edgecolor, view.hover*edge);
+			//mixed.a *= aaedge;
+				
+				
+				
+			return mixed;
 		}
 		
 		this.update = function(){
@@ -303,9 +348,10 @@ define.class(function(view, label,button, scrollbar,require){
 			var cy = height/2;
 			var radius = Math.min(cx,cy);
 			this.mesh = this.vertexstruct.array()
-			this.mesh.push(view.basehue,  vec3(0,0,0));
-			this.mesh.push(view.basehue + 1/3,  vec3(0,-1,-0.5));
-			this.mesh.push(view.basehue + 2/3, vec3(0,-1,0.5));
+			//this.mesh.push(view.basehue,  vec3(0,0.5,0),0);
+			this.mesh.push(view.basehue,  vec3(0,0,0),1);
+			this.mesh.push(view.basehue + 1/3,  vec3(0,-1,-0.5),1);
+			this.mesh.push(view.basehue + 2/3, vec3(0,-1,0.5),1);
 			
 		}				
 	})
@@ -340,9 +386,9 @@ define.class(function(view, label,button, scrollbar,require){
 					,this.triangleview({basehue:this.basehue, position:"absolute"})
 				)
 				,view({bg:0, flexdirection:"column"}
-					,this.customslider({flex:1, hslfrom:vec3(0,1,0), hslto:vec3(0,1,0.5)})
-					,this.customslider({ flex:1, hslfrom:vec3(0.33,1,0), hslto:vec3(0.333,1,0.5)})
-					,this.customslider({height: 18, flex:1, hslfrom:vec3(0.666,1,0), hslto:vec3(0.666,1,0.5)})
+					,this.customslider({name:"rslider",flex:1, hslfrom:vec3(0,1,0), hslto:vec3(0,1,0.5)})
+					,this.customslider({name:"gslider", flex:1, hslfrom:vec3(0.33,1,0), hslto:vec3(0.333,1,0.5)})
+					,this.customslider({name:"bslider",height: 18, flex:1, hslfrom:vec3(0.666,1,0), hslto:vec3(0.666,1,0.5)})
 					,view({bg:0}
 						,label({flex:1, text:"rgb", fontsize:18, bg:0, fgcolor: this.fgcolor})
 						,view({flex:1, bg:0},label({text:"100", fontsize:18, bg:0, fgcolor: this.fgcolor}))
@@ -350,9 +396,9 @@ define.class(function(view, label,button, scrollbar,require){
 						,view({flex:1, bg:0},label({text:"100", fontsize:18, bg:0, fgcolor: this.fgcolor}))
 						
 					)
-					,this.customslider({height: 18, flex:1, hslfrom:vec3(0.0,this.basesat,this.basel), hslto:vec3(1,this.basesat,this.basel)})
-					,this.customslider({height: 18, flex:1, hslfrom:vec3(this.basehue,0,this.basel), hslto:vec3(this.basehue,1,this.basel)})
-					,this.customslider({height: 18, flex:1, hslfrom:vec3(this.basehue,this.basesat,0), hslto:vec3(this.basehue,this.basesat,1)})
+					,this.customslider({name:"hslider",height: 18, flex:1, hslfrom:vec3(0.0,this.basesat,this.basel), hslto:vec3(1,this.basesat,this.basel)})
+					,this.customslider({name:"sslider",height: 18, flex:1, hslfrom:vec3(this.basehue,0,this.basel), hslto:vec3(this.basehue,1,this.basel)})
+					,this.customslider({name:"lslider",height: 18, flex:1, hslfrom:vec3(this.basehue,this.basesat,0), hslto:vec3(this.basehue,this.basesat,1)})
 					,view({bg:0}
 						,label({flex:1, text:"hsl", fontsize:18, bg:0, fgcolor: this.fgcolor})
 						,view({flex:1, bg:0},label({text:"100", fontsize:18, bg:0, fgcolor: this.fgcolor}))
