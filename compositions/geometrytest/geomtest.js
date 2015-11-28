@@ -10,12 +10,12 @@ define.class(function(require, screen, view, label, cube, teapot, model, plane, 
 	//				button({text:"I am a button in a 3d viewport" })
 		//		)
 				,view({flexdirection:"row", flex: 1, bgcolor:"transparent"}
-					,view({mode:"3d", flex: 1,name:"moleculesview", clearcolor:"lightblue",bg:0, aligself:"stretch", clipping: true, fov:45, camera:[53,-10,-53], lookat:[0,0,0],margin:vec4(0), borderwidth:0, bordercolor:"lightgray"}
+					,view({mode:"3d", flex: 1,name:"moleculesview", clearcolor:"lightblue",bg:0, aligself:"stretch", clipping: true, fov:45, camera:[-50,-10,-53], lookat:[0,0,0],up:[0,1,0],margin:vec4(0), borderwidth:0, bordercolor:"lightgray"}
 					//
-					//	//model({model:require("./molecule.obj"), rot3d:[PI,PI/2,0],scale3d:[0.2,0.2,0.2],pos3d:[-1,-15,0]}),
-					//	//model({model:require("./molecule.obj"), rot3d:[PI,PI/2 + 0.1,0],scale3d:[0.2,0.2,0.2],pos3d:[-1,-10,0]}),
-					//	//model({model:require("./molecule.obj"), rot3d:[PI,PI/2 + 0.2,0],scale3d:[0.2,0.2,0.2],pos3d:[-1,-5,0]}),
-					//	//model({model:require("./molecule.obj"), rot3d:[PI,PI/2 + 0.5,0],scale3d:[0.2,0.2,0.2],pos3d:[-1,0,0]}),
+						,model({model:require("./molecule.obj"), rotate:[PI,PI/2,0],scale:[0.2,0.2,0.2],pos:[-1,-15,0]})
+						,model({model:require("./molecule.obj"), rotate:[PI,PI/2 + 0.1,0],scale:[0.2,0.2,0.2],pos:[-1,-10,0]})
+						,model({model:require("./molecule.obj"), rotate:[PI,PI/2 + 0.2,0],scale:[0.2,0.2,0.2],pos:[-1,-5,0]})
+						,model({model:require("./molecule.obj"), rotate:[PI,PI/2 + 0.5,0],scale:[0.2,0.2,0.2],pos:[-1,0,0]})
                     //
 						,plane({xdiv:100, ydiv:100, size:vec3(140,140,1)
 					
@@ -38,7 +38,7 @@ define.class(function(require, screen, view, label, cube, teapot, model, plane, 
 					
 									return vec4( maxstripe*vec3(0,1,1),maxstripe*0.2 + 0.8);
 								}
-							}, rot3d:[PI/2,0,0], pos3d:[0,0,0]})
+							}, rotate:[PI/2,0,0], pos3d:[0,0,0]})
 					//		ballrotate({init:function(){this.target= this.find("moleculesview");}, width:100, height:100})
                     //
 					//)
