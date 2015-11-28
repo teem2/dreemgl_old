@@ -18,7 +18,7 @@
 // Tests client->server method and attribute access.
 
 
-define.class(function(composition, screens, screen, view, text){
+define.class(function(composition, screens, screen, view, label){
 
   // Server
   var serverobj = define.class(function serverobj(server){
@@ -105,7 +105,7 @@ define.class(function(composition, screens, screen, view, text){
           }
         },
 
-	text({name: 'messages', size:vec2(600,200), rotation: 0, bgcolor:"gray",fgcolor:"white", marginleft: 4, fontsize: 16, position: "relative", text: 'Messages:'}),
+	label({name: 'messages', size:vec2(600,200), rotation: 0, bgcolor:"gray",fgcolor:"white", marginleft: 4, fontsize: 16, position: "relative", text: 'Messages:'}),
 
         view({
           size: vec2(100,100),

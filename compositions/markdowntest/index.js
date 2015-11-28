@@ -1,5 +1,5 @@
 //Pure JS based composition
-define.class(function(composition, docviewer, fileio, screens, screen, dataset, splitcontainer, treeview, view, text, require, scrollcontainer, markdown){
+define.class(function(composition, docviewer, fileio, screens, screen, dataset, splitcontainer, treeview, view, label, require, markdown){
 
 	this.render = function(){
 		//console.log(t)
@@ -10,7 +10,7 @@ define.class(function(composition, docviewer, fileio, screens, screen, dataset, 
 				splitcontainer({vertical:false, position: "relative",  flexdirection: "row", bgcolor: "black", alignitems:"stretch", alignself: "stretch" , flex:1}
 					,view({flexdirection:"column",padding: 0, flex: 0.2}
 						,view({alignitems:"center", bgcolor:"#e0e0e0", flexdirection:"row" ,padding: 14},
-							text({text:"Markdown test", fgcolor:"black", bgcolor:"transparent", fontsize: 30 })
+										label({text:"Markdown test", fgcolor:"black", bgcolor:"transparent", fontsize: 30 })
 						)
 					),
 					view({bgcolor: "#ddf0f0", flex: 0.5, flexdirection:"column",  flexwrap:"none" }

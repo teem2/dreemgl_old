@@ -1,4 +1,4 @@
-define.class(function( composition, screens, geomtest, screen){
+define.class(function( composition, screens, geomtest){
 	
 	this.render = function(){
 		return [

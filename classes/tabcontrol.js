@@ -4,7 +4,7 @@
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 // ruler class
 
-define.class(function(view, button, text){
+define.class(function(view, button, label){
 	// Create a tabcontrol - 1 tab for each instance-child. Each instance-child can provide a title and an icon property which will be used in the activation button for the tab.
 
 	this.attributes = {
@@ -58,10 +58,10 @@ define.class(function(view, button, text){
 		Usage:{
 			return [
 				tabcontrol({}
-					,text({tabicon:"flask", tabname:"Flask",  text: "I am on tab 1 - my icon is a flask!", fgcolor: "blue", fontsize: 20})
-					,text({tabicon:"gears",tabname:"Gears",text: "I am on tab 2 - my icon is a gearbox!", fgcolor: "red", fontsize: 20})
-					,text({tabicon:"briefcase",tabname:"Briefcase",text: "I am on tab 3 - my icon is a briefcase!", fgcolor: "green", fontsize: 20})
-					,text({tabicon:"battery-full",tabname:"Battery",text: "I am on tab 4 - my icon is a battery!", fgcolor: "yellow", fontsize: 20})
+					,label({tabicon:"flask", tabname:"Flask",  text: "I am on tab 1 - my icon is a flask!", fgcolor: "blue", fontsize: 20})
+					,label({tabicon:"gears",tabname:"Gears",text: "I am on tab 2 - my icon is a gearbox!", fgcolor: "red", fontsize: 20})
+					,label({tabicon:"briefcase",tabname:"Briefcase",text: "I am on tab 3 - my icon is a briefcase!", fgcolor: "green", fontsize: 20})
+					,label({tabicon:"battery-full",tabname:"Battery",text: "I am on tab 4 - my icon is a battery!", fgcolor: "yellow", fontsize: 20})
 				)
 			]
 		}
