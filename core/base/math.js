@@ -649,23 +649,33 @@ define(function(require, exports){
 	}
 	
 	// converts standard vec4 color in to HSL space (not to be confused with HSV space!) 
-	exports.vec4.toHSL = function(){
-		var max = Math.max(this[0], this[1], this[2]), min = Math.min(this[0], this[1], this[2]);
+	exports.vec4.toHSL = function(inp){
+		var max = Math.max(inp[0], inp[1], inp[2]), min = Math.min(inp[0], inp[1], inp[2]);
 		var h, s, l = (max + min) / 2;
-
+		var r = inp[0];
+		var g = inp[1];
+		var b = inp[2];
 		if(max == min){
 			h = s = 0; // achromatic
 		}else{
 			var d = max - min;
 			s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-			switch(max){
-				case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-				case g: h = (b - r) / d + 2; break;
-				case b: h = (r - g) / d + 4; break;
+			if (max == inp[0]){
+					h = (g - b) / d + (g < b ? 6 : 0); 
+			}
+			else{
+				if (max == inp[1]){
+					
+				h = (b - r) / d + 2; 
+				}
+				else{
+				
+				 h = (r - g) / d + 4; 
+				}
 			}
 			h /= 6;
 		}
-		return [h, s, l, this[3]];
+		return [h, s, l, inp[3]];;
 	}
 
 	// calculate an RGBA color from an HSLA color
