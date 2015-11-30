@@ -72,6 +72,11 @@ define.class(function(view, label,button, scrollbar,require){
 		this.updateallcontrols();		
 	}
 	
+	this.setLumBase = function(s){
+		this.basel  = s;
+		this.updateallcontrols();		
+	}
+	
 	define.class(this, "customslider", function(view){
 		this.height = 19;
 		
@@ -461,8 +466,8 @@ define.class(function(view, label,button, scrollbar,require){
 						
 					)
 					,this.customslider({name:"hslider",height: 18, flex:1, hslfrom:vec3(0.0,this.basesat,this.basel), hslto:vec3(1,this.basesat,this.basel), offset:function(v){this.outer.setHueBase(v.value/255)}})
-					,this.customslider({name:"sslider",height: 18, flex:1, hslhueadd: 1,  hslfrom:vec3(0,0,this.basel), hslto:vec3(0,1,this.basel)})
-					,this.customslider({name:"lslider",height: 18, flex:1, hslhueadd: 1, hslfrom:vec3(0,this.basesat,0), hslto:vec3(0,this.basesat,1)})
+					,this.customslider({name:"sslider",height: 18, flex:1, hslhueadd: 1,  hslfrom:vec3(0,0,this.basel), hslto:vec3(0,1,this.basel), offset:function(v){this.outer.setSatBase(v.value/255)}})
+					,this.customslider({name:"lslider",height: 18, flex:1, hslhueadd: 1, hslfrom:vec3(0,this.basesat,0), hslto:vec3(0,this.basesat,1), offset:function(v){this.outer.setLumBase(v.value/255)}})
 					,view({bg:0}
 						,label({flex:1, text:"hsl", fontsize:18, bg:0, fgcolor: this.fgcolor})
 						,view({flex:1, bg:0},label({text:"100", fontsize:18, bg:0, fgcolor: this.fgcolor}))
