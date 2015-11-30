@@ -62,8 +62,12 @@ define.class(function(view, label,button, scrollbar,require){
 		this.updatecontrol("colorcirclecontrol", this.basehue);		
 	}
 	
+	this.color = function(){
+		this.createHSLFromColor();
+		this.updateallcontrols();
+	}
 	this.createColorFromHSL = function(){
-		this.color = vec4.fromHSL(this.basehue, this.basesat, this.baselum);		
+		this._color = vec4.fromHSL(this.basehue, this.basesat, this.baselum);		
 	}
 
 	this.createHSLFromColor = function(){
@@ -93,6 +97,7 @@ define.class(function(view, label,button, scrollbar,require){
 
 	this.setHueBase = function(h){
 		this.basehue = h;
+		console.log(h);
 		this.createColorFromHSL(); 	
 		this.updateallcontrols();		
 	}
@@ -390,81 +395,94 @@ define.class(function(view, label,button, scrollbar,require){
 				this.mesh.push(-1, 1);
 			}
 			
-		this.position = function(){
-			pos = min(view.layout.width, view.layout.height)/2  + mesh.p * view.draggersize;
-			//pos = vec2(view.layout.width/2 + rad * uv.x, view.layout.height/2 + rad * uv.y)
-			return vec4(pos, 0, 1) * view.totalmatrix * view.viewmatrix
-		}
-		
+			this.position = function(){
+				
+				huepos = vec2(sin(view.basehue * PI * 2), cos(view.basehue* PI * 2)) * 0.7 * 100;
 			
+			
+				whitepos =  vec2(sin((view.basehue + 1/3) * PI * 2 ), cos((view.basehue + 1/3)* PI * 2)) * 0.7 * 100;
+				blackpos = vec2(sin((view.basehue + 2/3) * PI * 2), cos((view.basehue + 2/3)* PI * 2)) * 0.7 * 100;
+				
+				overpos  = -huepos;
+				
+				var len = dot(normalize(overpos - huepos), whitepos)
+				
+				graypos = (whitepos + blackpos) / 2;
+				delta = whitepos - blackpos;
+				
+				huepos += normalize(graypos) * (1 - view.basesat) * len * 2;
+			
+				pos = min(view.layout.width, view.layout.height)/2  + mesh.p * view.draggersize;
+				pos += huepos;
+				//pos = vec2(view.layout.width/2 + rad * uv.x, view.layout.height/2 + rad * uv.y)
+				return vec4(pos, 0, 1) * view.totalmatrix * view.viewmatrix
+			}
+			
+				
 			this.color = function(){
 				var D = sqrt(dot(mesh.p, mesh.p));
-				if (D<0.8)
-				return view.currentcolor; 
-			
+				if (D<0.8) return view.currentcolor; 			
 				if (D<1.0) return vec4("white");
+				
 				return vec4(1.,1.,1.,0.);
-				}
+			}
 		
 		})
 		
 		this.fg = 2;
 		define.class(this, 'bg', this.Shader, function(){
-		
-		this.vertexstruct = define.struct({		
-			p:float,			
-			hsloff: vec3,
-			center: float
-		})
-		
-		this.mesh = this.vertexstruct.array()
-		this.draw_type = "TRIANGLES"
-	
-		this.position = function(){
-			off = mesh.p / 6.283
-			var rad = min(view.layout.width, view.layout.height)/2;
-			uv = vec2(sin(mesh.p * PI * 2), cos(mesh.p* PI * 2)) * 0.7;
-			pos = vec2(view.layout.width/2 + rad * uv.x, view.layout.height/2 + rad * uv.y)
-			return vec4(pos, 0, 1) * view.totalmatrix * view.viewmatrix
-		}
-		
-		this.color = function(){
 			
-			var edge = 1-pow(mesh.center,1.);
-			var aaedge = pow(mesh.center,2.0);				
-			var hsl = vec3(view.basehue,1,0.5) + mesh.hsloff;
-		
-			var color = colorlib.hsla(vec4(hsl, 1));;
-			var edgecolor = vec4(1,1,1,1);
-			var mixed = mix(color, edgecolor, view.hover*edge);
-			//mixed.a *= aaedge;
-			return mixed;
-		}
-		
-		this.update = function(){
-			var view = this.view
-			var width = view.layout?view.layout.width:view.width
-			var height = view.layout?view.layout.height:view.height
-			var cx = width/2;
-			var cy = height/2;
-			var radius = Math.min(cx,cy);
+			this.vertexstruct = define.struct({		
+				p:float,			
+				hsloff: vec3,
+				center: float
+			})
+			
 			this.mesh = this.vertexstruct.array()
-			//this.mesh.push(view.basehue,  vec3(0,0.5,0),0);
-			this.mesh.push(view.basehue,  vec3(0,0,0),1);
-			this.mesh.push(view.basehue + 1/3,  vec3(0,-1,-0.5),1);
-			this.mesh.push(view.basehue + 2/3, vec3(0,-1,0.5),1);
+			this.draw_type = "TRIANGLES"
+		
+			this.position = function(){
+				off = mesh.p / 6.283
+				var rad = min(view.layout.width, view.layout.height)/2;
+				uv = vec2(sin(mesh.p * PI * 2), cos(mesh.p* PI * 2)) * 0.7;
+				pos = vec2(view.layout.width/2 + rad * uv.x, view.layout.height/2 + rad * uv.y)
+				return vec4(pos, 0, 1) * view.totalmatrix * view.viewmatrix
+			}
 			
-		}				
-	})
+			this.color = function(){
+				
+				var edge = 1-pow(mesh.center,1.);
+				var aaedge = pow(mesh.center,2.0);				
+				var hsl = vec3(view.basehue,1,0.5) + mesh.hsloff;
+			
+				var color = colorlib.hsla(vec4(hsl, 1));;
+				var edgecolor = vec4(1,1,1,1);
+				var mixed = mix(color, edgecolor, view.hover*edge);
+				//mixed.a *= aaedge;
+				return mixed;
+			}
+			
+			this.update = function(){
+				var view = this.view
+				var width = view.layout?view.layout.width:view.width
+				var height = view.layout?view.layout.height:view.height
+				var cx = width/2;
+				var cy = height/2;
+				var radius = Math.min(cx,cy);
+				this.mesh = this.vertexstruct.array()
+				//this.mesh.push(view.basehue,  vec3(0,0.5,0),0);
+				this.mesh.push(view.basehue,  vec3(0,0,0),1);
+				this.mesh.push(view.basehue + 1/3,  vec3(0,-1,-0.5),1);
+				this.mesh.push(view.basehue + 2/3, vec3(0,-1,0.5),1);
+				
+			}				
+		})
 	
 	})
 	
 	this.colorcircle = 0;
 	this.colortriangle = 0;
 	
-	this.color = function(aaaa){		
-		this.settingcontrol = undefined;
-	}
 	
 	define.class(this, 'colorarea', function(view){
 		this.bg ={

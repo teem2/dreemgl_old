@@ -22,9 +22,9 @@ define.class(function(composition, screens, screen, view, label, button, colorpi
 							}
 						}},
 						view({bg:0, padding:4},
-						colorpicker({margin:4, flex:1, bgcolor:vec4(0,0,0,0.4)}),
-						colorpicker({margin:4, flex:1, bgcolor:vec4(0,0,0,0.4)}),
-						colorpicker({margin:4, flex:1, bgcolor:vec4(0,0,0,0.4)})
+						colorpicker({margin:4, flex:1, color:vec4("green"), bgcolor:vec4(0,0,0,0.4)}),
+						colorpicker({margin:4, flex:1, color:vec4("red"), bgcolor:vec4(0,0,0,0.4)}),
+						colorpicker({margin:4, flex:1, color:vec4("blue"),bgcolor:vec4(0,0,0,0.4)})
 						)
 						,view({flexdirection:"row", bgcolor:"transparent",padding:7 },
 							button({
