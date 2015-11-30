@@ -218,16 +218,23 @@ define.class(function(view, label,button, scrollbar,require){
 			ringwidth:{type:float, value: 0.3},
 			hover:{type:float, value: 0, motion:"linear", duration: 0.1}
 		}
-		this.mouseleftdown = function(){
-			
-			this.mousemove = function(m){
-				var dx = m[0] - this.layout.width/2;
-				var dy = m[1] - this.layout.height/2;
+		
+		this.updatehue = function(mousepos){
+				var dx = mousepos[0] - this.layout.width/2;
+				var dy = mousepos[1] - this.layout.height/2;
 				dx /= this.layout.width/2;
 				dy /= this.layout.height/2;
 				var angle = Math.atan2(dy,dx);
 				
 				this.outer.setHueBase(-angle/ 6.283+ 0.25);
+		}
+		
+		this.mouseleftdown = function(m){
+			
+			this.updatehue(m);
+			
+			this.mousemove = function(m){
+				this.updatehue(m);
 			};
 		}
 		this.mouseleftup = function(){
