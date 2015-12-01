@@ -18,9 +18,9 @@ define.class(function($components$, composition, screens, $containers$, screen, 
 							}
 						}},
 						view({bg:0, padding:4},
-						colorpicker({margin:4, flex:1, bgcolor:vec4(0,0,0,0.4)}),
-						colorpicker({margin:4, flex:1, bgcolor:vec4(0,0,0,0.4)}),
-						colorpicker({margin:4, flex:1, bgcolor:vec4(0,0,0,0.4)})
+						colorpicker({margin:4, flex:1, color:vec4("#342563"), bgcolor:vec4(0,0,0,0.4)}),
+						colorpicker({margin:4, flex:1, color:vec4("#D0F612"), bgcolor:vec4(0,0,0,0.4)}),
+						colorpicker({margin:4, flex:1, color:vec4("#102030"),bgcolor:vec4(0,0,0,0.4)})
 						)
 						,view({flexdirection:"row", bgcolor:"transparent",padding:7 },
 							button({
@@ -36,8 +36,8 @@ define.class(function($components$, composition, screens, $containers$, screen, 
 								text:"Set HSL", 
 								click:function(){
 									var cp = this.find("colorpicker");	
-									cp.color = vec4.fromHSL(0.5,1,0.5);
-									cp.basehue = Math.random();
+									cp.color = vec4.fromHSL(Math.random(),Math.random(),Math.random());
+								//	cp.basehue = Math.random();
 									console.log(cp.color);
 								}
 							})
