@@ -409,16 +409,16 @@ define.class(function(view, label,button, scrollbar,require){
 				
 				huepos = vec2(sin(view.basehue * PI * 2), cos(view.basehue* PI * 2)) * 0.7 * 100;
 						
-				var blackpos =  vec2(sin((view.basehue + 1./3.) * PI * 2. ), cos((view.basehue + 1./3.)* PI * 2.)) * 0.7 * 100.0;
-				var whitepos = vec2(sin((view.basehue + 2./3.) * PI * 2.), cos((view.basehue + 2./3.)* PI * 2.)) * 0.7 * 100.0;
+				var satdir =  vec2(sin((view.basehue - 1./4.) * PI * 2. ), cos((view.basehue - 1./4.)* PI * 2.)) * 0.7 * 100.0;
+				var valdir = vec2(sin((view.basehue - 3./4.) * PI * 2.), cos((view.basehue - 3./4.)* PI * 2.)) * 0.7 * 100.0;
 				
 				
 				//var len = dot(normalize(overpos - huepos), whitepos)
 				
-				var graypos = (whitepos + blackpos) / 2.0;
-				var delta = whitepos - blackpos;
+	//			var graypos = (whitepos + blackpos) / 2.0;
+//				var delta = whitepos - blackpos;
 				
-				huepos += (graypos - huepos) * (1 - view.basesat) + (view.baseval -0.5) * delta * (view.basesat) ;
+				huepos += (satdir - huepos   )* (1-view.basesat)  + (valdir - huepos ) * (1 - view.baseval);
 			
 				pos = min(view.layout.width, view.layout.height)/2  + mesh.p * view.draggersize;
 				pos += huepos;
@@ -467,7 +467,7 @@ define.class(function(view, label,button, scrollbar,require){
 				var edgecolor = vec4(1,1,1,1);
 				var mixed = mix(color, edgecolor, view.hover*edge);
 				//mixed.a *= aaedge;
-				return mixed;
+				return color;
 			}
 			
 			this.update = function(){
@@ -479,9 +479,13 @@ define.class(function(view, label,button, scrollbar,require){
 				var radius = Math.min(cx,cy);
 				this.mesh = this.vertexstruct.array()
 				//this.mesh.push(view.basehue,  vec3(0,0.5,0),0);
-				this.mesh.push(view.basehue,  vec3(0,0,0),1);
-				this.mesh.push(view.basehue + 1/3,  vec3(0,-1,-1),1);
-				this.mesh.push(view.basehue + 2/3, vec3(0,-1,0),1);
+				this.mesh.push(view.basehue,       vec3( 0, 0, 0),1);
+				this.mesh.push(view.basehue + 1/4, vec3( 0,0,-1),1);
+				this.mesh.push(view.basehue + 2/4, vec3( 0,-1,-1),1);
+				
+				this.mesh.push(view.basehue,       vec3( 0, 0, 0),1);
+				this.mesh.push(view.basehue + 2/4, vec3( 0, -1,-1),1);
+				this.mesh.push(view.basehue + 3/4, vec3( 0, -1, 0),1);
 				
 			}				
 		})
