@@ -54,7 +54,7 @@ define(function(require, exports){
 		var r = 0.0;
 		var g = 0.0;	
 		var b = 0.0;
-
+		if (h<0.) h+=360.;
 		if(s == 0.0){
 			r = g = b = v; // achromatic
 		}else{

@@ -757,6 +757,8 @@ define(function(require, exports){
 		if(!o) o = exports.vec4()
 			
 		h *= 360;
+		if (h < 0) h+=360;
+
 		var r = 0.0;
 		var g = 0.0;	
 		var b = 0.0;
@@ -780,8 +782,6 @@ define(function(require, exports){
 		o[1] = g;
 		o[2] = b;
 		o[3] = a?a:1.0
-		
-		console.log(o);
 		return o;
 		
 	}

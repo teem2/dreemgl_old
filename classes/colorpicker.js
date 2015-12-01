@@ -52,6 +52,11 @@ define.class(function(view, label,button, scrollbar,require){
 		}
 	}
 	
+	this.updatelabel = function(name, val){
+		var c = this.find(name);
+		if (c) c.text = val;
+	}
+	
 	this.updateallcontrols = function(){
 		this.updatecontrol("hsvider", this.basehue);
 		this.updatecontrol("sslider", this.basesat);
@@ -61,6 +66,10 @@ define.class(function(view, label,button, scrollbar,require){
 		this.updatecontrol("bslider", this.color[2]);
 		this.updatecontrol("triangleview", this.basehue);		
 		this.updatecontrol("colorcirclecontrol", this.basehue);		
+	
+		this.updatelabel("texth", Math.round(this.basehue * 360));
+		this.updatelabel("texts", Math.round(this.basesat * 100));
+		this.updatelabel("textv", Math.round(this.baseval * 100));
 	}
 	
 	this.color = function(){
@@ -108,7 +117,6 @@ define.class(function(view, label,button, scrollbar,require){
 
 	this.setHueBase = function(h){
 		this.basehue = h;
-		console.log(h);
 		this.createColorFromHSV(); 	
 		this.updateallcontrols();		
 	}
@@ -522,9 +530,9 @@ define.class(function(view, label,button, scrollbar,require){
 					,this.customslider({name:"bslider",height: 18, flex:1, hsvfrom:vec3(0.666,1,0), hsvto:vec3(0.666,1,0.5), offset:function(v){this.outer.setBlue(v.value/255)}})
 					,view({bg:0}
 						,label({flex:1, text:"rgb", fontsize:18, bg:0, fgcolor: this.fgcolor})
-						,view({flex:1, bg:0},label({text:"100", fontsize:18, bg:0, fgcolor: this.fgcolor}))
-						,view({flex:1, bg:0},label({text:"100", fontsize:18, bg:0, fgcolor: this.fgcolor}))
-						,view({flex:1, bg:0},label({text:"100", fontsize:18, bg:0, fgcolor: this.fgcolor}))
+						,view({flex:1, bg:0},label({name:"textr",text:"100", fontsize:18, bg:0, fgcolor: this.fgcolor}))
+						,view({flex:1, bg:0},label({name:"textg",text:"100", fontsize:18, bg:0, fgcolor: this.fgcolor}))
+						,view({flex:1, bg:0},label({name:"textb",text:"100", fontsize:18, bg:0, fgcolor: this.fgcolor}))
 						
 					)
 					,this.customslider({name:"hsvider",height: 18, flex:1, hsvfrom:vec3(0.0,this.basesat,this.baseval), hsvto:vec3(1,this.basesat,this.baseval), offset:function(v){this.outer.setHueBase(v.value/255)}})
@@ -532,9 +540,9 @@ define.class(function(view, label,button, scrollbar,require){
 					,this.customslider({name:"lslider",height: 18, flex:1, hsvhueadd: 1, hsvfrom:vec3(0,this.basesat,0), hsvto:vec3(0,this.basesat,1), offset:function(v){this.outer.setLumBase(v.value/255)}})
 					,view({bg:0}
 						,label({flex:1, text:"hsv", fontsize:18, bg:0, fgcolor: this.fgcolor})
-						,view({flex:1, bg:0},label({text:"100", fontsize:18, bg:0, fgcolor: this.fgcolor}))
-						,view({flex:1, bg:0},label({text:"100", fontsize:18, bg:0, fgcolor: this.fgcolor}))
-						,view({flex:1, bg:0},label({text:"100", fontsize:18, bg:0, fgcolor: this.fgcolor}))
+						,view({flex:1, bg:0},label({name:"texth",text:"100", fontsize:18, bg:0, fgcolor: this.fgcolor}))
+						,view({flex:1, bg:0},label({name:"texts",text:"100", fontsize:18, bg:0, fgcolor: this.fgcolor}))
+						,view({flex:1, bg:0},label({name:"textv",text:"100", fontsize:18, bg:0, fgcolor: this.fgcolor}))
 						
 					)
 				)
