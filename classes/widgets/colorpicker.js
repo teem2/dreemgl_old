@@ -48,7 +48,7 @@ define.class(function(require, $containers$, view, $controls$, label, button, sc
 			c._offset = newoff
 		}
 		else{
-			console.log("control not found in colorpicker:", name);
+//			console.log("control not found in colorpicker:", name);
 		}
 	}
 	
@@ -70,14 +70,15 @@ define.class(function(require, $containers$, view, $controls$, label, button, sc
 		this.updatelabel("texth", Math.round(this.basehue * 360));
 		this.updatelabel("texts", Math.round(this.basesat * 100));
 		this.updatelabel("textv", Math.round(this.baseval * 100));
+		this.updatelabel("textr", Math.round(this.color[0] * 255));
+		this.updatelabel("textg", Math.round(this.color[1] * 255));
+		this.updatelabel("textb", Math.round(this.color[2] * 255));
+		this.updatelabel("texta", Math.round(this.color[3] * 255));
 	}
 	
 	this.color = function(){
-		this.createHSVFromColor();
-		
+		this.createHSVFromColor();		
 		this.contrastcolor = vec4.fromHSV(0, 0, 1 - this.baseval * (1 - this.basesat*0.5),0.8)
-		
-		
 		this.updateallcontrols();
 	}
 	
@@ -286,9 +287,18 @@ define.class(function(require, $containers$, view, $controls$, label, button, sc
 		this.height = 200;
 		this.attributes = {
 			ringwidth:{type:float, value: 0.3},
-			hover:{type:float, value: 0, motion:"linear", duration: 0.1}
+			hover:{type:float, value: 0, motion:"linear", duration: 0.1},
+			
+			
+			basehue: {type:float, value:0.7},
+			basesat: {type:float, value:0.7},
+			baseval: {type:float, value:0.7},
+			currentcolor: {type:vec4, value:"white"},
+			contrastcolor: {type:vec4, value: vec4("white")},
+			draggersize: {type:float, value: 8},
+			
 		}
-		
+		this.overcount = 0;
 		this.updatehue = function(mousepos){
 				var dx = mousepos[0] - this.layout.width/2;
 				var dy = mousepos[1] - this.layout.height/2;
@@ -311,10 +321,10 @@ define.class(function(require, $containers$, view, $controls$, label, button, sc
 			this.mousemove = function(){};
 		}
 		this.mouseout = function(){
-			if (this.overcount == 1) this.hover = 0;
 			this.overcount--;
 			if (this.overcount < 0) this.overcount = 0;
-			if (this.overcount = 0) this.redraw();
+			if (this.overcount == 0) this.hover = 0;
+			if (this.overcount == 0) this.redraw();
 			
 		}
 		this.mouseover = function(){
@@ -373,6 +383,53 @@ define.class(function(require, $containers$, view, $controls$, label, button, sc
 			}
 		};	
 		
+		define.class(this, 'fg', this.Shader, function(){
+			this.vertexstruct = define.struct({		
+				p:vec2,			
+			})
+			this.mesh = this.vertexstruct.array()
+			this.update = function(){
+				var view = this.view
+				var width = view.layout?view.layout.width:view.width
+				var height = view.layout?view.layout.height:view.height
+				var cx = width/2;
+				var cy = height/2;
+				var radius = Math.min(cx,cy);
+				this.mesh = this.vertexstruct.array()
+				//this.mesh.push(view.basehue,  vec3(0,0.5,0),0);
+				this.mesh.push(-1,-1);
+				this.mesh.push( 1,-1);
+				this.mesh.push( 1, 1);
+				this.mesh.push(-1,-1);
+				this.mesh.push( 1, 1);
+				this.mesh.push(-1, 1);
+			}
+			
+			this.position = function(){
+				
+				var huepos = vec2(sin(view.basehue * PI * 2 + mesh.p.x*.1),
+							   cos(view.basehue* PI * 2 + mesh.p.x*.1)) * (mesh.p.y*0.15 + 0.85) * 100;
+			
+				pos = vec2(min(view.layout.width, view.layout.height))/2.0  ;
+				pos += huepos;
+
+				return vec4(pos, 0, 1) * view.totalmatrix * view.viewmatrix
+			}
+			
+				
+			this.color = function(){
+				var D = abs(mesh.p.x);
+				var alpha = vec4(view.contrastcolor.xyz,0);
+				return mix(view.currentcolor, mix(view.contrastcolor, alpha, smoothstep(0.9, 1.0, D)), smoothstep(0.6, 1.0, D));
+				//if (D<0.7) return view.currentcolor; 			
+				//if (D<1.0) return view.contrastcolor;
+				
+				//return vec4(1.,1.,1.,0.);
+			}
+		
+		})
+		
+		this.fg = 2;
 	
 	})
 	
@@ -395,7 +452,6 @@ define.class(function(require, $containers$, view, $controls$, label, button, sc
 				p:vec2,			
 			})
 			this.mesh = this.vertexstruct.array()
-			this.dump = 1;
 			this.update = function(){
 				var view = this.view
 				var width = view.layout?view.layout.width:view.width
@@ -416,21 +472,15 @@ define.class(function(require, $containers$, view, $controls$, label, button, sc
 			this.position = function(){
 				
 				huepos = vec2(sin(view.basehue * PI * 2), cos(view.basehue* PI * 2)) * 0.7 * 100;
-						
+
 				var satdir =  vec2(sin((view.basehue - 1./4.) * PI * 2. ), cos((view.basehue - 1./4.)* PI * 2.)) * 0.7 * 100.0;
 				var valdir = vec2(sin((view.basehue - 3./4.) * PI * 2.), cos((view.basehue - 3./4.)* PI * 2.)) * 0.7 * 100.0;
 				
-				
-				//var len = dot(normalize(overpos - huepos), whitepos)
-				
-	//			var graypos = (whitepos + blackpos) / 2.0;
-//				var delta = whitepos - blackpos;
-				
 				huepos += (satdir - huepos   )* (1-view.basesat)  + (valdir - huepos ) * (1 - view.baseval);
 			
-				pos = min(view.layout.width, view.layout.height)/2  + mesh.p * view.draggersize;
+				pos = vec2(min(view.layout.width, view.layout.height))/2  + mesh.p * view.draggersize;
 				pos += huepos;
-				//pos = vec2(view.layout.width/2 + rad * uv.x, view.layout.height/2 + rad * uv.y)
+
 				return vec4(pos, 0, 1) * view.totalmatrix * view.viewmatrix
 			}
 			
@@ -553,7 +603,7 @@ define.class(function(require, $containers$, view, $controls$, label, button, sc
 					,label({bg:0, margin:vec4(10,5,0,0),text:"#", fgcolor:this.fgcolor, fontsize: this.fontsize})
 					,label({bg:0,  margin:vec4(0,5,0,0), text:"ff00ff",  fgcolor:this.fgcolor, padding:vec4(20,2,2,2), fontsize: this.fontsize})
 					,label({bg:0, margin:vec4(10,5,0,0),text:"alpha ",  fgcolor:this.fgcolor, fontsize: this.fontsize})
-					,label({bg:0,  margin:vec4(0,5,0,0), text:"128",  fgcolor:this.fgcolor, padding:vec4(20,2,2,2), fontsize: this.fontsize})
+					,label({name:"texta", bg:0,  margin:vec4(0,5,0,0), text:"128",  fgcolor:this.fgcolor, padding:vec4(20,2,2,2), fontsize: this.fontsize})
 				)
 			)				
 		]
