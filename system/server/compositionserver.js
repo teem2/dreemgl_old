@@ -36,7 +36,6 @@ define.class(function(require){
 
 		this.fast_watcher.atChange = 
 		this.slow_watcher.atChange = function(){
-			console.log("CHANGE!")
 			// lets reload this app
 			this.reload()
 		}.bind(this)
@@ -76,15 +75,9 @@ define.class(function(require){
 
 	this.loadComposition = function(){
 		console.log("Reloading composition "+this.filename)
-		try{
-			require.clearCache()
-			var Composition = require(define.expandVariables(this.filename))
-			this.composition = new Composition(this.busserver, this.session)
-		}
-		catch(e){
-			console.log(e.stack)
-		}
-
+		require.clearCache()
+		var Composition = require(define.expandVariables(this.filename))
+		this.composition = new Composition(this.busserver, this.session)
 	}
 
 	this.reload = function(){
@@ -95,17 +88,21 @@ define.class(function(require){
 
 		// lets see if our composition is a dir or a jsfile
 		var jsname = this.compname+'.js'
-		
-		if(fs.existsSync(define.expandVariables(jsname))){
-			this.filename = jsname
-			return this.loadComposition()
-		}
-		else{
-			var jsname = this.compname + '/index.js'
+		try{
 			if(fs.existsSync(define.expandVariables(jsname))){
 				this.filename = jsname
 				return this.loadComposition()
 			}
+			else{
+				var jsname = this.compname + '/index.js'
+				if(fs.existsSync(define.expandVariables(jsname))){
+					this.filename = jsname
+					return this.loadComposition()
+				}
+			}
+		}
+		catch(e){
+			console.log(e.stack)
 		}
 	}
 

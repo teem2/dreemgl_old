@@ -1,7 +1,7 @@
 //Pure JS based composition
-define.class(function(composition, screens, screen, view, label, button, cube, splitcontainer, button, sphere, plane, colorpicker){
+define.class(function($components$, composition, screens, $containers$, screen, view, splitcontainer, $controls$, label, button, $3d$, cube, sphere, plane, $widgets$, colorpicker){
 
-	var mousedebug = define.class(function mousedebug(view){
+	var mousedebug = define.class(function mousedebug($containers$view){
 		
 		this.attributes = {
 			buttoncolor1: {type: vec4, value: vec4("#9090b0")},
