@@ -3,24 +3,21 @@
    software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, 
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
+define.class(function(require, exports, self){
 
-define.class(function(require, shape3d){
+	var NodeWebSocket = require('$system/server/nodewebsocket')
 
-	var GLGeom= require('$system/geometry/basicgeometry')
-	this.init = function(){
-		//console.log(this.size, this.width)
+	this.atConstructor = function(args){
+		// allright lets fire up 
+		define.$platform = 'nodegl'
+		console.log('Downloading nodegl')
+		require.async(args['-nodegl']).then(function(composition){		
+			console.log('Booting nodegl')
+			this.comp = new composition(undefined, undefined, args['-nodegl'])
+
+		}).catch(function(error){
+			console.log(error.stack)
+		})
 	}
-	this.bg = {
-		update:function(){
-			var view = this.view
-			this.mesh = this.vertexstruct.array();
 
-			GLGeom.createCube(view.size[0],view.size[1],view.size[2],function(triidx,v1,v2,v3,n1,n2,n3,t1,t2,t3,faceidx){
-					this.mesh.push(v1,n1,t1);
-					this.mesh.push(v2,n2,t2);
-					this.mesh.push(v3,n3,t3);
-				}.bind(this)
-			)
-		}
-	}
 })

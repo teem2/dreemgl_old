@@ -3,24 +3,13 @@
    software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, 
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
-
-define.class(function(require, shape3d){
-
-	var GLGeom= require('$system/geometry/basicgeometry')
-	this.init = function(){
-		//console.log(this.size, this.width)
-	}
-	this.bg = {
-		update:function(){
-			var view = this.view
-			this.mesh = this.vertexstruct.array();
-
-			GLGeom.createCube(view.size[0],view.size[1],view.size[2],function(triidx,v1,v2,v3,n1,n2,n3,t1,t2,t3,faceidx){
-					this.mesh.push(v1,n1,t1);
-					this.mesh.push(v2,n2,t2);
-					this.mesh.push(v3,n3,t3);
-				}.bind(this)
-			)
-		}
-	}
+define(function(require, exports){	
+	// Use material-capture "lit sphere" texture to approximate material behaviour for a surface.
+	exports.matcap = function(eye, normal){	
+		var r = reflect( eye, normal );
+		return r.xy;
+		var m = 2. * sqrt( pow( r.x, 2. ) + pow( r.y, 2. ) + pow( r.z + 1., 2. ) );
+		var vN = r.xy / m + .5;		
+		return vN;
+	}	
 })

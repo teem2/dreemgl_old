@@ -4,7 +4,7 @@
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
 
-define.class(function(require, view, view, icon){
+define.class(function(require, $containers$view){
 
 	// The perspective3d object to rotate.
 	this.attributes = {target:{type:string, value:""}}

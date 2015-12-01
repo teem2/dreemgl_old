@@ -4,10 +4,10 @@
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
 // Dreem/Dali server
-require = require('./define') // support define.js modules
+require = require('./system/base/define') // support define.js modules
 
 // load up math core and make it global
-define.global(require('$base/math'))
+define.global(require('$system/base/math'))
 
 if(process.argv.indexOf('-nomoni') != -1){
 	define.atRequire = function(filename){
@@ -19,7 +19,7 @@ var fs = require('fs')
 var path = require('path')
 
 // ok now we can require components
-var ansicolor = require('$debug/ansicolor')
+var ansicolor = require('$system/debug/ansicolor')
 console.color = ansicolor(function(v){
 	process.stdout.write(v)
 }) 
@@ -33,7 +33,7 @@ console.setposition = function(x, y){
 }
 
 // make a nice console.dump function
-var dump = require('$core/debug/dump')
+var dump = require('$system/debug/dump')
 console.dump = function(){
 	// lets grab where we are called
 	console.log(new Error().stack)
@@ -46,21 +46,17 @@ function main(){
 	for(var lastkey = '', arg, i = 0; i<argv.length; i++){
 		arg = argv[i]
 		if(arg.charAt(0) == '-') lastkey = arg, args[lastkey] = true
-		else args[lastkey] = arg
-	}
-
-	if(args['-web']){
-		args['-edit'] = true
-		args['-notify'] = true
-		args['-devtools'] = true
-		args['-delay'] = true
-		args['-nodreem'] = true
-		args['-browser'] = args['-web']
-		args['-extlib'] = args['-extlib'] || "../projects"
+		else {
+			if(lastkey in args){
+				if(!Array.isArray(args[lastkey])) args[lastkey] = [args[lastkey]]
+				args[lastkey].push(arg)
+			}
+			else args[lastkey] = arg
+		}
 	}
 
 	if(args['-nomoni'] && args['-trace']){
-		var trace = require('$core/debug/trace')
+		var trace = require('$system/debug/trace')
 		define.atModule = function(module){
 			module.exports = trace(module.exports, module.filename, args['-trace'])
 		}
@@ -69,7 +65,6 @@ function main(){
 	if(args['-h'] || args['-help'] || args['--h'] || args['--help']){
 		console.color('~by~Teem~~ Server ~bm~2.0~~\n')
 		console.color('commandline: node server.js <flags>\n')
-		console.color('~bc~-web htmlfile.html~~ Short for -edit -notify -devtools -delay -browser htmlfile.html\n')
 		console.color('~bc~-port ~br~[port]~~ Server port\n')
 		console.color('~bc~-nomoni ~~ Start process without monitor\n')
 		console.color('~bc~-iface ~br~[interface]~~ Server interface\n')
@@ -80,22 +75,47 @@ function main(){
 		console.color('~bc~-delay~~ Delay reloads your pages when reloading the server\n')
 		console.color('~bc~-restart~~ Auto restarts after crash (Handy for client dev, not server dev)\n')
 		console.color('~bc~-edit~~ Automatically open an exception in your code editor at the right line\n')
-		console.color('~bc~-external~~ ~br~[directory]~~ path to external compositions directory\n')
+		console.color('~bc~-path~~ [name]:~br~[directory]~~ add a path to the server under name $name\n')
 		return process.exit(0)
 	}
-	define.$external = define.joinPath(define.$root, args['-external'] || '../compositions')
-	define.$drawmode = 'headless'
-	//try{fs.mkdirSync(define.expandVariables(define.$build))}catch(e){}
+
+	// our default pathmap
+	define.paths = {
+		'system':'$root/system',
+		'resources':'$root/resources',
+		'examples':'$root/examples',
+		'3d':'$root/classes/3d',
+		'behaviors':'$root/classes/behaviors',
+		'components':'$root/classes/components',
+		'containers':'$root/classes/containers',
+		'controls':'$root/classes/controls',
+		'testing':'$root/classes/testing',
+		'widgets':'$root/classes/widgets',
+	}
+	var paths = Array.isArray(args['-path'])?args['-path']:[args['-path']]
+
+	for(var i = 0; i < paths.length; i++){
+		if(!paths[i]) continue
+		var parts = paths[i].split(':')
+		var mypath =  parts[1].charAt(0) === '/'? parts[1]: define.joinPath(define.$root, parts[1])
+		paths[parts[0]] = mypath
+	}
+	// put them on the define
+	for(var key in define.paths){
+		define['$'+key] = define.paths[key]
+	}
+
+	define.$platform = 'headless'
 
 	if(args['-nodegl']){
 		// lets do an async require on our UI
-		define.$drawmode = 'nodegl'
-		var NodeGL = require('$core/server/nodegl')
+		define.$platform = 'nodegl'
+		var NodeGL = require('$system/platform/bootnodegl')
 		new NodeGL(args)
 	}
 	else if(args['-nomoni']){
 		if(args['-sync']){
-			var GitSync = require('$core/server/gitsync')
+			var GitSync = require('$system/server/gitsync')
 			
 			new GitSync(args)
 		}
@@ -107,26 +127,26 @@ function main(){
 			composition = 'rendertest'
 
 		    define.$rendermode = 'dali'
-		    define.$drawmode = 'dali'
+		    define.$platform = 'dali'
 		    define.$environment = 'dali' // Otherwise it is nodejs
 
 		    // Use a local daliserver as a first pass
-		    var DaliServer = require('$core/server/daliserver')
+		    var DaliServer = require('$system/server/daliserver')
 		    new DaliServer(args, composition);
 		}
 		else if(args['-test']){
-			require('$core/server/test.js')
+			require('$system/server/test.js')
 
 		}
 		else{
-			define.$drawmode = 'nodejs'
-			var RootServer = require('$core/server/rootserver')
+			define.$platform = 'nodejs'
+			var RootServer = require('$system/server/rootserver')
 			new RootServer(args)
 		}
 
 	}
 	else{
-		var RunMonitor = require('$core/server/runmonitor')
+		var RunMonitor = require('$system/server/runmonitor')
 		new RunMonitor(args)
 	}
 }
