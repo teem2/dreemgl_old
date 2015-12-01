@@ -4,6 +4,7 @@
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
 
-define.class('$system/base/shader', function(require){
+define.class('$system/base/shader', function(require, exports){
+	exports.Texture = 
 	this.Texture = require('./texturenodejs')
 })

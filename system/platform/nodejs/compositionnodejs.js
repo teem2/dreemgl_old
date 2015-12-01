@@ -142,7 +142,6 @@ define.class('$system/base/compositionbase', function(require, exports, baseclas
 				}
 			}
 		}
-
 		// lets send this attribute to everyone except socket
 		for(var scrkey in this.connected_screens){
 			var array = this.connected_screens[scrkey]
@@ -158,15 +157,15 @@ define.class('$system/base/compositionbase', function(require, exports, baseclas
 		}
 	}
 
-	this.atConstructor = function(bus, session){
+	this.atConstructor = function(bus, session, previous){
 		
 		baseclass.prototype.atConstructor.call(this)
 
 		this.bus = bus
 		this.session = session
 		this.rpc = new RpcHub(this)
-		this.connected_screens = {}
-		this.server_attributes = {}
+		this.connected_screens = previous && previous.connected_screens || {}
+		this.server_attributes = previous && previous.server_attributes || {}
 
 		bus.broadcast({type:'sessionCheck', session:this.session})
 

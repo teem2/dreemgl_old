@@ -3,7 +3,7 @@
  software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
  either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
-define.class(function (view, guide$movie, this$slides$device) {
+define.class(function ($containers$view, $examples$guide$movie, $, slides$device) {
 
     // `guide$movie` is loading the view found in `./compositions/guide/movie.js`
 
@@ -18,7 +18,7 @@ define.class(function (view, guide$movie, this$slides$device) {
 
     this.render = function() {
         // Use the component classes just as you would any normal DreemGL class function.
-        return [ guide$movie(this.movieData), this$slides$device(this.deviceData) ]
+        return [ $examples$guide$movie(this.movieData), slides$device(this.deviceData) ]
     }
 
 });

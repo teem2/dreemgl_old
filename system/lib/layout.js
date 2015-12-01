@@ -124,7 +124,7 @@ define(function () {
 		*/
 		if(!nochildren && node.children) for(var i = 0; i < node.children.length;i++){
 			var child = node.children[i]
-			if(child._mode){ // its using a different layout pass
+			if(child._viewport){ // its using a different layout pass
 				// if we are flex, we have to compute the layout of this child
 				if(!isNaN(child._flex)){
 					newnode.children.push(fillNodes(child, true))

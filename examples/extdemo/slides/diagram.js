@@ -3,7 +3,7 @@
  software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
  either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
-define.class(function (view, label) {
+define.class(function (require, $containers$, view, $controls$, label) {
 
     this.slidetitle = "Server Proxy vs POST API";
 
@@ -20,7 +20,7 @@ define.class(function (view, label) {
                 margintop:0
             }),
             view({
-                bgimage:'$compositions/extdemo/slides/server.png',
+                bgimage:require('./server.png'),
                 marginleft:100,
                 margintop:0
             }),
@@ -33,7 +33,7 @@ define.class(function (view, label) {
                 margintop:0
             }),
             view({
-                bgimage:'$compositions/extdemo/slides/postapi.png',
+                bgimage:require('./postapi.png'),
                 marginleft:400,
                 margintop:0
             })

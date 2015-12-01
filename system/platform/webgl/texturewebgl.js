@@ -168,8 +168,8 @@ define.class('$system/base/texture', function(exports){
 			this[samplerid] = this.image[samplerid]
 		}
 
-		if(this[samplerid]){
-			var gltex = this[samplerid]
+		var gltex = this[samplerid]
+		if(gltex){
 			gl.activeTexture(gl.TEXTURE0 + texid)
 			gl.bindTexture(gl.TEXTURE_2D, gltex)
 			return gltex

@@ -18,9 +18,9 @@ define.class(function($server$, composition, screens, $containers$, screen, view
 							}
 						}},
 						view({bg:0, padding:4},
-						colorpicker({margin:4, flex:1, color:vec4("#342563"), bgcolor:vec4(0,0,0,0.4)}),
-						colorpicker({margin:4, flex:1, color:vec4("#D0F612"), bgcolor:vec4(0,0,0,0.4)}),
-						colorpicker({margin:4, flex:1, color:vec4("#102030"),bgcolor:vec4(0,0,0,0.4)})
+						colorpicker({margin:4, flex:1, value:vec4("#342563"), bgcolor:vec4(0,0,0,0.4)}),
+						colorpicker({margin:4, flex:1, value:vec4("#D0F612"), bgcolor:vec4(0,0,0,0.4)}),
+						colorpicker({margin:4, flex:1, value:vec4("#102030"),bgcolor:vec4(0,0,0,0.4)})
 						)
 						,view({flexdirection:"row", bgcolor:"transparent",padding:7 },
 							button({

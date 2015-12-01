@@ -297,7 +297,7 @@ define.class(function(require, exports){
 		if(!view.parent) this.screen = view // its the screen
 		// alright lets do this.
 		var node = view
-		while(!node._mode){
+		while(!node._viewport){
 			node = node.parent
 		}
 		
@@ -363,7 +363,7 @@ define.class(function(require, exports){
 		}
 
 		// lets create a drawpass 
-		if(view._mode){
+		if(view._viewport){
 			var pass = new this.DrawPass(this, view)
 			this.drawpass_list.splice(this.drawpass_idx,0,view)
 			this.drawpass_idx++

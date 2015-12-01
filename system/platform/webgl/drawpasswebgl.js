@@ -38,7 +38,7 @@ define.class(function(require, baseclass){
 		this.draw_list.push(view)
 
 		if(this.draw_list.length > 65535) throw new Error("Too many items in a drawpass, ID space out of range, you get a piece of pie.")
-		if(isroot || !view._mode){
+		if(isroot || !view._viewport){
 			var children = view.children
 			if(children) for(var i = 0; i < children.length; i++){
 				this.addToDrawList(children[i])
@@ -112,7 +112,7 @@ define.class(function(require, baseclass){
 		var scroll = view._scroll
 		var layout = view.layout
 
-		if(view._mode === '2D'){
+		if(view._viewport === '2D'){
 			if(isroot && mousex !== undefined){
 				var sizel = 0
 				var sizer = 1
@@ -131,7 +131,7 @@ define.class(function(require, baseclass){
 				}
 			}
 		}
-		else if(view._mode === '3D'){
+		else if(view._viewport === '3D'){
 			storage.perspectivematrix = mat4.perspective(view._fov * PI * 2/360.0 , layout.width/layout.height, view._nearplane, view._farplane)			
 			storage.lookatmatrix = mat4.lookAt(view._camera, view._lookat, view._up)
 			storage.viewmatrix = mat4.mat4_mul_mat4(storage.lookatmatrix,storage.perspectivematrix);
@@ -178,13 +178,13 @@ define.class(function(require, baseclass){
 		if(!layout || layout.width === 0 || isNaN(layout.width) || layout.height === 0 || isNaN(layout.height)) return
 
 		if(isroot){
-			if(!debug) this.allocDrawTarget(1, 1, this.view._mode, 'pick_buffer', passid)
+			if(!debug) this.allocDrawTarget(1, 1, this.view._viewport, 'pick_buffer', passid)
 		}
 		else{
 			var ratio = view._pixelratio
 			if(isNaN(ratio)) ratio = device.main_frame.ratio
 			var twidth = layout.width * ratio, theight = layout.height * ratio
-			this.allocDrawTarget(twidth, theight, this.view._mode, 'pick_buffer', passid)
+			this.allocDrawTarget(twidth, theight, this.view._viewport, 'pick_buffer', passid)
 		}
 
 		device.bindFramebuffer(this.pick_buffer || null)
@@ -200,7 +200,7 @@ define.class(function(require, baseclass){
 		for(var dl = this.draw_list, i = 0; i < dl.length; i++){
 			var draw = dl[i]
 
-			if(draw._first_draw_pick && view._mode === '2D' && view.boundscheck && !isInBounds2D(view, draw)){ // do early out check using bounding boxes
+			if(draw._first_draw_pick && view._viewport === '2D' && view.boundscheck && !isInBounds2D(view, draw)){ // do early out check using bounding boxes
 				continue
 			}
 			else draw._first_draw_pick = 1
@@ -213,11 +213,11 @@ define.class(function(require, baseclass){
 			draw.viewmatrix = matrices.viewmatrix
 
 			if(!draw._visible) continue
-			if(draw._mode && draw.drawpass !== this && draw.drawpass.pick_buffer){
+			if(draw._viewport && draw.drawpass !== this && draw.drawpass.pick_buffer){
 				// ok so the pick pass needs the alpha from the color buffer
 				// and then hard forward the color
 				var blendshader = draw.blendshader
-				if (view._mode === '3D'){
+				if (view._viewport === '3D'){
 					// dont do this!
 					blendshader.depth_test = 'src_depth <= dst_depth'
 				}
@@ -260,7 +260,7 @@ define.class(function(require, baseclass){
 			var ratio = view._pixelratio
 			if(isNaN(ratio)) ratio = device.main_frame.ratio
 			var twidth = layout.width * ratio, theight = layout.height * ratio	
-			this.allocDrawTarget(twidth, theight, this.view._mode, 'color_buffer')
+			this.allocDrawTarget(twidth, theight, this.view._viewport, 'color_buffer')
 		}
 
 		this.device.bindFramebuffer(this.color_buffer || null)
@@ -279,7 +279,7 @@ define.class(function(require, baseclass){
 		for(var dl = this.draw_list, i = 0; i < dl.length; i++){
 			var draw = dl[i]
 
-			if(draw._first_draw_color && view._mode === '2D' && view.boundscheck && !isInBounds2D(view, draw)){ // do early out check using bounding boxes
+			if(draw._first_draw_color && view._viewport === '2D' && view.boundscheck && !isInBounds2D(view, draw)){ // do early out check using bounding boxes
 				continue
 			}
 			else draw._first_draw_color = 1
@@ -294,11 +294,11 @@ define.class(function(require, baseclass){
 
 			if(draw.atDraw) draw.atDraw(this)
 
-			if(draw._mode && draw.drawpass !== this && draw.drawpass.color_buffer){
+			if(draw._viewport && draw.drawpass !== this && draw.drawpass.color_buffer){
 				// ok so when we are drawing a pick pass, we just need to 1 on 1 forward the color data
 				// lets render the view as a layer
 				var blendshader = draw.blendshader
-				if (view._mode === '3D'){
+				if (view._viewport === '3D'){
 					blendshader.depth_test = 'src_depth <= dst_depth'
 				}
 				else{

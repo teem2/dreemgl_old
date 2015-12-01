@@ -26,7 +26,7 @@ define.class(function(require,
 							borderradius:20
 						},
 						flex:1,
-						mode:'2D',
+						viewport:'2D',
 						overflow:'scroll',
 						slideheight:800,
 						bgcolor:'black',
@@ -43,7 +43,7 @@ define.class(function(require,
 								flex:1,
 								name:"teapot1", 
 								clearcolor: 'rgba(255,255,255,0)',
-								mode: '3D',
+								viewport: '3D',
 								bg:0,
 								camera: vec3(0,0,8)
 							},
@@ -63,7 +63,7 @@ define.class(function(require,
 							,flexdirection:"column"
 							}
 							,codeviewer({
-								mode:'2D',
+								viewport:'2D',
 								overflow:'scroll',
 								flex:1,
 								margin:vec4(10),
@@ -83,13 +83,8 @@ define.class(function(require,
 								top:100,
 								width:800, 
 								height:450, 
-								bg:{
-									//texture: require('./graph.png'),
-									color:function(){
-										return 'red'
-									//	return texture.sample(mesh.xy)
-									}
-								}})
+								bgimage: require('./graph.png')
+							})
 						),
 						view({
 							bgcolor:"transparent", 
@@ -99,8 +94,8 @@ define.class(function(require,
 							view({
 								flex:1,
 								clearcolor: 'rgba(255,255,255,0)',
-								mode: '3D',
-								attributes:{count:8},
+								viewport: '3D',
+								attributes:{count:16},
 								bg:0,
 								camera: vec3(0,0,18),
 								render: function(){
@@ -173,7 +168,7 @@ define.class(function(require,
 									bg:{
 										value:1,
 										color:function(){
-											return mix('red', 'red', abs(sin(uv.y*10.+value)))
+											return mix('red', 'yellow', abs(sin(mesh.y*10.+value)))
 										}
 									}
 								}),
@@ -185,7 +180,7 @@ define.class(function(require,
 							slidetitle:'Compositions'
 							}
 							,codeviewer({
-								mode:'2D',
+								viewport:'2D',
 								overflow:'scroll',
 								flex:1,
 								margin:vec4(10),

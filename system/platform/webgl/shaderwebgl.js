@@ -8,6 +8,7 @@ define.class('$system/base/shader', function(require, exports){
 
 	var gltypes = require('$system/base/gltypes')
 
+	exports.Texture =
 	this.Texture =  require('./texturewebgl')
 
 	this.compileShader = function(gldevice){
@@ -251,7 +252,7 @@ define.class('$system/base/shader', function(require, exports){
 		// lets do the texture slots correct
 		if(!gltex){
 			gltex = texture.createGLTexture(gl, TEXTURE_ID, TEXTURE_INFO)
-			if(!gltex) debugger
+			if(!gltex) return 0
 		}
 		else{
 			gl.activeTexture(TEXTUREGL_ID) // gl.TEXTURE0 + TEXTURE_ID
@@ -438,17 +439,15 @@ define.class('$system/base/shader', function(require, exports){
 		shader.use = new Function('return ' + tpl)()
 	}
 
-	Object.defineProperty(this, 'draw_type',{
-		get:function(){
-			return this._draw_type
-		},
-		set:function(value){
-			this._draw_type = value
-			this._draw_type_gl = gltypes.gl[value]
-		}
-	})
+	// all draw types
+	exports.TRIANGLES = this.TRIANGLES = 0x4
+	exports.LINES = this.LINES = 0x1
+	exports.LINE_LOOP = this.LINE_LOOP = 0x2
+	exports.LINE_STRIP = this.LINE_STRIP = 0x3
+	exports.TRIANGLE_STRIP = this.TRIANGLE_STRIP = 0x5
+	exports.TRIANGLE_FAN = this.TRIANGLE_FAN = 0x6
 
-	this.draw_type = 'TRIANGLES'//POINTS:0x0,LINES:0x1,LINE_LOOP:0x2,LINE_STRIP:0x3,TRIANGLES:0x4,TRIANGLE_STRIP:0x5,TRIANGLE_FAN:0x6
+	this.drawtype = this.TRIANGLES
 	
 	// lets draw ourselves
 	this.drawArrays = function(devicewebgl, sub, start, end){
@@ -456,7 +455,7 @@ define.class('$system/base/shader', function(require, exports){
 		if(!this.hasOwnProperty('shader') || this.shader === undefined) this.compile(devicewebgl)
 		var gl = devicewebgl.gl
 		var len = this.useShader(gl, sub? this.shader[sub]: this.shader)
-		gl.drawArrays(this._draw_type_gl, start || 0, end === undefined?len: end)
+		if(len) gl.drawArrays(this.drawtype, start || 0, end === undefined?len: end)
 	}
 
 })

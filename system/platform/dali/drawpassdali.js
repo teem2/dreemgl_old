@@ -29,7 +29,7 @@ define.class(function(require, baseclass){
 		this.draw_list.push(view)
 
 		if(this.draw_list.length > 65535) throw new Error("Too many items in a drawpass, ID space out of range, you get a piece of pie.")
-		if(isroot || !view._mode){
+		if(isroot || !view._viewport){
 			var children = view.children
 			for(var i = 0; i < children.length; i++){
 				this.addToDrawList(children[i])
@@ -70,7 +70,7 @@ define.class(function(require, baseclass){
 	this.allocDrawTarget = function(width, height, drawtarget){
 		//var twidth = this.nextPowerTwo(layout.width* main_ratio), theight = this.nextPowerTwo(layout.height* main_ratio)
 		if(!this[drawtarget]){
-			this[drawtarget] = this.device.Texture.createRenderTarget(this.device, width, height, this.view._mode === '2D'?'rgba':'rgba_depth_stencil')
+			this[drawtarget] = this.device.Texture.createRenderTarget(this.device, width, height, this.view._viewport === '2D'?'rgba':'rgba_depth_stencil')
 		} 
 		else{
 			var tsize = this[drawtarget].size
@@ -98,7 +98,7 @@ define.class(function(require, baseclass){
 		device.clear(0,0,0,0)
 
 		 // 2d/3d switch
-		if(view._mode === '2D'){
+		if(view._viewport === '2D'){
 			if(isroot && !debug)
 				mat4.ortho(mousex-3, 2 + mousex, 2 + mousey,  mousey-3, -100, 100, this.viewmatrix)
 			else
@@ -110,7 +110,7 @@ define.class(function(require, baseclass){
 				}
 
 		}
-		else if(view._mode === '3D'){
+		else if(view._viewport === '3D'){
 
 		}
 
@@ -124,7 +124,7 @@ define.class(function(require, baseclass){
 
 			var draw = dl[i]
 			draw.viewmatrix = this.viewmatrix
-			if(draw._mode && draw.layer !== this && draw.layer.pick_buffer){
+			if(draw._viewport && draw.layer !== this && draw.layer.pick_buffer){
 				// ok so the pick pass needs the alpha from the color buffer
 				// and then hard forward the color
 				var blendshader = draw.blendshader
@@ -166,7 +166,7 @@ define.class(function(require, baseclass){
 
 		device.clear(view._clearcolor)
 		// 2d/3d switch
-		if(view._mode === '2D'){
+		if(view._viewport === '2D'){
 			if (isroot){
 				mat4.ortho(0, layout.width, 0, layout.height, -100, 100, this.viewmatrix)
 			}
@@ -174,7 +174,7 @@ define.class(function(require, baseclass){
 				mat4.ortho(0, layout.width, layout.height, 0, 100, -100, this.viewmatrix)
 			}
 		}
-		else if(view._mode === '3D'){
+		else if(view._viewport === '3D'){
 
 		}
 
@@ -184,7 +184,7 @@ define.class(function(require, baseclass){
 			draw.viewmatrix = this.viewmatrix
 			if (!view.colorviewmatrix) view.colorviewmatrix = mat4();
 			for(var j = 0;j<16;j++) view.colorviewmatrix[j] = this.viewmatrix[j];
-			if(draw._mode && draw.layer !== this && draw.layer.color_buffer){
+			if(draw._viewport && draw.layer !== this && draw.layer.color_buffer){
 				// ok so when we are drawing a pick pass, we just need to 1 on 1 forward the color data
 				// lets render the view as a layer
 				var blendshader = draw.blendshader

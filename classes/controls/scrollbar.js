@@ -22,8 +22,8 @@ define.class(function($containers$, view){
 		// Is this a horizontal or a vertical scrollbar? 
 		vertical: {type: Boolean, value: true},
 		
-		// Current start offset of the scrollbar. Ranges from 0 to total - page
-		offset: {type:float, value:0},
+		// Current value of the scrollbar. Ranges from 0 to total - page
+		value: {type:float, value:0},
 		
 		// Page size, in total
 		page: {type:float, value:0},
@@ -56,7 +56,7 @@ define.class(function($containers$, view){
 		color: function(){
 			// we have a rectangle
 			var rel = vec2(mesh.x*view.layout.width, mesh.y*view.layout.height)
-			var offset = view.offset / view.total
+			var offset = view.value / view.total
 			var page = view.page / view.total
 			var edge = 0.1//min(length(vec2(length(dFdx(rel)), length(dFdy(rel)))) * SQRT_1_2, 0.001)
 			var field = float(0)
@@ -98,18 +98,18 @@ define.class(function($containers$, view){
 		else{
 			var p = start[0] / this.layout.width
 		}
-		var offset = this.offset / this.total
+		var offset = this.value / this.total
 		var page = this.page / this.total
 		if(p < offset){
 			var value = clamp(p - 0.5 * page, 0, 1.-page) * this.total
-			if(value != this.offset){
-				this.offset = value
+			if(value != this.value){
+				this.value = value
 			}
 		}
 		else if (p > offset + page){
 			var value = clamp(p - 0.5*page, 0, 1.-page) * this.total
-			if(value != this.offset){
-				this.offset = value
+			if(value != this.value){
+				this.value = value
 			}
 		}
 		var start_offset = offset//this.offset / this.total
@@ -121,8 +121,8 @@ define.class(function($containers$, view){
 				var p = start_offset + (pos[0] - start[0]) / this.layout.width
 			}
 			var value = clamp(p, 0, 1.-page) * this.total
-			if(value != this.offset){
-				this.offset = value
+			if(value != this.value){
+				this.value = value
 			}
 		}
 	}

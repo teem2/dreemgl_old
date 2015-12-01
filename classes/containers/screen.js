@@ -15,7 +15,7 @@ define.class(function(require, $containers$view) {
 
 	this.bg = undefined
 	this.rpcproxy = false	
-	this.mode = '2D'
+	this.viewport = '2D'
 	this.dirty = true
 	this.flex = NaN
 	this.flexdirection = "column"
@@ -75,7 +75,7 @@ define.class(function(require, $containers$view) {
 		var my = -1 * (this.mouse._y/(sy/2) - 1.0)
 		
 		while (ip){
-			if (ip._mode || !ip.parent) parentlist.push(ip)
+			if (ip._viewport || !ip.parent) parentlist.push(ip)
 			ip = ip.parent
 		}
 
@@ -85,7 +85,7 @@ define.class(function(require, $containers$view) {
 		if (logging){
 			var	parentdesc = "Parentchain: "
 			for(var i =parentlist.length-1;i>=0;i--) {
-				parentdesc += parentlist[i].constructor.name + "("+parentlist[i]._mode+") "
+				parentdesc += parentlist[i].constructor.name + "("+parentlist[i]._viewport+") "
 			}
 			console.log(parentdesc)
 		}
@@ -105,11 +105,11 @@ define.class(function(require, $containers$view) {
 		for(var i = parentlist.length - 1; i >= 0; i--) {
 			var P = parentlist[i]
 
-			var newmode = P.parent? P._mode:"2D"
+			var newmode = P.parent? P._viewport:"2D"
 
 			if (P.parent) {
 
-				var MM = P._mode? P.layermatrix: P.totalmatrix
+				var MM = P._viewport? P.layermatrix: P.totalmatrix
 				
 				if (!P.layermatrix) console.log("whaaa" )
 				mat4.invert(P.layermatrix, this.remapmatrix)
@@ -147,7 +147,7 @@ define.class(function(require, $containers$view) {
 
 				raystart = vec3.mul_mat4(raystart, transtemp2)
 			
-				if (logging)  console.log(i, raystart, "coordinates after adjusting for layoutwidth/height", P._mode);
+				if (logging)  console.log(i, raystart, "coordinates after adjusting for layoutwidth/height", P._viewport);
 				
 				lastrayafteradjust = vec3(raystart.x, raystart.y,-1);
 				lastprojection = P.drawpass.colormatrices.perspectivematrix;
@@ -167,7 +167,7 @@ define.class(function(require, $containers$view) {
 			// console.log(i, raystart, "last");	
 		}
 
-		var MM = node._mode?node.layermatrix: node.totalmatrix
+		var MM = node._viewport?node.layermatrix: node.totalmatrix
 		mat4.invert(MM, this.remapmatrix)
 		raystart = vec3.mul_mat4(raystart, this.remapmatrix)
 		rayend = vec3.mul_mat4(rayend, this.remapmatrix)
@@ -203,7 +203,7 @@ define.class(function(require, $containers$view) {
 				})
 				var obj = new named()
 				obj.geom = 'x:'+layout.left+', y:'+layout.top+', w:'+layout.width+', h:'+layout.height
-				if(walk._mode) obj.mode = walk._mode
+				if(walk._viewport) obj.viewport = walk._viewport
 				// write out shader modes
 				var so = ''
 				for(var key in walk.shader_order){

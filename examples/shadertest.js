@@ -1,5 +1,5 @@
 //Pure JS based composition
-define.class(function(composition, screens, screen, view, label, button, cube, splitcontainer){
+define.class(function($server$, composition, screens, $containers$, screen, view){
 	this.render = function(){ return [
 		screens(
 			screen({clearcolor:vec4('black')},

@@ -14,8 +14,8 @@ define.class(function ($containers$, view, $controls$, label) {
         Poster: {type:String}
     };
 
-    this.onPoster = function (p) {
-        this.bgimage = p;
+    this.onPoster = function (event) {
+        this.bgimage = event.value;
     };
 
     this.render = function() { return [

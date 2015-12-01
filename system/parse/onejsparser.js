@@ -1,6 +1,9 @@
-// Copyright (C) 2015 Teem2 LLC, MIT License (see LICENSE)
-// Copyright (C) 2014 OneJS (MIT License)
-// Copyright (C) Marijn Haverbeke (Apache 2.0 license)
+/* Copyright 2015 Teem2 LLC. Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.  
+   You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, 
+   software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, 
+   either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
+
+// Parts Copyright (C) Marijn Haverbeke (Apache 2.0 license)
 
 define.class(function(require, exports){
 

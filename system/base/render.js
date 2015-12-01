@@ -92,7 +92,7 @@ define.class(function(exports){
 
 		if(new_version.atRender) new_version.atRender()
 
-		if(new_version._mode){
+		if(new_version._viewport){
 			// set up a new layer
 			new_version.layer = new_version
 			new_version.child_layer_list = []

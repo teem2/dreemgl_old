@@ -1,7 +1,7 @@
 //Pure JS based composition
-define.class(function($server$, composition, screens, server, $containers$, screen, view, $behaviors$, draggable){ this.render = function(){ return [
+define.class(function($server$, composition, screens, service, $containers$, screen, view, $behaviors$, draggable){ this.render = function(){ return [
 
-	server({
+	service({
 		attribute_test: {type:int, value:10},
 		dosomething: function(){
 			console.log("dosomething called on server")

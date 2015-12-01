@@ -1,17 +1,19 @@
-3rd party modules and libraries used by DreemGL:  
+Third party modules and libraries used by DreemGL:  
 
-Facebook flexbox layout: /lib/layout.js  
+Facebook flexbox layout: /system/lib/layout.js  
 Flexbox layout JavaScript module. Copyright (c) 2014, Facebook, Inc. BSD license  
 
-Acorn JS: /lib/acorn.js  
+Acorn JS: /system/lib/acorn.js  
 Acorn JavaScript parser. Written by Marijn Haverbeke, released under an MIT license.  
 
-CoffeeScript: /lib/coffee-script.js 
+CoffeeScript: /system/lib/coffee-script.js 
 CoffeeScript language, copyright 2011, Jeremy Ashkenas. Released under the MIT License. 
  
-  
-Shader noise function /core/shaderlib/noiselib.js
-Inspired by Stefan Gustavson, Ian McEwan, Ashima Arts. Released under MIT License.  
-  
-Shader compiler: /core/draw/shader.js
-Based on work by Rik Arends. Relesaed under Apache 2.0 license  
+Shader noise function /system/shaderlib/noiselib.js
+Math and algorithm inspired by Stefan Gustavson, Ian McEwan, Ashima Arts. Released under MIT License.  
+
+Shader shape math /system/shaderlib/shapelib.js
+Math inspired by Inigio Quilez http://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+
+Promise polyfill /system/base/define.js
+Inspired by tutorial by Forbes Lindesay (C) 2013, released under MIT License

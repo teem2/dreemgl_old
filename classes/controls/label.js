@@ -72,8 +72,9 @@ define.class(function(require, $containers$, view){
 
 	})
 
-	this.subpixel = function(value){
-		if(value){
+	this.subpixel = function(event){
+		if(this._subpixel){
+
 			this.font = this.fontsubpixelaa
 		}
 		else{

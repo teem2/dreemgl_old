@@ -372,17 +372,7 @@ define.class('../shader', function(require, exports, self){
 		shader.use = new Function('return ' + tpl)()
 	}
 
-	Object.defineProperty(this, 'draw_type',{
-		get:function(){
-			return this._draw_type
-		},
-		set:function(value){
-			this._draw_type = value
-			this._draw_type_gl = gltypes.gl[value]
-		}
-	})
-
-	this.draw_type = 'TRIANGLES'//POINTS:0x0,LINES:0x1,LINE_LOOP:0x2,LINE_STRIP:0x3,TRIANGLES:0x4,TRIANGLE_STRIP:0x5,TRIANGLE_FAN:0x6
+	//this.draw_type = 'TRIANGLES'//POINTS:0x0,LINES:0x1,LINE_LOOP:0x2,LINE_STRIP:0x3,TRIANGLES:0x4,TRIANGLE_STRIP:0x5,TRIANGLE_FAN:0x6
 	
 	// lets draw ourselves
 	this.drawArrays = function(devicedali, sub, start, end){

@@ -9,7 +9,6 @@ define.class(function($containers$, screen, view, $controls$, button, label, $, 
 
     this.renderMovies = function() {
         var mviews = [];
-
         if (this.movies) {
             for (var i=0;i<this.movies.length;i++) {
                 var movieData = this.movies[i];
@@ -24,7 +23,7 @@ define.class(function($containers$, screen, view, $controls$, button, label, $, 
         return [
 
         view(
-            {flexdirection:'column'},
+            {flexdirection:'column', flex:1, overflow:'SCROLL'},
             label({ name:'search', width:300, height:30, text:'Aliens', fgcolor:'black'}),
             button({text:'Search', width:90, click:function() {
                 // sets the term on our screen, this should fire the server thing

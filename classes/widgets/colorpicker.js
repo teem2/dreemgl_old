@@ -8,10 +8,9 @@ define.class(function(require, $containers$, view, $controls$, label, button, sc
 	
 	
 	var Shader = this.Shader = require('$system/platform/$platform/shader$platform')
-
 		
 	this.attributes =  {
-		color: {type: vec4, value: "white"}
+		value: {type: vec4, value: "white"}
 		,fgcolor: {type: vec4, value: "white"}		
 		,fontsize:{type: int, value: 15}
 		,internalbordercolor: {type:vec4, value:vec4(1,1,1,0.6)}
@@ -19,6 +18,7 @@ define.class(function(require, $containers$, view, $controls$, label, button, sc
 		,basesat: {type:float, value:0.8}
 		,baseval: {type:float, value:0.5}
 	}
+
 	this.basehue = 0.5;
 	this.bgcolor = vec4(0.0,0.0,0.0,0.4)
 	this.flexdirection = "column";
@@ -29,13 +29,15 @@ define.class(function(require, $containers$, view, $controls$, label, button, sc
 	this.borderwidth = 1
 	this.bordercolor = this.internalbordercolor
 	this.contrastcolor = vec4("black");
+
 	this.internalbordercolor= function(){
 		this.bordercolor = this.internalbordercolor		
 	}
+
 	this.updatecontrol = function(name, val){
 		var c = this.find(name);
 		if (c){
-			c.currentcolor = this.color;
+			c.currentcolor = this.value;
 			c.contrastcolor = this.contrastcolor;
 			c.basehue = this.basehue;
 			c.basesat = this.basesat;
@@ -61,57 +63,57 @@ define.class(function(require, $containers$, view, $controls$, label, button, sc
 		this.updatecontrol("hsvider", this.basehue);
 		this.updatecontrol("sslider", this.basesat);
 		this.updatecontrol("lslider", this.baseval);
-		this.updatecontrol("rslider", this.color[0]);
-		this.updatecontrol("gslider", this.color[1]);
-		this.updatecontrol("bslider", this.color[2]);
+		this.updatecontrol("rslider", this.value[0]);
+		this.updatecontrol("gslider", this.value[1]);
+		this.updatecontrol("bslider", this.value[2]);
 		this.updatecontrol("triangleview", this.basehue);		
 		this.updatecontrol("colorcirclecontrol", this.basehue);		
 	
 		this.updatelabel("texth", Math.round(this.basehue * 360));
 		this.updatelabel("texts", Math.round(this.basesat * 100));
 		this.updatelabel("textv", Math.round(this.baseval * 100));
-		this.updatelabel("textr", Math.round(this.color[0] * 255));
-		this.updatelabel("textg", Math.round(this.color[1] * 255));
-		this.updatelabel("textb", Math.round(this.color[2] * 255));
-		this.updatelabel("texta", Math.round(this.color[3] * 255));
+		this.updatelabel("textr", Math.round(this.value[0] * 255));
+		this.updatelabel("textg", Math.round(this.value[1] * 255));
+		this.updatelabel("textb", Math.round(this.value[2] * 255));
+		this.updatelabel("texta", Math.round(this.value[3] * 255));
 	}
 	
-	this.color = function(){
+	this.value = function(){
 		this.createHSVFromColor();		
 		this.contrastcolor = vec4.fromHSV(0, 0, 1 - this.baseval * (1 - this.basesat*0.5),0.8)
 		this.updateallcontrols();
 	}
 	
 	this.layout = function(){
-		this.color = this.color;
+		this.value = this.value;
 		this.layout = function(){}
 	}
 
 	this.createColorFromHSV = function(){
-		this._color = vec4.fromHSV(this.basehue, this.basesat, this.baseval);		
+		this._value = vec4.fromHSV(this.basehue, this.basesat, this.baseval);		
 	}
 
 	this.createHSVFromColor = function(){
-		var res = vec4.toHSV(this.color);
+		var res = vec4.toHSV(this.value);
 		this.basehue = res[0];		
 		this.basesat = res[1];		
 		this.baseval  = res[2];		
 	}
 	
 	this.setRed = function(r){
-		this.color[0] = r;
+		this.value[0] = r;
 		this.createHSVFromColor();
 		this.updateallcontrols();	
 	}
 	
 	this.setGreen = function(g){
-		this.color[1] = g;
+		this.value[1] = g;
 		this.createHSVFromColor();
 		this.updateallcontrols();	
 	}
 
 	this.setBlue = function(b){
-		this.color[2] = b;
+		this.value[2] = b;
 		this.createHSVFromColor();
 		this.updateallcontrols();	
 	}
@@ -339,9 +341,8 @@ define.class(function(require, $containers$, view, $controls$, label, button, sc
 				side: float
 			})
 			this.mesh = this.vertexstruct.array();
-			this.draw_type = "TRIANGLE_STRIP";
-		
-		
+			this.drawtype = this.TRIANGLE_STRIP
+				
 			this.position = function(){
 				uv = vec2(sin(mesh.p), cos(mesh.p))*(1-view.ringwidth + view.ringwidth*mesh.side);
 				off = mesh.p / 6.283
@@ -384,14 +385,17 @@ define.class(function(require, $containers$, view, $controls$, label, button, sc
 		};	
 		
 		define.class(this, 'fg', this.Shader, function(){
+
 			this.vertexstruct = define.struct({		
 				p:vec2,			
 			})
+
 			this.mesh = this.vertexstruct.array()
+
 			this.update = function(){
 				var view = this.view
-				var width = view.layout?view.layout.width:view.width
-				var height = view.layout?view.layout.height:view.height
+				var width = view.layout? view.layout.width: view.width
+				var height = view.layout? view.layout.height: view.height
 				var cx = width/2;
 				var cy = height/2;
 				var radius = Math.min(cx,cy);
@@ -505,7 +509,7 @@ define.class(function(require, $containers$, view, $controls$, label, button, sc
 			})
 			
 			this.mesh = this.vertexstruct.array()
-			this.draw_type = "TRIANGLES"
+			this.drawtype = this.TRIANGLES
 		
 			this.position = function(){
 				off = mesh.p / 6.283

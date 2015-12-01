@@ -323,7 +323,7 @@
 				path += arg.replace(/\$/g,'/')
 			}
 			else{ // callback
-				callback(undefined, path + arg, i)
+				callback(undefined, path + arg.replace(/\$/g,'/'), i)
 			}
 		}
 	}

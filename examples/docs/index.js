@@ -50,6 +50,7 @@ define.class(function(require, $server$, composition, fileio, screens, dataset, 
 			})
 
 			for(var key in define.paths){
+				if(ignoreset.indexOf(key) !== -1) continue
 				var ret = readRecurDir(define.expandVariables(define['$'+key]), '', ignoreset)
 				ret.name = key
 				root.children.push(ret)
@@ -65,8 +66,7 @@ define.class(function(require, $server$, composition, fileio, screens, dataset, 
 			screen({
 				init:function(){
 					// lets load the entire directory structure
-					this.rpc.fileio.readAllPaths(['resources','server.js','cache','@/\\.','.git', '.gitignore']).then(function(result){
-						console.log("GOT IT!", result)
+					this.rpc.fileio.readAllPaths(['resources','server.js','resources','cache','@/\\.','.git', '.gitignore']).then(function(result){
 						var filetree = this.find('filetree')
 						var tree = result.value
 						tree.name = 'Documentation'

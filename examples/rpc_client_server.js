@@ -18,7 +18,7 @@
 // Tests client->server method and attribute access.
 
 
-define.class(function(composition, screens, screen, view, label){
+define.class(function($server$, composition, screens, $containers$, screen, view, $controls$, label){
 
   // Server
   var serverobj = define.class(function serverobj(server){

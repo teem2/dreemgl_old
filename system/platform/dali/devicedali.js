@@ -222,7 +222,7 @@ define.class(function(require, exports, self){
 			this.addDrawPassRecursive(children[i])
 		}
 		// lets create a layer
-		if(view._mode){
+		if(view._viewport){
 			this.drawpass_list.push(new DrawPass(this, view))
 			if(!view._flex){
 				this.layout_list.push(view)

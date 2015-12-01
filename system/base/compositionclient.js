@@ -155,7 +155,6 @@ define.class('./compositionbase', function(require, baseclass){
 				//else obj.createIndex(msg.index, msg.rpcid, rpcpromise)
 			}
 			else if(msg.type == 'attribute'){
-
 				var split = msg.rpcid.split('.')
 				var obj
 				// see if its a set attribute on ourself

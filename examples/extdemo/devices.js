@@ -15,7 +15,7 @@
 //
 // curl -d '{"rpcid":"devbus", "type":"method", "method":"notify", "args":["ID", "TYPE", "part"]}' http://localhost:2000/extdemo
 
-define.class(function (server) {
+define.class(function ($server$, service) {
 
     this.attributes = {active: {type: Object, value:{}}};
 

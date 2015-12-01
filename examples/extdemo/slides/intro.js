@@ -3,7 +3,7 @@
  software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
  either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
-define.class(function (view, label, codeviewer) {
+define.class(function ($containers$, view, $controls$, label, $widgets$, codeviewer) {
 
     this.attributes = {
         syntaxCode: {type: String}
@@ -65,7 +65,7 @@ define.class(function (view, label, codeviewer) {
                 margintop:10
             }),
             label({
-                text:'+ See `./compositions/guide/README.md` for more full details.',
+                text:'+ See `./examples/guide/README.md` for more full details.',
                 fgcolor:'#333',
                 bgcolor:'transparent',
                 fontsize:25,

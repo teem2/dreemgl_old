@@ -3,7 +3,7 @@
  software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
  either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
-define.class(function (view, codeviewer, label, guide$movie, cells) {
+define.class(function ($containers$, view, $controls$, label, $examples$guide$movie, $, cells, $widgets$, codeviewer) {
 
     this.attributes = {
         movies: {type: Array},
@@ -25,7 +25,7 @@ define.class(function (view, codeviewer, label, guide$movie, cells) {
                     label({height:30, fgcolor:'#333', bgcolor:'transparent', flex: 0, fontsize:14, alignself: 'stretch', text:'DreemGL Client (./compositions/extdemo/index.js)'}),
                     codeviewer({flex: 1, alignself: 'stretch', source: this.compositionCode, fontsize: 11, bgcolor: "#000030", multiline: false})
                 ),
-                cells({flex: 1, padding: 4, margin: 10, cornerradius: 0, bgcolor:"#B3B3D7", clipping:true, data:this.movies, celltype:guide$movie})
+                cells({flex: 1, padding: 4, margin: 10, cornerradius: 0, bgcolor:"#B3B3D7", clipping:true, data:this.movies, celltype:$examples$guide$movie})
             )
         ];
     }

@@ -26,13 +26,14 @@ define.class('$system/base/node', function(require){
 		rear: {storage:'corner', index:2},
 
 		bgcolor: {type:vec4, value: vec4('white')},
+		bgimage: {type:Object},
 
 		clearcolor: {type:vec4, value: vec4('transparent')},
 		scroll: {type:vec2, value:vec2(0, 0)},
 		zoom:{type:float, value:1},
 		size: {type:vec3, value:vec3(NaN)},
 
-		overflow: {type: Enum('','hidden','scroll','auto'), value:''},
+		overflow: {type: Enum('','HIDDEN','SCROLL','AUTO'), value:''},
 		pixelratio: {type: float, value:NaN},
 
 		w: {storage:'size', index:0},
@@ -91,7 +92,7 @@ define.class('$system/base/node', function(require){
 
 		layout: {type:Object, value:{}},
 
-		mode: {type:Enum('','2D','3D'), value:''},
+		viewport: {type:Enum('','2D','3D'), value:''},
 		
 		visible: {type:boolean, value: true},
 		fov: {type:float, value: 45},
@@ -132,30 +133,33 @@ define.class('$system/base/node', function(require){
 	this.layermatrix = mat4.identity()
 	this.normalmatrix = mat4.identity()
 	
+	// forward references for shaders
 	this.layout = {width:0, height:0, left:0, top:0, right:0, bottom:0}
 	this.device = {frame:{size:vec2()}}
 
 	this.rpcproxy = false
 
 	// automatically switch to the rounded shader
-	this.borderradius = function(value){
+	this.borderradius = function(event){
+		var value = event.value
 		if(typeof value === 'number' && value !== 0 || value[0] !== 0 || value[1] !== 0 || value[2] !== 0 || value[3] !== 0){
 			// this switches the bg shader to the rounded one
 			this.border = false
 			this.border = this.roundedborder
-			if (this.borderwidth > 0) this.border = 2
+			if (this._borderwidth > 0) this.border = 2
 			this.bg = this.roundedrect
 		}
 		else {
 			this.border = false;
 			this.bg = this.hardrect
 			this.border = this.hardborder;
-			if (this.borderwidth > 0) this.border = 2
+			if (this._borderwidth > 0) this.border = 2
 		}
 	}
 
 	// turn on the border shader
-	this.borderwidth = function(value){
+	this.borderwidth = function(event){
+		var value = event.value
 		if(typeof value === 'number' && value !== 0 || value[0] !== 0 || value[1] !== 0 || value[2] !== 0 || value[3] !== 0){
 			// turn it on by assigning an order number
 			this.border = 2
@@ -164,10 +168,16 @@ define.class('$system/base/node', function(require){
 		this.relayout()
 	}
 
-	this.mode = function(value){
-		if(value === '3D'){
+	this.mode = function(event){
+		if(event.value === '3D'){
 			this.bg = null
 			this.border = null
+		}
+	}
+
+	this.overflow = function(){
+		if(this._overflow){
+			if(!this._viewport) this._viewport = '2D'
 		}
 	}
 
@@ -175,25 +185,46 @@ define.class('$system/base/node', function(require){
 		return vec2(this.screen.remapMouse(this))
 	}
 
+	// make a style property you can assign a bunch of props to like a prop copier
+	Object.defineProperty(this, 'style', {
+		get:function(){ // its really just a forward to this
+			return this
+		},
+		set:function(obj){
+			// TODO add failure when someone does 
+			if(Array.isArray(obj)){
+				for(var i = 0; i < obj.length; i++){
+					var subobj = obj[i]
+					for(key in subobj) this[key] = subobj[key]
+				}
+			}
+			else for(var key in obj) this[key] = obj[key]
+		}
+	})
+
 	this.draw_dirty = 3
 	this.layout_dirty = true
 	this.update_dirty = true
 
 	this.init = function(prev){
 		this.anims = {}
-		this.layout = {width:0, height:0, left:0, top:0, right:0, bottom:0}
+		//this.layout = {width:0, height:0, left:0, top:0, right:0, bottom:0}
 		this.shader_list = []
 		this.modelmatrix = mat4()
 		this.totalmatrix = mat4.identity()
 		this.layermatrix = mat4()
-		this.atInit(prev)
-	}
 
-	this.atInit = function(prev){
 		if(prev){
 			this._layout =
 			this.oldlayout = prev._layout
 		}
+
+		if(this._bgimage){
+			// set the bg shader
+			this.bg = this.hardimage
+		}
+
+		// create shaders
 		for(var key in this.shader_order){
 			var order = this.shader_order[key]
 			if(!order) continue
@@ -228,14 +259,32 @@ define.class('$system/base/node', function(require){
 			}
 		}
 
+		if(this._bgimage){
+			if(typeof this._bgimage === 'string'){
+				require.async(this._bgimage).then(function(result){
+					var img = this.bgshader.texture = Shader.Texture.fromImage(result)
+					if(isNaN(this._size[0])){
+						this._size = img.size
+						this.relayout()
+					}
+					else this.redraw()
+				}.bind(this))
+			}
+			else{
+				var img = this.bgshader.texture = Shader.Texture.fromImage(this._bgimage)
+				if(isNaN(this._size[0])) this._size = img.size
+			}
+		}
+
 		if(this.debug !== undefined && this.debug.indexOf('shaderlist') !== -1){
 			console.log(this.shader_order)
 		}
 
-		if(this._mode){
+		if(this._viewport){
 			// give it a blendshader
 			this.blendshader = new this.blend(this)
 		}
+
 		this.sortShaders()
 	}
 
@@ -409,9 +458,9 @@ define.class('$system/base/node', function(require){
 	}
 
 	// called by doLayout
-	this.updateMatrices = function(parentmatrix, parentmode, depth){
+	this.updateMatrices = function(parentmatrix, parentviewport, depth){
 			
-		if (parentmode== '3D'){// && !this._mode ){	
+		if (parentviewport== '3D'){// && !this._mode ){	
 		
 			mat4.TSRT2(this.anchor, this.scale, this.rotate, this.pos, this.modelmatrix);
 			//mat4.debug(this.modelmatrix);
@@ -443,7 +492,7 @@ define.class('$system/base/node', function(require){
 			}
 		}
 
-		if(this._mode){
+		if(this._viewport){
 			if(parentmatrix) {
 				mat4.mat4_mul_mat4(parentmatrix, this.modelmatrix, this.layermatrix)
 			}
@@ -452,7 +501,7 @@ define.class('$system/base/node', function(require){
 			}
 			this.totalmatrix = mat4.identity();
 			this.modelmatrix = mat4.identity();	
-			parentmode = this._mode;
+			parentmode = this._viewport;
 			parentmatrix = mat4.identity();
 		}
 		else{
@@ -463,7 +512,7 @@ define.class('$system/base/node', function(require){
 		var children = this.children
 		if(children) for(var i = 0; i < children.length; i++){
 			var child = children[i]
-			if(child._mode) continue // it will get its own pass
+			if(child._viewport) continue // it will get its own pass
 			child.updateMatrices(this.totalmatrix, parentmode, depth)
 		}
 	}
@@ -471,7 +520,7 @@ define.class('$system/base/node', function(require){
 
 	// decide to inject scrollbars into our childarray
 	this.atRender = function(){
-		if(this._mode === '2D' && (this._overflow === 'SCROLL'|| this._overflow === 'AUTO')){
+		if(this._viewport === '2D' && (this._overflow === 'SCROLL'|| this._overflow === 'AUTO')){
 			if(this.vscrollbar) this.vscrollbar.offset = 0
 			if(this.hscrollbar) this.hscrollbar.offset = 0
 			this.children.push(
@@ -479,8 +528,8 @@ define.class('$system/base/node', function(require){
 					position:'absolute',
 					vertical:true,
 					noscroll:true,
-					offset:function(){
-						this.parent._scroll = vec2(this.parent._scroll[0],this._offset)
+					value:function(){
+						this.parent._scroll = vec2(this.parent._scroll[0],this._value)
 					},
 					layout:function(){
 						var parent_layout = this.parent.layout
@@ -495,8 +544,8 @@ define.class('$system/base/node', function(require){
 					position:'absolute',
 					vertical:false,
 					noscroll:true,
-					offset:function(){
-						this.parent._scroll = vec2(this._offset,this.parent._scroll[1])
+					value:function(){
+						this.parent._scroll = vec2(this._value,this.parent._scroll[1])
 					},
 					layout:function(){
 						var parent_layout = this.parent.layout
@@ -510,32 +559,28 @@ define.class('$system/base/node', function(require){
 			)
 			this.mousewheelx = function(pos){
 				if(this.hscrollbar._visible){
-					this.hscrollbar.offset = clamp(this.hscrollbar._offset + pos, 0, this.hscrollbar._total - this.hscrollbar._page)
+					this.hscrollbar.value = clamp(this.hscrollbar._value + pos, 0, this.hscrollbar._total - this.hscrollbar._page)
 				}
 			}
 
 			this.mousewheely = function(pos){
 				if(this.vscrollbar._visible){
-					this.vscrollbar.offset = clamp(this.vscrollbar._offset + pos, 0, this.vscrollbar._total - this.vscrollbar._page)
+					this.vscrollbar.value = clamp(this.vscrollbar._value + pos, 0, this.vscrollbar._total - this.vscrollbar._page)
 				}
 			}
 
 			this.mousezoom = function(zoom){
-				// how about zooming around something? dont we need to auto-scroll too?
 				var lastzoom = this._zoom
 				var newzoom = clamp(lastzoom * (1+0.03 * zoom),0.01,10)
 				this.zoom = newzoom
-				// ok so how do we zoom around ourselves?
-				// well have to scroll 
 				
 				var pos = this.localMouse()
-				// lets get the mouse pos inside this rect
 
 				var shiftx = pos[0] * lastzoom - pos[0] * this._zoom
 				var shifty = pos[1] * lastzoom - pos[1] * this._zoom 
  				
-				this.hscrollbar.offset = clamp(this.hscrollbar._offset + shiftx, 0, this.hscrollbar._total - this.hscrollbar._page)
-				this.vscrollbar.offset = clamp(this.vscrollbar._offset + shifty, 0, this.vscrollbar._total - this.vscrollbar._page)
+				this.hscrollbar.value = clamp(this.hscrollbar._value + shiftx, 0, this.hscrollbar._total - this.hscrollbar._page)
+				this.vscrollbar.value = clamp(this.vscrollbar._value + shifty, 0, this.vscrollbar._total - this.vscrollbar._page)
 
 				this.updateScrollbars()
 				this.redraw()
@@ -555,12 +600,12 @@ define.class('$system/base/node', function(require){
 				scroll._visible = true
 				scroll._total = totalsize
 				scroll._page = viewsize
-				var off = clamp(scroll._offset,0, scroll._total - scroll._page)
-				if(off !== scroll._offset) scroll.offset = off
+				var off = clamp(scroll._value,0, scroll._total - scroll._page)
+				if(off !== scroll._value) scroll.value = off
 			}
 			else{
 				if(0 !== scroll._offset){
-					scroll.offset = 0
+					scroll.value = 0
 				}
 				scroll._visible = false
 			}
@@ -572,11 +617,11 @@ define.class('$system/base/node', function(require){
 				scroll._visible = true
 				scroll._total = totalsize
 				scroll._page = viewsize
-				var off = clamp(scroll._offset,0, scroll._total - scroll._page)
-				if(off !== scroll._offset) scroll.offset = off
+				var off = clamp(scroll._value,0, scroll._total - scroll._page)
+				if(off !== scroll._value) scroll.value = off
 			}
 			else{
-				if(0 !== scroll._offset) scroll.offset = 0
+				if(0 !== scroll._value) scroll.value = 0
 				scroll._visible = false
 			}
 		}
@@ -609,7 +654,7 @@ define.class('$system/base/node', function(require){
 				clayout.absx = layout.absx + clayout.left 
 				clayout.absy = layout.absx + clayout.top
 
-				emitPostLayoutAndComputeBounds(child, boundsobj, child._mode)
+				emitPostLayoutAndComputeBounds(child, boundsobj, child._viewport)
 			}
 		}
 
@@ -618,7 +663,7 @@ define.class('$system/base/node', function(require){
 			 layout.width !== oldlayout.width || layout.height !== oldlayout.height)) {
 			// call setter
 			// lets reset the scroll position
-			ref.emit('layout', layout)
+			ref.emit('layout', {type:'setter',owner:ref,key:'layout', value:layout})
 		}
 		ref.oldlayout = layout
 	}
@@ -663,7 +708,7 @@ define.class('$system/base/node', function(require){
 			emitPostLayoutAndComputeBounds(copynodes)
 		}
 
-		this.updateMatrices(this.parent?this.parent.totalmatrix:undefined, this._mode)
+		this.updateMatrices(this.parent?this.parent.totalmatrix:undefined, this._viewport)
 	}
 
 	this.startAnimation = function(key, value, track, resolve){
@@ -724,7 +769,6 @@ define.class('$system/base/node', function(require){
 			mesh.pushQuad(0,1-bw4, 1,1-bw4,0,1,1,1);
 		}
 		
-		
 		this.mesh.pushQuad(0,0,1,0,0,1,1,1)
 		this.mesh.pushQuad(0,0,1,0,0,1,1,1)
 		this.mesh.pushQuad(0,0,1,0,0,1,1,1)
@@ -742,6 +786,14 @@ define.class('$system/base/node', function(require){
 	// make rect the default bg shader
 	this.bg = this.hardrect
 
+	define.class(this, 'hardimage', this.hardrect, function(){
+		this.texture = Shader.Texture.fromType(Shader.Texture.RGBA)
+		this.color = function(){
+			return this.texture.sample(mesh.xy)
+		}
+	})
+	this.hardimage = false
+
 	// rounded rect shader class
 	define.class(this, 'roundedrect', this.Shader, function(){
 
@@ -758,7 +810,7 @@ define.class('$system/base/node', function(require){
 
 		// matrix and viewmatrix should be referenced on view
 		this.opacity = 0.0
-		this.draw_type = "TRIANGLE_FAN"
+		this.drawtype = this.TRIANGLE_FAN
 		this.color_blend = 'src_alpha * src_color + (1 - src_alpha) * dst_color'
   
 		this.update = function(){
@@ -850,7 +902,7 @@ define.class('$system/base/node', function(require){
 		})
 		this.mesh = this.vertexstruct.array()
 
-		this.draw_type = "TRIANGLE_STRIP"
+		this.drawtype = this.TRIANGLE_STRIP
 		
 		this.update = function(){
 
@@ -932,9 +984,4 @@ define.class('$system/base/node', function(require){
 	define.class(this, 'scrollbar', require('$controls/scrollbar'),function(){
 		this.bg = -1
 	})
-
-	define.class(this, 'scrollcontainer', function($containers$view){
-	})
-
-
 })

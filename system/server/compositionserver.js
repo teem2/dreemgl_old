@@ -77,7 +77,7 @@ define.class(function(require){
 		console.log("Reloading composition "+this.filename)
 		require.clearCache()
 		var Composition = require(define.expandVariables(this.filename))
-		this.composition = new Composition(this.busserver, this.session)
+		this.composition = new Composition(this.busserver, this.session, this.composition)
 	}
 
 	this.reload = function(){
@@ -86,6 +86,7 @@ define.class(function(require){
 		// lets fill 
 		require.clearCache()
 
+		this.title = define.fileName(this.compname)
 		// lets see if our composition is a dir or a jsfile
 		var jsname = this.compname+'.js'
 		try{
@@ -101,8 +102,10 @@ define.class(function(require){
 				}
 			}
 		}
+		catch(e){
+			console.log(e.stack)
+		}
 		finally{
-			//console.log(e.stack)
 		}
 	}
 
@@ -183,12 +186,12 @@ define.class(function(require){
 		// nodejs root
 		if(req.headers['client-type'] === 'nodejs'){
 			res.writeHead(200, {"Content-type":"text/json"})	
-			res.write(JSON.stringify({title:this.name, boot:this.filename, paths:define.paths }))
+			res.write(JSON.stringify({title:this.title, boot:this.filename, paths:define.paths }))
 			res.end()
 			return
 		}
 
-		var html = this.loadHTML(this.name, this.filename, this.paths)
+		var html = this.loadHTML(this.title, this.filename, this.paths)
 		res.writeHead(200, header)
 		res.write(html)
 		res.end()

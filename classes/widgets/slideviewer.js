@@ -12,7 +12,7 @@ define.class(function($containers$, view, $controls$, label){
 		this.bordercolor = vec4("blue");
 		this.bgcolor ="white";
 		this.flex = 0;
-		this.mode = '2D'
+		this.viewport = '2D'
 		this.overflow = 'hidden'
 		this.padding = vec4(6);
 		this.render = function(){
