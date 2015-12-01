@@ -44,4 +44,35 @@ define(function(require, exports){
 		
 		
 	}
+	
+	exports.hsva = function( hsva){
+
+		
+		var h = hsva.x * 360;
+		var s = hsva.y ;
+		var v = hsva.z ;
+		var r = 0.0;
+		var g = 0.0;	
+		var b = 0.0;
+
+		if(s == 0.0){
+			r = g = b = v; // achromatic
+		}else{
+			var t1 = v;
+			var t2 = (1. - s) * v;
+			var t3 = (t1 - t2) * (mod(h ,60.) ) / 60.;
+			if (h == 360.) h = 0.;
+			if (h < 60.) { r = t1; b = t2; g = t2 + t3 }
+			else if (h < 120.) { g = t1; b = t2; r = t1 - t3 }
+			else if (h < 180.) { g = t1; r = t2; b = t2 + t3 }
+			else if (h < 240.) { b = t1; r = t2; g = t1 - t3 }
+			else if (h < 300.) { b = t1; g = t2; r = t2 + t3 }
+			else if (h < 360.) { r = t1; g = t2; b = t1 - t3 }
+			else { r = 0.; g = 0.; b = 0. }
+		}
+		
+		return  vec4(r,g,b,hsva.w);
+		
+		
+	}
 })

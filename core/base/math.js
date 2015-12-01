@@ -718,6 +718,74 @@ define(function(require, exports){
 		return o;
 	}
 	
+	// converts standard vec4 color in to HSL space (not to be confused with HSV space!) 
+	exports.vec4.toHSV = function(inp){
+	
+	
+    var r = inp[0];
+    var g = inp[1];
+    var b = inp[2];
+
+    var max = Math.max(r, Math.max(g, b)), min = Math.min(r, Math.min(g, b));
+    var h, s, v = max;
+
+    var d = max - min;
+    s = max === 0 ? 0 : d / max;
+
+    if(max == min) {
+        h = 0; // achromatic
+    }
+    else {
+        switch(max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+    }
+//    return { h: h, s: s, v: v };
+
+
+	
+	
+		return [h, s, v, inp[3]];;
+	}
+
+	// calculate an RGBA color from an HSVA color
+	// h/s/l/a = [0..1] range.
+	exports.vec4.fromHSV = function(h,s,v,a,o){
+		if(!o) o = exports.vec4()
+			
+		h *= 360;
+		var r = 0.0;
+		var g = 0.0;	
+		var b = 0.0;
+
+		if(s == 0.0){
+			r = g = b = v; // achromatic
+		}else{
+			var t1 = v;
+			var t2 = (1. - s) * v;
+			var t3 = (t1 - t2) * (h %60 ) / 60.;
+			if (h == 360.) h = 0.;
+			if (h < 60.) { r = t1; b = t2; g = t2 + t3 }
+			else if (h < 120.) { g = t1; b = t2; r = t1 - t3 }
+			else if (h < 180.) { g = t1; r = t2; b = t2 + t3 }
+			else if (h < 240.) { b = t1; r = t2; g = t1 - t3 }
+			else if (h < 300.) { b = t1; g = t2; r = t2 + t3 }
+			else if (h < 360.) { r = t1; g = t2; b = t1 - t3 }
+			else { r = 0.; g = 0.; b = 0. }
+		}
+		o[0] = r;
+		o[1] = g;
+		o[2] = b;
+		o[3] = a?a:1.0
+		
+		console.log(o);
+		return o;
+		
+	}
+
 	
 	exports.vec4.equals = function(a,b)
 	{

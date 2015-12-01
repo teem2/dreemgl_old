@@ -52,7 +52,7 @@ define.class(function(view, label,button, scrollbar,require){
 	}
 	
 	this.updateallcontrols = function(){
-		this.updatecontrol("hslider", this.basehue);
+		this.updatecontrol("hsvider", this.basehue);
 		this.updatecontrol("sslider", this.basesat);
 		this.updatecontrol("lslider", this.baselum);
 		this.updatecontrol("rslider", this.color[0]);
@@ -63,15 +63,21 @@ define.class(function(view, label,button, scrollbar,require){
 	}
 	
 	this.color = function(){
-		this.createHSLFromColor();
+		this.createHSVFromColor();
 		this.updateallcontrols();
 	}
-	this.createColorFromHSL = function(){
-		this._color = vec4.fromHSL(this.basehue, this.basesat, this.baselum);		
+	
+	this.layout = function(){
+		this.color = this.color;
+		this.layout = function(){}
 	}
 
-	this.createHSLFromColor = function(){
-		var res = vec4.toHSL(this.color);
+	this.createColorFromHSV = function(){
+		this._color = vec4.fromHSV(this.basehue, this.basesat, this.baselum);		
+	}
+
+	this.createHSVFromColor = function(){
+		var res = vec4.toHSV(this.color);
 		this.basehue = res[0];		
 		this.basesat = res[1];		
 		this.baselum  = res[2];		
@@ -79,37 +85,37 @@ define.class(function(view, label,button, scrollbar,require){
 	
 	this.setRed = function(r){
 		this.color[0] = r;
-		this.createHSLFromColor();
+		this.createHSVFromColor();
 		this.updateallcontrols();	
 	}
 	
 	this.setGreen = function(g){
 		this.color[1] = g;
-		this.createHSLFromColor();
+		this.createHSVFromColor();
 		this.updateallcontrols();	
 	}
 
 	this.setBlue = function(b){
 		this.color[2] = b;
-		this.createHSLFromColor();
+		this.createHSVFromColor();
 		this.updateallcontrols();	
 	}
 
 	this.setHueBase = function(h){
 		this.basehue = h;
 		console.log(h);
-		this.createColorFromHSL(); 	
+		this.createColorFromHSV(); 	
 		this.updateallcontrols();		
 	}
 	this.setSatBase = function(s){
 		this.basesat = s;
-		this.createColorFromHSL(); 	
+		this.createColorFromHSV(); 	
 		this.updateallcontrols();		
 	}
 	
 	this.setLumBase = function(s){
 		this.baselum  = s;
-		this.createColorFromHSL(); 	
+		this.createColorFromHSV(); 	
 		this.updateallcontrols();		
 	}
 	
@@ -119,12 +125,12 @@ define.class(function(view, label,button, scrollbar,require){
 		
 		this.attributes = {
 				
-			// hsl color for the left side
-			hslfrom:{type:vec3, value: vec3(0,1,0.5)},
+			// hsv color for the left side
+			hsvfrom:{type:vec3, value: vec3(0,1,0.5)},
 
-			// hsl color for the right side
-			hslto:{type:vec3, value: vec3(1,1,0.5)},
-			hslhueadd:{float, value:0},
+			// hsv color for the right side
+			hsvto:{type:vec3, value: vec3(1,1,0.5)},
+			hsvhueadd:{float, value:0},
 			
 			basehue:{type:float, value: 0},
 			currentcolor: {type:vec4, value: vec4("red")},
@@ -179,9 +185,9 @@ define.class(function(view, label,button, scrollbar,require){
 		
 			color: function(){
 				// we have a rectangle
-				var hlsamix = vec4(mix(view.hslfrom, view.hslto, mesh.x), 1.0)
-				hlsamix.r += view.hslhueadd * view.basehue;
-				var bg =  colorlib.hsla(hlsamix);
+				var hsvamix = vec4(mix(view.hsvfrom, view.hsvto, mesh.x), 1.0)
+				hsvamix.r += view.hsvhueadd * view.basehue;
+				var bg =  colorlib.hsva(hsvamix);
 			
 			var rel = vec2(mesh.x*view.layout.width, mesh.y*view.layout.height)
 				var offset = view.offset / view.total
@@ -208,8 +214,7 @@ define.class(function(view, label,button, scrollbar,require){
 
 		this.borderwidth = 0
 		this.margin = 1
-		this.bordercolor = vec4("#303060")
-		
+		this.bordercolor = vec4("#303060")		
 		this.pressed = 0
 		this.hovered = 0
 			
@@ -330,7 +335,7 @@ define.class(function(view, label,button, scrollbar,require){
 				var aaedge = pow(f,0.2);
 				//return vec4(view.hover, edge,0,1);
 				
-				var color = colorlib.hsla(vec4(off, 1, 0.5, 1));
+				var color = colorlib.hsva(vec4(off, 1, 1, 1));
 				
 				
 				
@@ -377,7 +382,7 @@ define.class(function(view, label,button, scrollbar,require){
 				p:vec2,			
 			})
 			this.mesh = this.vertexstruct.array()
-		
+			this.dump = 1;
 			this.update = function(){
 				var view = this.view
 				var width = view.layout?view.layout.width:view.width
@@ -398,19 +403,17 @@ define.class(function(view, label,button, scrollbar,require){
 			this.position = function(){
 				
 				huepos = vec2(sin(view.basehue * PI * 2), cos(view.basehue* PI * 2)) * 0.7 * 100;
-			
-			
-				whitepos =  vec2(sin((view.basehue + 1/3) * PI * 2 ), cos((view.basehue + 1/3)* PI * 2)) * 0.7 * 100;
-				blackpos = vec2(sin((view.basehue + 2/3) * PI * 2), cos((view.basehue + 2/3)* PI * 2)) * 0.7 * 100;
+						
+				var blackpos =  vec2(sin((view.basehue + 1./3.) * PI * 2. ), cos((view.basehue + 1./3.)* PI * 2.)) * 0.7 * 100.0;
+				var whitepos = vec2(sin((view.basehue + 2./3.) * PI * 2.), cos((view.basehue + 2./3.)* PI * 2.)) * 0.7 * 100.0;
 				
-				overpos  = -huepos;
 				
-				var len = dot(normalize(overpos - huepos), whitepos)
+				//var len = dot(normalize(overpos - huepos), whitepos)
 				
-				graypos = (whitepos + blackpos) / 2;
-				delta = whitepos - blackpos;
+				var graypos = (whitepos + blackpos) / 2.0;
+				var delta = whitepos - blackpos;
 				
-				huepos += normalize(graypos) * (1 - view.basesat) * len * 2;
+				huepos += (graypos - huepos) * (1 - view.basesat) + (view.baselum -0.5) * delta * (view.basesat) ;
 			
 				pos = min(view.layout.width, view.layout.height)/2  + mesh.p * view.draggersize;
 				pos += huepos;
@@ -434,7 +437,7 @@ define.class(function(view, label,button, scrollbar,require){
 			
 			this.vertexstruct = define.struct({		
 				p:float,			
-				hsloff: vec3,
+				hsvoff: vec3,
 				center: float
 			})
 			
@@ -453,9 +456,9 @@ define.class(function(view, label,button, scrollbar,require){
 				
 				var edge = 1-pow(mesh.center,1.);
 				var aaedge = pow(mesh.center,2.0);				
-				var hsl = vec3(view.basehue,1,0.5) + mesh.hsloff;
+				var hsv = vec3(view.basehue,1,0.5) + mesh.hsvoff;
 			
-				var color = colorlib.hsla(vec4(hsl, 1));;
+				var color = colorlib.hsva(vec4(hsv, 1));;
 				var edgecolor = vec4(1,1,1,1);
 				var mixed = mix(color, edgecolor, view.hover*edge);
 				//mixed.a *= aaedge;
@@ -505,9 +508,9 @@ define.class(function(view, label,button, scrollbar,require){
 					,this.triangleview({basehue:this.basehue, position:"absolute"})
 				)
 				,view({bg:0, flexdirection:"column"}
-					,this.customslider({name:"rslider",flex:1, hslfrom:vec3(0,1,0), hslto:vec3(0,1,0.5), offset:function(v){this.outer.setRed(v.value/255)}})
-					,this.customslider({name:"gslider", flex:1, hslfrom:vec3(0.33,1,0), hslto:vec3(0.333,1,0.5), offset:function(v){this.outer.setGreen(v.value/255)}})
-					,this.customslider({name:"bslider",height: 18, flex:1, hslfrom:vec3(0.666,1,0), hslto:vec3(0.666,1,0.5), offset:function(v){this.outer.setBlue(v.value/255)}})
+					,this.customslider({name:"rslider",flex:1, hsvfrom:vec3(0,1,0), hsvto:vec3(0,1,0.5), offset:function(v){this.outer.setRed(v.value/255)}})
+					,this.customslider({name:"gslider", flex:1, hsvfrom:vec3(0.33,1,0), hsvto:vec3(0.333,1,0.5), offset:function(v){this.outer.setGreen(v.value/255)}})
+					,this.customslider({name:"bslider",height: 18, flex:1, hsvfrom:vec3(0.666,1,0), hsvto:vec3(0.666,1,0.5), offset:function(v){this.outer.setBlue(v.value/255)}})
 					,view({bg:0}
 						,label({flex:1, text:"rgb", fontsize:18, bg:0, fgcolor: this.fgcolor})
 						,view({flex:1, bg:0},label({text:"100", fontsize:18, bg:0, fgcolor: this.fgcolor}))
@@ -515,11 +518,11 @@ define.class(function(view, label,button, scrollbar,require){
 						,view({flex:1, bg:0},label({text:"100", fontsize:18, bg:0, fgcolor: this.fgcolor}))
 						
 					)
-					,this.customslider({name:"hslider",height: 18, flex:1, hslfrom:vec3(0.0,this.basesat,this.baselum), hslto:vec3(1,this.basesat,this.baselum), offset:function(v){this.outer.setHueBase(v.value/255)}})
-					,this.customslider({name:"sslider",height: 18, flex:1, hslhueadd: 1,  hslfrom:vec3(0,0,this.baselum), hslto:vec3(0,1,this.baselum), offset:function(v){this.outer.setSatBase(v.value/255)}})
-					,this.customslider({name:"lslider",height: 18, flex:1, hslhueadd: 1, hslfrom:vec3(0,this.basesat,0), hslto:vec3(0,this.basesat,1), offset:function(v){this.outer.setLumBase(v.value/255)}})
+					,this.customslider({name:"hsvider",height: 18, flex:1, hsvfrom:vec3(0.0,this.basesat,this.baselum), hsvto:vec3(1,this.basesat,this.baselum), offset:function(v){this.outer.setHueBase(v.value/255)}})
+					,this.customslider({name:"sslider",height: 18, flex:1, hsvhueadd: 1,  hsvfrom:vec3(0,0,this.baselum), hsvto:vec3(0,1,this.baselum), offset:function(v){this.outer.setSatBase(v.value/255)}})
+					,this.customslider({name:"lslider",height: 18, flex:1, hsvhueadd: 1, hsvfrom:vec3(0,this.basesat,0), hsvto:vec3(0,this.basesat,1), offset:function(v){this.outer.setLumBase(v.value/255)}})
 					,view({bg:0}
-						,label({flex:1, text:"hsl", fontsize:18, bg:0, fgcolor: this.fgcolor})
+						,label({flex:1, text:"hsv", fontsize:18, bg:0, fgcolor: this.fgcolor})
 						,view({flex:1, bg:0},label({text:"100", fontsize:18, bg:0, fgcolor: this.fgcolor}))
 						,view({flex:1, bg:0},label({text:"100", fontsize:18, bg:0, fgcolor: this.fgcolor}))
 						,view({flex:1, bg:0},label({text:"100", fontsize:18, bg:0, fgcolor: this.fgcolor}))
