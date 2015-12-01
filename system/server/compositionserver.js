@@ -101,8 +101,8 @@ define.class(function(require){
 				}
 			}
 		}
-		catch(e){
-			console.log(e.stack)
+		finally{
+			//console.log(e.stack)
 		}
 	}
 

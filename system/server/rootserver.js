@@ -69,7 +69,6 @@ define.class(function(require){
 					break
 				}
 			}
-			console.log("CHANGE", file)
 			//file = file.slice(define.expandVariables(define.$root).length).replace(/\\/g, "/")
 			// ok lets rip off our 
 			this.broadcast({

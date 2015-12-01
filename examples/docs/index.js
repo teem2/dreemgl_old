@@ -17,7 +17,7 @@ define.class(function(require, $server$, composition, fileio, screens, dataset, 
 					for(var j = 0; j < ignoreset.length; j++){
 						var item = ignoreset[j]
 						if(typeof item === 'string'){
-							if(item == mypath)  break
+							if(mypath.indexOf(item) !== -1)  break
 						}
 						else{
 							if(mypath.match(item)) break
@@ -39,23 +39,22 @@ define.class(function(require, $server$, composition, fileio, screens, dataset, 
 		// recursively read all directories starting from a base path
 		// <name> the base path to start reading
 		// <ignoreset> files and directories to ignore while recursively expanding
-		this.readAllPaths = function(name, ignoreset){
+		this.readAllPaths = function(ignoreset){
 			// lets read all paths.
 			// lets read the directory and return it
+			var root = {collapsed:0, children:[]}
 
-			try{
-				var rootval = define.expandVariables(define.$root)
-				if(ignoreset) ignoreset = ignoreset.map(function(value){
-					if(value.indexOf('@') == 0) return new RegExp(value.slice(1))
-					return path.join(rootval, value)
-				})
-				return readRecurDir(rootval, name, ignoreset)
+			if(ignoreset) ignoreset = ignoreset.map(function(value){
+				if(value.indexOf('@') == 0) return new RegExp(value.slice(1))
+				return value
+			})
+
+			for(var key in define.paths){
+				var ret = readRecurDir(define.expandVariables(define['$'+key]), '', ignoreset)
+				ret.name = key
+				root.children.push(ret)
 			}
-			catch(e){
-				console.log(e)
-				return []
-			}
-			// lets do a query
+			return root
 		}
 	})
 
@@ -65,10 +64,9 @@ define.class(function(require, $server$, composition, fileio, screens, dataset, 
 		screens(
 			screen({
 				init:function(){
-					console.log('here!')
 					// lets load the entire directory structure
-					this.rpc.fileio.readAllPaths('',['resources','server.js','cache','@/\\.','.git', '.gitignore']).then(function(result){
-						console.log("i iz here",result)
+					this.rpc.fileio.readAllPaths(['resources','server.js','cache','@/\\.','.git', '.gitignore']).then(function(result){
+						console.log("GOT IT!", result)
 						var filetree = this.find('filetree')
 						var tree = result.value
 						tree.name = 'Documentation'
@@ -110,7 +108,6 @@ define.class(function(require, $server$, composition, fileio, screens, dataset, 
 							//console.log("INITIALIZIN")
 							this.screen.locationhash = function(event){
 							//	debugger
-							console.log("REQUIREING"+event.value.path)
 								if(event.value.path) require.async(event.value.path).then(function(module){
 									this.class = module
 								}.bind(this))

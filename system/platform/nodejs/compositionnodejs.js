@@ -82,8 +82,16 @@ define.class('$system/base/compositionbase', function(require, exports, baseclas
 					obj = obj[parts[i]]
 					if(!obj) return console.log("Error parsing rpc name "+msg.rpcid)
 				}
-				var ret = obj[msg.method].apply(obj, msg.args)
-				var rmsg = {type:'return', uid:msg.uid, value:ret}
+				var exception
+				try{
+					var ret = obj[msg.method].apply(obj, msg.args)
+				}
+				catch(exc){
+					exception = exc
+					console.log("Exception while calling "+msg.rpcid+"."+msg.method+" ",exc.stack)
+				}
+				if(exception) var rmsg = {type:'exception', uid:msg.uid, value:exception.message}
+				else var rmsg = {type:'return', uid:msg.uid, value:ret}
 
 				if(ret && typeof ret === 'object' && ret.then){ // its a promise.
 					ret.then(function(result){
