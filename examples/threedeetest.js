@@ -1,5 +1,5 @@
 //Pure JS based composition
-define.class(function($components$, composition, screens, $containers$, screen, view, splitcontainer, $controls$, label, button, $3d$, cube, sphere, plane, $widgets$, colorpicker){
+define.class(function($server$, composition, screens, $containers$, screen, view, splitcontainer, $controls$, label, button, $3d$, cube, sphere, plane, $widgets$, colorpicker){
 
 	var mousedebug = define.class(function mousedebug($containers$view){
 		

@@ -86,7 +86,7 @@ function main(){
 		'examples':'$root/examples',
 		'3d':'$root/classes/3d',
 		'behaviors':'$root/classes/behaviors',
-		'components':'$root/classes/components',
+		'server':'$root/classes/server',
 		'containers':'$root/classes/containers',
 		'controls':'$root/classes/controls',
 		'testing':'$root/classes/testing',

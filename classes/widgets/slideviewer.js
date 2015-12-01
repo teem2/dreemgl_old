@@ -4,9 +4,9 @@
    either express or implied. See the License for the specific language governing permissions and limitations under the License.*/
 
 
-define.class(function(view, label){
+define.class(function($containers$, view, $controls$, label){
 	
-	define.class(this, 'slide', function(view, label){
+	define.class(this, 'slide', function($containers$, view){
 		this.cornerradius = vec4(10,10,10,10);
 		this.borderwidth = 0;
 		this.bordercolor = vec4("blue");

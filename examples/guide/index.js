@@ -1,4 +1,4 @@
-define.class(function(composition, screens, search, browser) {
+define.class(function($server$, composition, screens, $, search, browser) {
 
     this.render = function() { return [
         search({

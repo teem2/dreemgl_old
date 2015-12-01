@@ -61,7 +61,16 @@ define.class(function(require){
 
 		this.watcher = new FileWatcher()
 		this.watcher.atChange = function(file){
-			file = file.slice(define.expandVariables(define.$root).length).replace(/\\/g, "/")
+			// ok lets get the original path
+			for(var key in define.paths){
+				var match = define.expandVariables(define['$'+key])
+				if(file.indexOf(match) === 0){
+					file = '/'+key+file.slice(match.length).replace(/\\/g, "/")
+					break
+				}
+			}
+			console.log("CHANGE", file)
+			//file = file.slice(define.expandVariables(define.$root).length).replace(/\\/g, "/")
 			// ok lets rip off our 
 			this.broadcast({
 				type:'filechange',

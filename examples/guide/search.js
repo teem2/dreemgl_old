@@ -1,4 +1,4 @@
-define.class(function(server, require) {
+define.class(function(require, $server$, server) {
 
     // Base API URL
     this.apiurl = "http://www.omdbapi.com/?s=";

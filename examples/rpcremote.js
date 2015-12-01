@@ -1,5 +1,5 @@
 //Pure JS based composition
-define.class(function(composition, screens, screen, server, view, draggable){ this.render = function(){ return [
+define.class(function($server$, composition, screens, server, $containers$, screen, view, $behaviors$, draggable){ this.render = function(){ return [
 
 	server({
 		attribute_test: {type:int, value:10},

@@ -1,4 +1,4 @@
-define.class(function(screen, view, button, label, movie) {
+define.class(function($containers$, screen, view, $controls$, button, label, $, movie) {
 
     this.attributes = {
         term: {type:String},

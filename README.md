@@ -35,10 +35,6 @@ Acorn JavaScript parser. Written by Marijn Haverbeke, released under an MIT lice
 
 CoffeeScript: /lib/coffee-script.js 
 CoffeeScript language, copyright 2011, Jeremy Ashkenas. Released under the MIT License. 
- 
   
 Shader noise function /core/shaderlib/noiselib.js
 Inspired by Stefan Gustavson, Ian McEwan, Ashima Arts. Released under MIT License.  
-  
-Shader compiler: /core/draw/shader.js
-Based on work by Rik Arends. Relesaed under Apache 2.0 license  

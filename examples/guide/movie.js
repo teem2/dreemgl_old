@@ -1,4 +1,4 @@
-define.class(function (view, label) {
+define.class(function ($containers$, view, $controls$, label) {
 
     this.flexdirection = 'column';
     this.padding = 10;

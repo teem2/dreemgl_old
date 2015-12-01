@@ -1,4 +1,10 @@
-define.class(function(composition, require,  screens, screen, docviewer, button, label, codeviewer, view, slideviewer,draggable, teapot, ballrotate){
+define.class(function(require,
+	$server$, composition,  screens, 
+	$containers$, screen, view, 
+	$controls$, button, label, 
+	$behaviors$, draggable, 
+	$3d$, teapot, ballrotate, 
+	$widgets$, docviewer, codeviewer, slideviewer){
 	// Live coding presentation docs!
 	this.attributes = {
 		test:"ELLO!"
