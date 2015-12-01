@@ -17,7 +17,7 @@ define.class(function(view, label,button, scrollbar,require){
 		,internalbordercolor: {type:vec4, value:vec4(1,1,1,0.6)}
 		//,basehue: {type:float, value:0.5}
 		,basesat: {type:float, value:0.8}
-		,baselum: {type:float, value:0.5}
+		,baseval: {type:float, value:0.5}
 	}
 	this.basehue = 0.5;
 	this.bgcolor = vec4(0.0,0.0,0.0,0.4)
@@ -28,7 +28,7 @@ define.class(function(view, label,button, scrollbar,require){
 	this.borderradius = 3
 	this.borderwidth = 1
 	this.bordercolor = this.internalbordercolor
-	
+	this.contrastcolor = vec4("black");
 	this.internalbordercolor= function(){
 		this.bordercolor = this.internalbordercolor		
 	}
@@ -36,9 +36,10 @@ define.class(function(view, label,button, scrollbar,require){
 		var c = this.find(name);
 		if (c){
 			c.currentcolor = this.color;
+			c.contrastcolor = this.contrastcolor;
 			c.basehue = this.basehue;
 			c.basesat = this.basesat;
-			c.baselum = this.baselum;
+			c.baseval = this.baseval;
 			newoff = val * (255);
 			if (newoff < 0) newoff += 256;
 			
@@ -54,7 +55,7 @@ define.class(function(view, label,button, scrollbar,require){
 	this.updateallcontrols = function(){
 		this.updatecontrol("hsvider", this.basehue);
 		this.updatecontrol("sslider", this.basesat);
-		this.updatecontrol("lslider", this.baselum);
+		this.updatecontrol("lslider", this.baseval);
 		this.updatecontrol("rslider", this.color[0]);
 		this.updatecontrol("gslider", this.color[1]);
 		this.updatecontrol("bslider", this.color[2]);
@@ -64,6 +65,10 @@ define.class(function(view, label,button, scrollbar,require){
 	
 	this.color = function(){
 		this.createHSVFromColor();
+		
+		this.contrastcolor = vec4.fromHSV(0, 0, 1 - this.baseval * (1 - this.basesat*0.5),0.8)
+		
+		
 		this.updateallcontrols();
 	}
 	
@@ -73,14 +78,14 @@ define.class(function(view, label,button, scrollbar,require){
 	}
 
 	this.createColorFromHSV = function(){
-		this._color = vec4.fromHSV(this.basehue, this.basesat, this.baselum);		
+		this._color = vec4.fromHSV(this.basehue, this.basesat, this.baseval);		
 	}
 
 	this.createHSVFromColor = function(){
 		var res = vec4.toHSV(this.color);
 		this.basehue = res[0];		
 		this.basesat = res[1];		
-		this.baselum  = res[2];		
+		this.baseval  = res[2];		
 	}
 	
 	this.setRed = function(r){
@@ -114,7 +119,7 @@ define.class(function(view, label,button, scrollbar,require){
 	}
 	
 	this.setLumBase = function(s){
-		this.baselum  = s;
+		this.baseval  = s;
 		this.createColorFromHSV(); 	
 		this.updateallcontrols();		
 	}
@@ -134,7 +139,7 @@ define.class(function(view, label,button, scrollbar,require){
 			
 			basehue:{type:float, value: 0},
 			currentcolor: {type:vec4, value: vec4("red")},
-			
+			contrastcolor: {type:vec4, value: vec4("white")},
 			
 			// Color of the draggable part of the scrollbar
 			draggercolor: {type: vec4, value: vec4(1,1,1,0.8)},
@@ -179,7 +184,6 @@ define.class(function(view, label,button, scrollbar,require){
 		mesh.pushQuad(0,0,0,1,1,0,1,1)
 
 		this.bg = {
-			draggercolor: vec4(),
 			offset: 0,
 			page: 0.3,
 		
@@ -189,18 +193,18 @@ define.class(function(view, label,button, scrollbar,require){
 				hsvamix.r += view.hsvhueadd * view.basehue;
 				var bg =  colorlib.hsva(hsvamix);
 			
-			var rel = vec2(mesh.x*view.layout.width, mesh.y*view.layout.height)
+				var rel = vec2(mesh.x*view.layout.width, mesh.y*view.layout.height)
 				var offset = view.offset / view.total
 				var page = view.page / view.total
 				var edge = 0.1//min(length(vec2(length(dFdx(rel)), length(dFdy(rel)))) * SQRT_1_2, 0.001)
 				var field = float(0)
 				if(view.vertical){
-					field = shape.roundbox(rel, 0.05 * view.layout.width, offset*view.layout.height,.9*view.layout.width, page*view.layout.height, view.draggerradius)
+					field = shape.roundbox(rel, 0.00 * view.layout.width, offset*view.layout.height,.9*view.layout.width, page*view.layout.height, view.draggerradius)
 				}
 				else{
-					field = shape.roundbox(rel, offset * view.layout.width, 0.05*view.layout.height,page*view.layout.width, .9*view.layout.height, view.draggerradius)
+					field = shape.roundbox(rel, offset * view.layout.width, 0.00*view.layout.height,page*view.layout.width, 1.0*view.layout.height, view.draggerradius)
 				}
-				var fg = vec4(view.draggercolor.rgb, smoothstep(-edge, edge, 1-abs(-field-1.))*view.draggercolor.a)
+				var fg = vec4(view.contrastcolor.rgb, smoothstep(-edge, edge, 1-abs(-field-1.))*view.contrastcolor.a)
 				var fg2 = vec4(view.currentcolor.rgb, smoothstep(0.,-edge, field)*view.currentcolor.a)
 				//return vec4(vec3(sin(field*0.1))+ fg2.a*vec3(1,0,0) + fg.a*vec3(0,1,0), 1.)
 				return mix(bg.rgba, mix(fg2.rgba, fg.rgba, fg.a), max(fg.a,fg2.a))
@@ -371,8 +375,9 @@ define.class(function(view, label,button, scrollbar,require){
 		this.attributes = {
 			basehue: {type:float, value:0.7},
 			basesat: {type:float, value:0.7},
-			baselum: {type:float, value:0.7},
+			baseval: {type:float, value:0.7},
 			currentcolor: {type:vec4, value:"white"},
+			contrastcolor: {type:vec4, value: vec4("white")},
 			draggersize: {type:float, value: 8},
 			hover:{type:float, motion:"linear", duration:0.1, value:1}
 		}
@@ -413,7 +418,7 @@ define.class(function(view, label,button, scrollbar,require){
 				var graypos = (whitepos + blackpos) / 2.0;
 				var delta = whitepos - blackpos;
 				
-				huepos += (graypos - huepos) * (1 - view.basesat) + (view.baselum -0.5) * delta * (view.basesat) ;
+				huepos += (graypos - huepos) * (1 - view.basesat) + (view.baseval -0.5) * delta * (view.basesat) ;
 			
 				pos = min(view.layout.width, view.layout.height)/2  + mesh.p * view.draggersize;
 				pos += huepos;
@@ -424,8 +429,8 @@ define.class(function(view, label,button, scrollbar,require){
 				
 			this.color = function(){
 				var D = sqrt(dot(mesh.p, mesh.p));
-				if (D<0.8) return view.currentcolor; 			
-				if (D<1.0) return vec4("white");
+				if (D<0.7) return view.currentcolor; 			
+				if (D<1.0) return view.contrastcolor;
 				
 				return vec4(1.,1.,1.,0.);
 			}
@@ -456,7 +461,7 @@ define.class(function(view, label,button, scrollbar,require){
 				
 				var edge = 1-pow(mesh.center,1.);
 				var aaedge = pow(mesh.center,2.0);				
-				var hsv = vec3(view.basehue,1,0.5) + mesh.hsvoff;
+				var hsv = vec3(view.basehue,1,1) + mesh.hsvoff;
 			
 				var color = colorlib.hsva(vec4(hsv, 1));;
 				var edgecolor = vec4(1,1,1,1);
@@ -475,8 +480,8 @@ define.class(function(view, label,button, scrollbar,require){
 				this.mesh = this.vertexstruct.array()
 				//this.mesh.push(view.basehue,  vec3(0,0.5,0),0);
 				this.mesh.push(view.basehue,  vec3(0,0,0),1);
-				this.mesh.push(view.basehue + 1/3,  vec3(0,-1,-0.5),1);
-				this.mesh.push(view.basehue + 2/3, vec3(0,-1,0.5),1);
+				this.mesh.push(view.basehue + 1/3,  vec3(0,-1,-1),1);
+				this.mesh.push(view.basehue + 2/3, vec3(0,-1,0),1);
 				
 			}				
 		})
@@ -518,8 +523,8 @@ define.class(function(view, label,button, scrollbar,require){
 						,view({flex:1, bg:0},label({text:"100", fontsize:18, bg:0, fgcolor: this.fgcolor}))
 						
 					)
-					,this.customslider({name:"hsvider",height: 18, flex:1, hsvfrom:vec3(0.0,this.basesat,this.baselum), hsvto:vec3(1,this.basesat,this.baselum), offset:function(v){this.outer.setHueBase(v.value/255)}})
-					,this.customslider({name:"sslider",height: 18, flex:1, hsvhueadd: 1,  hsvfrom:vec3(0,0,this.baselum), hsvto:vec3(0,1,this.baselum), offset:function(v){this.outer.setSatBase(v.value/255)}})
+					,this.customslider({name:"hsvider",height: 18, flex:1, hsvfrom:vec3(0.0,this.basesat,this.baseval), hsvto:vec3(1,this.basesat,this.baseval), offset:function(v){this.outer.setHueBase(v.value/255)}})
+					,this.customslider({name:"sslider",height: 18, flex:1, hsvhueadd: 1,  hsvfrom:vec3(0,0,this.baseval), hsvto:vec3(0,1,this.baseval), offset:function(v){this.outer.setSatBase(v.value/255)}})
 					,this.customslider({name:"lslider",height: 18, flex:1, hsvhueadd: 1, hsvfrom:vec3(0,this.basesat,0), hsvto:vec3(0,this.basesat,1), offset:function(v){this.outer.setLumBase(v.value/255)}})
 					,view({bg:0}
 						,label({flex:1, text:"hsv", fontsize:18, bg:0, fgcolor: this.fgcolor})
